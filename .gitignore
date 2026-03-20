@@ -27,3 +27,6 @@ result-*
 # Dioxus web build output
 dist/
 .direnv/
+
+# mdbook output
+docs/dist/
