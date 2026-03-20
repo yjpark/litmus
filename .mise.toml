@@ -14,6 +14,10 @@ description = "Build web frontend (release)"
 run = "cargo build --release --package litmus-cli"
 description = "Build CLI binary (release)"
 
+[tasks.cli]
+run = "cargo run --package litmus-cli"
+description = "Run the litmus TUI"
+
 [tasks.check]
 run = "cargo check --workspace"
 description = "Type-check workspace"
