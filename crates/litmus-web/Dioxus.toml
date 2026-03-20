@@ -9,9 +9,6 @@ title = "litmus"
 reload_html = true
 watch_path = ["src", "assets"]
 
-[web.resource]
-dev.script = []
-dev.style = ["assets/style.css"]
-
-[web.resource.style]
+[web.resource.dev]
+script = []
 style = ["assets/style.css"]
