@@ -56,12 +56,65 @@ fn Shell() -> Element {
     }
 }
 
+/// Filter mode for light/dark themes.
+#[derive(Clone, Copy, PartialEq)]
+enum VariantFilter {
+    All,
+    Dark,
+    Light,
+}
+
+fn is_light_theme(theme: &litmus_model::Theme) -> bool {
+    litmus_model::contrast::relative_luminance(&theme.background) > 0.5
+}
+
+fn theme_passes_filter(
+    theme: &litmus_model::Theme,
+    variant: VariantFilter,
+    good_contrast_only: bool,
+) -> bool {
+    match variant {
+        VariantFilter::All => {}
+        VariantFilter::Dark => {
+            if is_light_theme(theme) {
+                return false;
+            }
+        }
+        VariantFilter::Light => {
+            if !is_light_theme(theme) {
+                return false;
+            }
+        }
+    }
+    if good_contrast_only {
+        let issues = litmus_model::contrast::validate_theme_readability(theme);
+        if !issues.is_empty() {
+            return false;
+        }
+    }
+    true
+}
+
 /// Home page with dual navigation: browse by theme or by scene.
 #[component]
 fn ThemeList() -> Element {
     let all_themes = themes::load_embedded_themes();
-    let families = family::group_by_family(&all_themes);
     let scenes = litmus_model::scenes::all_scenes();
+
+    let mut variant_filter = use_signal(|| VariantFilter::All);
+    let mut good_contrast = use_signal(|| false);
+
+    let variant = *variant_filter.read();
+    let contrast_on = *good_contrast.read();
+
+    let filtered: Vec<litmus_model::Theme> = all_themes
+        .iter()
+        .filter(|t| theme_passes_filter(t, variant, contrast_on))
+        .cloned()
+        .collect();
+    let families = family::group_by_family(&filtered);
+    let total = all_themes.len();
+    let shown = filtered.len();
 
     rsx! {
         div {
@@ -100,9 +153,52 @@ fn ThemeList() -> Element {
             }
 
             // Browse by Theme section
-            h2 {
-                style: "font-size: 1.3rem; margin-bottom: 1.5rem;",
-                "Browse by Theme"
+            div {
+                style: "display: flex; justify-content: space-between; align-items: center; \
+                        margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;",
+
+                h2 {
+                    style: "font-size: 1.3rem;",
+                    "Browse by Theme"
+                }
+
+                // Filter controls
+                div { class: "filter-bar",
+                    // Variant filter
+                    FilterButton {
+                        label: "All",
+                        active: variant == VariantFilter::All,
+                        onclick: move |_| variant_filter.set(VariantFilter::All),
+                    }
+                    FilterButton {
+                        label: "Dark",
+                        active: variant == VariantFilter::Dark,
+                        onclick: move |_| variant_filter.set(VariantFilter::Dark),
+                    }
+                    FilterButton {
+                        label: "Light",
+                        active: variant == VariantFilter::Light,
+                        onclick: move |_| variant_filter.set(VariantFilter::Light),
+                    }
+
+                    // Divider
+                    span { style: "opacity: 0.3; margin: 0 0.25rem;", "|" }
+
+                    // Contrast filter
+                    FilterButton {
+                        label: "Good contrast",
+                        active: contrast_on,
+                        onclick: move |_| good_contrast.set(!contrast_on),
+                    }
+
+                    // Count
+                    if shown < total {
+                        span {
+                            style: "font-size: 0.8rem; opacity: 0.5; margin-left: 0.5rem;",
+                            "{shown}/{total}"
+                        }
+                    }
+                }
             }
 
             for fam in &families {
@@ -121,6 +217,31 @@ fn ThemeList() -> Element {
                     }
                 }
             }
+
+            if families.is_empty() {
+                p {
+                    style: "opacity: 0.5; text-align: center; padding: 2rem;",
+                    "No themes match the current filters."
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn FilterButton(label: &'static str, active: bool, onclick: EventHandler<MouseEvent>) -> Element {
+    let style = if active {
+        "background: rgba(122, 162, 247, 0.2); color: #7aa2f7; border-color: #7aa2f7;"
+    } else {
+        "background: transparent; color: inherit; border-color: rgba(255,255,255,0.15);"
+    };
+
+    rsx! {
+        button {
+            class: "filter-btn",
+            style: "{style}",
+            onclick: move |evt| onclick.call(evt),
+            "{label}"
         }
     }
 }
