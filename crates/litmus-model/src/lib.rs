@@ -1,4 +1,5 @@
 pub mod base16;
+pub mod contrast;
 pub mod defaults;
 pub mod error;
 pub mod kitty;
