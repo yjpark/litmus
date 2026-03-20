@@ -67,6 +67,7 @@
             pkgs.sccache
             pkgs.mise
             pkgs.dioxus-cli
+            pkgs.cage
           ];
         };
       });
