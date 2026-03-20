@@ -64,17 +64,53 @@ fn Shell() -> Element {
     }
 }
 
-/// Theme listing page grouped by family.
+/// Home page with dual navigation: browse by theme or by scene.
 #[component]
 fn ThemeList() -> Element {
     let all_themes = themes::load_embedded_themes();
     let families = family::group_by_family(&all_themes);
+    let scenes = litmus_model::scenes::all_scenes();
 
     rsx! {
         div {
+            // Browse by Scene section
+            div {
+                style: "margin-bottom: 2.5rem;",
+
+                h2 {
+                    style: "font-size: 1.3rem; margin-bottom: 0.75rem;",
+                    "Browse by Scene"
+                }
+                p {
+                    style: "font-size: 0.85rem; opacity: 0.7; margin-bottom: 1rem;",
+                    "See how all themes render a specific terminal context."
+                }
+
+                div {
+                    style: "display: flex; gap: 0.75rem; flex-wrap: wrap;",
+                    for scene in &scenes {
+                        Link {
+                            to: Route::SceneAcrossThemes { scene_id: scene.id.clone() },
+                            class: "theme-card",
+                            style: "text-decoration: none; color: inherit; padding: 0.75rem 1rem; \
+                                    background: rgba(255,255,255,0.05); display: inline-block;",
+                            div {
+                                style: "font-weight: bold; font-size: 0.9rem; margin-bottom: 0.2rem;",
+                                "{scene.name}"
+                            }
+                            div {
+                                style: "font-size: 0.75rem; opacity: 0.6;",
+                                "{scene.description}"
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Browse by Theme section
             h2 {
                 style: "font-size: 1.3rem; margin-bottom: 1.5rem;",
-                "Themes"
+                "Browse by Theme"
             }
 
             for fam in &families {
