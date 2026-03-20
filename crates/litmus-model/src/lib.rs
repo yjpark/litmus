@@ -2,6 +2,7 @@ pub mod base16;
 pub mod defaults;
 pub mod error;
 pub mod kitty;
+pub mod scene;
 pub mod toml_format;
 
 use serde::{Deserialize, Serialize};
