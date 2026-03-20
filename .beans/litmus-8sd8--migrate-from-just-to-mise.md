@@ -5,7 +5,8 @@ status: completed
 type: task
 priority: normal
 created_at: 2026-03-20T06:25:18Z
-updated_at: 2026-03-20T06:25:34Z
+updated_at: 2026-03-20T17:09:45Z
+order: zs
 ---
 
 Replace justfile with .mise.toml, update flake.nix, delete justfile

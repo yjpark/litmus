@@ -5,7 +5,8 @@ status: completed
 type: task
 priority: normal
 created_at: 2026-03-20T02:43:57Z
-updated_at: 2026-03-20T02:45:09Z
+updated_at: 2026-03-20T17:09:45Z
+order: zk
 ---
 
 Set up build system and code skeleton for the litmus terminal color theme previewer. Includes Cargo workspace, three crates (litmus-model, litmus-web, litmus-cli), flake.nix, and updates to existing files.

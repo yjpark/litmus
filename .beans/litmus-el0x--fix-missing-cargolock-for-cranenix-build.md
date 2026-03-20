@@ -5,7 +5,8 @@ status: completed
 type: bug
 priority: normal
 created_at: 2026-03-20T05:10:54Z
-updated_at: 2026-03-20T05:12:33Z
+updated_at: 2026-03-20T17:09:45Z
+order: zV
 ---
 
 Crane requires Cargo.lock to be present and git-tracked. Generate it, git-add it, and add pname to commonArgs in flake.nix.

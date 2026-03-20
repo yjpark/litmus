@@ -5,7 +5,8 @@ status: completed
 type: task
 priority: normal
 created_at: 2026-03-20T07:26:42Z
-updated_at: 2026-03-20T07:28:11Z
+updated_at: 2026-03-20T17:09:45Z
+order: zw
 ---
 
 Add mdbook documentation site with book.toml, src/ files, mise tasks, flake.nix integration, and .gitignore update
