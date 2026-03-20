@@ -1,10 +1,11 @@
 ---
 # litmus-5fj8
 title: Theme-first vs provider-first navigation
-status: todo
+status: draft
 type: feature
+priority: normal
 created_at: 2026-03-20T07:17:17Z
-updated_at: 2026-03-20T07:17:17Z
+updated_at: 2026-03-20T07:20:11Z
 parent: litmus-iiek
 ---
 

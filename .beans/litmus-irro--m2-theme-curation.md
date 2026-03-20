@@ -1,11 +1,11 @@
 ---
 # litmus-irro
 title: 'M2: Theme Curation'
-status: todo
+status: draft
 type: milestone
 priority: normal
 created_at: 2026-03-20T07:16:40Z
-updated_at: 2026-03-20T07:17:26Z
+updated_at: 2026-03-20T07:20:09Z
 blocked_by:
     - litmus-haxl
 ---

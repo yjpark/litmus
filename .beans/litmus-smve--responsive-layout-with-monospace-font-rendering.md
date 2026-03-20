@@ -1,10 +1,11 @@
 ---
 # litmus-smve
 title: Responsive layout with monospace font rendering
-status: todo
+status: draft
 type: task
+priority: normal
 created_at: 2026-03-20T07:17:15Z
-updated_at: 2026-03-20T07:17:15Z
+updated_at: 2026-03-20T07:20:10Z
 parent: litmus-m8ze
 ---
 

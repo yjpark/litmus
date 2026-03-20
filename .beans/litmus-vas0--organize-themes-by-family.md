@@ -1,10 +1,11 @@
 ---
 # litmus-vas0
 title: Organize themes by family
-status: todo
+status: draft
 type: task
+priority: normal
 created_at: 2026-03-20T07:17:11Z
-updated_at: 2026-03-20T07:17:11Z
+updated_at: 2026-03-20T07:20:10Z
 parent: litmus-irro
 ---
 

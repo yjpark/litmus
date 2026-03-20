@@ -1,10 +1,11 @@
 ---
 # litmus-gjmg
 title: Side-by-side theme comparison
-status: todo
+status: draft
 type: feature
+priority: normal
 created_at: 2026-03-20T07:17:17Z
-updated_at: 2026-03-20T07:17:17Z
+updated_at: 2026-03-20T07:20:10Z
 parent: litmus-iiek
 ---
 
