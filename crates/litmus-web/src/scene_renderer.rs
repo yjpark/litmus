@@ -4,23 +4,43 @@ use litmus_model::Theme;
 
 /// Render a complete scene as a terminal-style HTML block.
 #[component]
-pub fn SceneView(theme: Theme, scene: Scene) -> Element {
+pub fn SceneView(theme: Theme, scene: Scene, #[props(default = false)] compact: bool) -> Element {
     let bg = theme.background.to_hex();
     let fg = theme.foreground.to_hex();
-    let container_style = format!(
-        "background-color: {bg}; color: {fg};"
-    );
+    let class = if compact { "scene-block scene-compact" } else { "scene-block" };
 
     rsx! {
-        div { class: "scene-block",
-            div {
-                style: "margin-bottom: 0.5rem; font-weight: bold; \
-                        font-size: 0.85rem; opacity: 0.7;",
-                "{scene.name}"
+        div { class: "{class}",
+            if !compact {
+                div {
+                    style: "margin-bottom: 0.5rem; font-weight: bold; \
+                            font-size: 0.85rem; opacity: 0.7;",
+                    "{scene.name}"
+                }
             }
             pre {
-                style: "{container_style}",
+                style: "background-color: {bg}; color: {fg};",
                 for (i, line) in scene.lines.iter().enumerate() {
+                    LineView { key: "{i}", theme: theme.clone(), line: line.clone() }
+                    "\n"
+                }
+            }
+        }
+    }
+}
+
+/// Render a scene preview: first N lines only, no title, compact styling.
+#[component]
+pub fn ScenePreview(theme: Theme, scene: Scene, #[props(default = 5)] max_lines: usize) -> Element {
+    let bg = theme.background.to_hex();
+    let fg = theme.foreground.to_hex();
+    let lines_to_show = scene.lines.len().min(max_lines);
+
+    rsx! {
+        div { class: "scene-preview",
+            pre {
+                style: "background-color: {bg}; color: {fg};",
+                for (i, line) in scene.lines.iter().take(lines_to_show).enumerate() {
                     LineView { key: "{i}", theme: theme.clone(), line: line.clone() }
                     "\n"
                 }

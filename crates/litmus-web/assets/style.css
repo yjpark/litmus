@@ -43,6 +43,36 @@ body {
   border: 1px solid rgba(128, 128, 128, 0.2);
 }
 
+/* Scene preview (mini scene on cards) */
+.scene-preview {
+  margin-top: 0.75rem;
+  overflow: hidden;
+  border-radius: 0.375rem;
+}
+
+.scene-preview pre {
+  font-size: 0.6rem;
+  line-height: 1.4;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  white-space: pre;
+  max-height: 5.5rem;
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+/* Compact scene (used in grid views) */
+.scene-compact pre {
+  font-size: 0.7rem;
+  padding: 0.75rem;
+  max-height: 14rem;
+  overflow: hidden;
+  position: relative;
+  -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+}
+
 /* Responsive scene scaling on small screens */
 @media (max-width: 640px) {
   .scene-block pre {

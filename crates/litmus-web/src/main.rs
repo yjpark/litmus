@@ -125,7 +125,7 @@ fn ThemeList() -> Element {
     }
 }
 
-/// A clickable theme card showing name + color swatches.
+/// A clickable theme card showing name, mini scene preview, and color swatches.
 #[component]
 fn ThemeCard(theme: litmus_model::Theme) -> Element {
     let bg = theme.background.to_hex();
@@ -135,6 +135,7 @@ fn ThemeCard(theme: litmus_model::Theme) -> Element {
     let is_light = litmus_model::contrast::relative_luminance(&theme.background) > 0.5;
     let variant = if is_light { "light" } else { "dark" };
     let fg_bg_ratio = litmus_model::contrast::contrast_ratio(&theme.foreground, &theme.background);
+    let preview_scene = litmus_model::scenes::shell_prompt_scene();
 
     rsx! {
         Link {
@@ -145,9 +146,9 @@ fn ThemeCard(theme: litmus_model::Theme) -> Element {
                 class: "theme-card",
                 style: "background: {bg}; color: {fg};",
 
+                // Header: name + metadata
                 div {
-                    style: "display: flex; justify-content: space-between; align-items: baseline; \
-                            margin-bottom: 0.75rem;",
+                    style: "display: flex; justify-content: space-between; align-items: baseline;",
                     span {
                         style: "font-weight: bold; font-size: 0.95rem;",
                         "{theme.name}"
@@ -158,7 +159,16 @@ fn ThemeCard(theme: litmus_model::Theme) -> Element {
                     }
                 }
 
+                // Mini scene preview
+                scene_renderer::ScenePreview {
+                    theme: theme.clone(),
+                    scene: preview_scene,
+                    max_lines: 5,
+                }
+
+                // Color swatches
                 div { class: "swatch-row",
+                    style: "margin-top: 0.5rem;",
                     for color in ansi.iter() {
                         div {
                             class: "swatch",
