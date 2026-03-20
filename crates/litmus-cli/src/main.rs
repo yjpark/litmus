@@ -53,20 +53,19 @@ fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> {
             }
         })?;
 
-        if event::poll(std::time::Duration::from_millis(100))? {
-            if let Event::Key(key) = event::read()? {
-                if key.kind == KeyEventKind::Press {
-                    match key.code {
-                        KeyCode::Char('q') | KeyCode::Esc => return Ok(()),
-                        KeyCode::Tab => {
-                            view = match view {
-                                View::Swatches => View::Mockups,
-                                View::Mockups => View::Swatches,
-                            };
-                        }
-                        _ => {}
-                    }
+        if event::poll(std::time::Duration::from_millis(100))?
+            && let Event::Key(key) = event::read()?
+            && key.kind == KeyEventKind::Press
+        {
+            match key.code {
+                KeyCode::Char('q') | KeyCode::Esc => return Ok(()),
+                KeyCode::Tab => {
+                    view = match view {
+                        View::Swatches => View::Mockups,
+                        View::Mockups => View::Swatches,
+                    };
                 }
+                _ => {}
             }
         }
     }

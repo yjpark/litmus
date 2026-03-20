@@ -32,4 +32,4 @@ dist/
 docs/dist/
 
 # bacon diagnostics export
-.bacon-locations
+.bacon-claude-diagnostics

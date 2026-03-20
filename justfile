@@ -4,5 +4,5 @@ cli:
 docs-serve:
   mise run docs-serve
 
-bacon:
-  mise run bacon
+bacon-claude-diagnostics:
+  mise run bacon-claude-diagnostics

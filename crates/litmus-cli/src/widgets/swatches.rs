@@ -63,11 +63,11 @@ impl<'a> Widget for SwatchesWidget<'a> {
             // Label row
             if row < area.bottom() {
                 let mut col = area.left();
-                for i in 0..8usize {
+                for label_base in &LABELS {
                     let label = if pass == 0 {
-                        LABELS[i].to_string()
+                        label_base.to_string()
                     } else {
-                        format!("{}{}", LABELS[i], BRIGHT_SUFFIX)
+                        format!("{}{}", label_base, BRIGHT_SUFFIX)
                     };
                     let padded = center_pad(&label, swatch_width);
                     let span = Span::styled(padded, base_style);
