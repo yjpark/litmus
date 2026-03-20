@@ -8,12 +8,13 @@ use crossterm::{
     terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
 use ratatui::{Terminal, backend::CrosstermBackend};
-use std::io;
-use widgets::{MockupsWidget, SwatchesWidget};
+use std::{io, process::Command};
+use widgets::{LiveWidget, MockupsWidget, SwatchesWidget};
 
 enum View {
     Swatches,
     Mockups,
+    Live,
 }
 
 fn main() -> Result<()> {
@@ -40,8 +41,23 @@ fn restore_terminal(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Re
     Ok(())
 }
 
+fn capture_command(program: &str, args: &[&str]) -> Vec<String> {
+    Command::new(program)
+        .args(args)
+        .output()
+        .map(|out| {
+            String::from_utf8_lossy(&out.stdout)
+                .lines()
+                .map(|l| l.to_owned())
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
 fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> {
     let theme = theme_data::tokyo_night();
+    let git_diff = capture_command("git", &["diff"]);
+    let ls_output = capture_command("ls", &["-la", "--color=never"]);
     let mut view = View::Swatches;
 
     loop {
@@ -50,6 +66,10 @@ fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> {
             match view {
                 View::Swatches => frame.render_widget(SwatchesWidget { theme: &theme }, area),
                 View::Mockups => frame.render_widget(MockupsWidget { theme: &theme }, area),
+                View::Live => frame.render_widget(
+                    LiveWidget { theme: &theme, git_diff: &git_diff, ls_output: &ls_output },
+                    area,
+                ),
             }
         })?;
 
@@ -62,7 +82,8 @@ fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> {
                 KeyCode::Tab => {
                     view = match view {
                         View::Swatches => View::Mockups,
-                        View::Mockups => View::Swatches,
+                        View::Mockups => View::Live,
+                        View::Live => View::Swatches,
                     };
                 }
                 _ => {}
