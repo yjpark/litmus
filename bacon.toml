@@ -1,0 +1,12 @@
+export_locations = true
+
+[jobs.check]
+command = ["cargo", "check", "--workspace"]
+default_job = true
+
+[jobs.clippy]
+command = ["cargo", "clippy", "--package", "litmus-cli", "--", "--deny", "warnings"]
+
+[jobs.test]
+command = ["cargo", "test", "--workspace"]
+need_stdout = true

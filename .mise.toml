@@ -33,3 +33,7 @@ description = "Start mdbook live-reload dev server"
 [tasks.docs-build]
 run = "cd docs && mdbook build"
 description = "Build mdbook static site"
+
+[tasks.bacon]
+run = "bacon check"
+description = "Run bacon background checker (exports diagnostics to .bacon-locations)"

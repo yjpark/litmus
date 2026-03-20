@@ -69,6 +69,7 @@
             pkgs.dioxus-cli
             pkgs.cage
             pkgs.mdbook
+            pkgs.bacon
           ];
         };
       });

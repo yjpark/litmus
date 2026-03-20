@@ -30,3 +30,6 @@ dist/
 
 # mdbook output
 docs/dist/
+
+# bacon diagnostics export
+.bacon-locations
