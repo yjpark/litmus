@@ -1,13 +1,6 @@
-use crate::{Color, Theme};
+use crate::{AnsiColors, Color, Theme, defaults, error::ThemeError};
 
-pub struct KittyTheme {
-    pub theme: Theme,
-    pub cursor: Option<Color>,
-    pub selection_background: Option<Color>,
-    pub selection_foreground: Option<Color>,
-}
-
-pub fn parse_kitty_theme(input: &str) -> Option<KittyTheme> {
+pub fn parse_kitty_theme(input: &str) -> Result<Theme, ThemeError> {
     let mut name: Option<String> = None;
     let mut foreground: Option<Color> = None;
     let mut background: Option<Color> = None;
@@ -19,7 +12,6 @@ pub fn parse_kitty_theme(input: &str) -> Option<KittyTheme> {
     for line in input.lines() {
         let line = line.trim();
 
-        // Extract theme name from metadata comment: ## name: <value>
         if let Some(rest) = line.strip_prefix("## ") {
             if let Some(val) = rest.strip_prefix("name:") {
                 name = Some(val.trim().to_string());
@@ -27,7 +19,6 @@ pub fn parse_kitty_theme(input: &str) -> Option<KittyTheme> {
             continue;
         }
 
-        // Skip blank lines and comments
         if line.is_empty() || line.starts_with('#') {
             continue;
         }
@@ -55,21 +46,32 @@ pub fn parse_kitty_theme(input: &str) -> Option<KittyTheme> {
         }
     }
 
-    let foreground = foreground?;
-    let background = background?;
-    let colors: Option<Vec<Color>> = colors.into_iter().collect();
-    let colors = colors?;
+    let foreground = foreground
+        .ok_or_else(|| ThemeError::MissingField("foreground".to_string()))?;
+    let background = background
+        .ok_or_else(|| ThemeError::MissingField("background".to_string()))?;
 
-    Some(KittyTheme {
-        theme: Theme {
-            name: name.unwrap_or_else(|| "Unnamed".to_string()),
-            foreground,
-            background,
-            colors,
-        },
+    let present = colors.iter().filter(|c| c.is_some()).count();
+    let colors_array: Option<[Color; 16]> = {
+        let all: Option<Vec<Color>> = colors.into_iter().collect();
+        all.and_then(|v| v.try_into().ok())
+    };
+    let colors_array = colors_array.ok_or(ThemeError::WrongColorCount(present))?;
+
+    let cursor = cursor.unwrap_or_else(|| defaults::default_cursor(&foreground));
+    let selection_background = selection_background
+        .unwrap_or_else(|| defaults::default_selection_bg(&background));
+    let selection_foreground = selection_foreground
+        .unwrap_or_else(|| defaults::default_selection_fg(&foreground));
+
+    Ok(Theme {
+        name: name.unwrap_or_else(|| "Unnamed".to_string()),
+        foreground,
+        background,
         cursor,
         selection_background,
         selection_foreground,
+        ansi: AnsiColors::from_array(colors_array),
     })
 }
 
@@ -106,42 +108,55 @@ color15 #c0caf5
 
     #[test]
     fn parse_complete_theme() {
-        let kt = parse_kitty_theme(FULL_THEME).unwrap();
-        assert_eq!(kt.theme.name, "Test Theme");
-        assert_eq!(kt.theme.background, Color::new(0x1a, 0x1b, 0x26));
-        assert_eq!(kt.theme.foreground, Color::new(0xa9, 0xb1, 0xd6));
-        assert_eq!(kt.theme.colors.len(), 16);
-        assert_eq!(kt.theme.colors[0], Color::new(0x15, 0x16, 0x22));
-        assert_eq!(kt.theme.colors[15], Color::new(0xc0, 0xca, 0xf5));
-        assert_eq!(kt.cursor, Some(Color::new(0xc0, 0xca, 0xf5)));
-        assert_eq!(kt.selection_background, Some(Color::new(0x28, 0x3d, 0x5c)));
-        assert_eq!(kt.selection_foreground, Some(Color::new(0xff, 0xff, 0xff)));
+        let t = parse_kitty_theme(FULL_THEME).unwrap();
+        assert_eq!(t.name, "Test Theme");
+        assert_eq!(t.background, Color::new(0x1a, 0x1b, 0x26));
+        assert_eq!(t.foreground, Color::new(0xa9, 0xb1, 0xd6));
+        assert_eq!(t.ansi.as_array().len(), 16);
+        assert_eq!(*t.ansi.as_array()[0], Color::new(0x15, 0x16, 0x22));
+        assert_eq!(*t.ansi.as_array()[15], Color::new(0xc0, 0xca, 0xf5));
+        assert_eq!(t.cursor, Color::new(0xc0, 0xca, 0xf5));
+        assert_eq!(t.selection_background, Color::new(0x28, 0x3d, 0x5c));
+        assert_eq!(t.selection_foreground, Color::new(0xff, 0xff, 0xff));
     }
 
     #[test]
     fn parse_without_optional_fields() {
         let input = FULL_THEME
             .lines()
-            .filter(|l| !l.trim_start().starts_with("cursor") && !l.trim_start().starts_with("selection"))
+            .filter(|l| {
+                !l.trim_start().starts_with("cursor")
+                    && !l.trim_start().starts_with("selection")
+            })
             .collect::<Vec<_>>()
             .join("\n");
-        let kt = parse_kitty_theme(&input).unwrap();
-        assert!(kt.cursor.is_none());
-        assert!(kt.selection_background.is_none());
-        assert!(kt.selection_foreground.is_none());
+        let t = parse_kitty_theme(&input).unwrap();
+        // defaults applied: cursor = fg, selection_bg = bg+0x28
+        assert_eq!(t.cursor, t.foreground);
+        assert_eq!(
+            t.selection_background,
+            Color::new(
+                t.background.r.saturating_add(0x28),
+                t.background.g.saturating_add(0x28),
+                t.background.b.saturating_add(0x28),
+            )
+        );
     }
 
     #[test]
-    fn missing_required_fields_returns_none() {
-        // Missing foreground
+    fn missing_required_fields_returns_err() {
         let input = "background #1a1b26\ncolor0 #000000\n";
-        assert!(parse_kitty_theme(input).is_none());
+        assert!(matches!(
+            parse_kitty_theme(input),
+            Err(ThemeError::MissingField(f)) if f == "foreground"
+        ));
 
-        // Missing background
         let input = "foreground #a9b1d6\ncolor0 #000000\n";
-        assert!(parse_kitty_theme(input).is_none());
+        assert!(matches!(
+            parse_kitty_theme(input),
+            Err(ThemeError::MissingField(f)) if f == "background"
+        ));
 
-        // Missing colors (only 15)
         let mut lines = vec![
             "foreground #a9b1d6".to_string(),
             "background #1a1b26".to_string(),
@@ -149,7 +164,10 @@ color15 #c0caf5
         for i in 0..15 {
             lines.push(format!("color{} #000000", i));
         }
-        assert!(parse_kitty_theme(&lines.join("\n")).is_none());
+        assert!(matches!(
+            parse_kitty_theme(&lines.join("\n")),
+            Err(ThemeError::WrongColorCount(_))
+        ));
     }
 
     #[test]

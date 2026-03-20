@@ -1,16 +1,16 @@
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
-    style::{Style},
+    style::Style,
     text::{Line, Span},
     widgets::Widget,
 };
 
-use crate::theme_data::ThemeWithExtras;
+use litmus_model::Theme;
 use super::util::to_ratatui_color;
 
 pub struct SwatchesWidget<'a> {
-    pub theme: &'a ThemeWithExtras,
+    pub theme: &'a Theme,
 }
 
 const LABELS: [&str; 8] = ["blk", "red", "grn", "ylw", "blu", "mag", "cyn", "wht"];
@@ -23,8 +23,8 @@ impl<'a> Widget for SwatchesWidget<'a> {
         }
 
         let swatch_width = (area.width / 8).max(4) as usize;
-        let fg = to_ratatui_color(&self.theme.theme.foreground);
-        let bg = to_ratatui_color(&self.theme.theme.background);
+        let fg = to_ratatui_color(&self.theme.foreground);
+        let bg = to_ratatui_color(&self.theme.background);
         let base_style = Style::default().fg(fg).bg(bg);
         let show_hex = swatch_width >= 9;
 
@@ -36,6 +36,7 @@ impl<'a> Widget for SwatchesWidget<'a> {
         }
 
         let mut row = area.top();
+        let ansi = self.theme.ansi.as_array();
 
         // Render normal (0-7) and bright (8-15) rows
         for pass in 0..2 {
@@ -45,7 +46,7 @@ impl<'a> Widget for SwatchesWidget<'a> {
             if row < area.bottom() {
                 let mut col = area.left();
                 for i in 0..8usize {
-                    let color = to_ratatui_color(&self.theme.theme.colors[offset + i]);
+                    let color = to_ratatui_color(ansi[offset + i]);
                     let swatch = Span::styled(" ".repeat(swatch_width), Style::default().bg(color));
                     let line = Line::from(swatch);
                     let rect = Rect {
@@ -87,7 +88,7 @@ impl<'a> Widget for SwatchesWidget<'a> {
             if show_hex && row < area.bottom() {
                 let mut col = area.left();
                 for i in 0..8usize {
-                    let hex = self.theme.theme.colors[offset + i].to_hex();
+                    let hex = ansi[offset + i].to_hex();
                     let padded = center_pad(&hex, swatch_width);
                     let span = Span::styled(padded, base_style);
                     let rect = Rect {
@@ -109,10 +110,10 @@ impl<'a> Widget for SwatchesWidget<'a> {
         // Special colors row: fg, bg, cursor, sel
         if row < area.bottom() {
             let specials: &[(&str, &litmus_model::Color)] = &[
-                ("fg", &self.theme.theme.foreground),
-                ("bg", &self.theme.theme.background),
+                ("fg", &self.theme.foreground),
+                ("bg", &self.theme.background),
                 ("cursor", &self.theme.cursor),
-                ("sel", &self.theme.selection),
+                ("sel", &self.theme.selection_background),
             ];
 
             let mut col = area.left();

@@ -1,0 +1,26 @@
+name = "Rosé Pine"
+
+[colors]
+background = "#191724"
+foreground = "#e0def4"
+cursor = "#524f67"
+selection_background = "#2a283e"
+selection_foreground = "#e0def4"
+
+[colors.ansi]
+black = "#26233a"
+red = "#eb6f92"
+green = "#9ccfd8"
+yellow = "#f6c177"
+blue = "#31748f"
+magenta = "#c4a7e7"
+cyan = "#ebbcba"
+white = "#e0def4"
+bright_black = "#6e6a86"
+bright_red = "#eb6f92"
+bright_green = "#9ccfd8"
+bright_yellow = "#f6c177"
+bright_blue = "#31748f"
+bright_magenta = "#c4a7e7"
+bright_cyan = "#ebbcba"
+bright_white = "#e0def4"

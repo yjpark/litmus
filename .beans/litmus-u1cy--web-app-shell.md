@@ -1,11 +1,11 @@
 ---
 # litmus-u1cy
 title: Web app shell
-status: draft
+status: todo
 type: task
 priority: normal
 created_at: 2026-03-20T07:17:15Z
-updated_at: 2026-03-20T07:20:10Z
+updated_at: 2026-03-20T17:44:02Z
 parent: litmus-m8ze
 ---
 

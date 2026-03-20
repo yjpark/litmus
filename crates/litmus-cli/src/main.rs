@@ -7,6 +7,7 @@ use crossterm::{
     execute,
     terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
+use litmus_model::Theme;
 use ratatui::{
     Terminal,
     backend::CrosstermBackend,
@@ -15,7 +16,6 @@ use ratatui::{
     text::{Line, Span},
 };
 use std::{io, path::Path, process::Command};
-use theme_data::ThemeWithExtras;
 use widgets::{LiveWidget, MockupsWidget, SwatchesWidget};
 
 #[derive(Clone, Copy)]
@@ -36,7 +36,7 @@ impl View {
 }
 
 struct App {
-    themes: Vec<ThemeWithExtras>,
+    themes: Vec<Theme>,
     theme_index: usize,
     view: View,
     git_diff: Vec<String>,
@@ -44,12 +44,12 @@ struct App {
 }
 
 impl App {
-    fn new(extra_themes: Vec<ThemeWithExtras>) -> Self {
-        let themes = if extra_themes.is_empty() {
-            theme_data::all_themes()
-        } else {
-            extra_themes
-        };
+    fn new(extra_themes: Vec<Theme>) -> Self {
+        let mut themes = theme_data::load_bundled_themes();
+        themes.extend(extra_themes);
+        if themes.is_empty() {
+            themes = theme_data::all_themes();
+        }
         App {
             themes,
             theme_index: 0,
@@ -59,7 +59,7 @@ impl App {
         }
     }
 
-    fn current_theme(&self) -> &ThemeWithExtras {
+    fn current_theme(&self) -> &Theme {
         &self.themes[self.theme_index]
     }
 
@@ -91,19 +91,26 @@ impl App {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let conf_paths: Vec<_> = std::env::args()
+    let theme_paths: Vec<_> = std::env::args()
         .skip(1)
-        .filter(|a| a.ends_with(".conf"))
+        .filter(|a| {
+            a.ends_with(".conf")
+                || a.ends_with(".yaml")
+                || a.ends_with(".yml")
+                || a.ends_with(".toml")
+        })
         .collect();
-    let extra_themes: Vec<ThemeWithExtras> = conf_paths
+    let extra_themes: Vec<Theme> = theme_paths
         .iter()
         .filter_map(|p| {
             let path = Path::new(p);
-            let t = theme_data::load_kitty_theme(path);
-            if t.is_none() {
-                eprintln!("Warning: could not load theme from {p}");
+            match theme_data::load_theme(path) {
+                Ok(t) => Some(t),
+                Err(e) => {
+                    eprintln!("Warning: could not load theme from {p}: {e}");
+                    None
+                }
             }
-            t
         })
         .collect();
 
@@ -141,7 +148,7 @@ fn capture_command(program: &str, args: &[&str]) -> Vec<String> {
         .unwrap_or_default()
 }
 
-fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>, extra_themes: Vec<ThemeWithExtras>) -> Result<()> {
+fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>, extra_themes: Vec<Theme>) -> Result<()> {
     let mut app = App::new(extra_themes);
 
     loop {
@@ -165,7 +172,7 @@ fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>, extra_themes: Vec<
                 Span::styled(
                     format!(
                         " {} [{}/{}] ",
-                        app.current_theme().theme.name,
+                        app.current_theme().name,
                         app.theme_index + 1,
                         app.themes.len()
                     ),

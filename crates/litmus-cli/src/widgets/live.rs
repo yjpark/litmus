@@ -6,22 +6,23 @@ use ratatui::{
     widgets::Widget,
 };
 
-use crate::theme_data::ThemeWithExtras;
+use litmus_model::Theme;
 use super::util::to_ratatui_color;
 
 pub struct LiveWidget<'a> {
-    pub theme: &'a ThemeWithExtras,
+    pub theme: &'a Theme,
     pub git_diff: &'a [String],
     pub ls_output: &'a [String],
 }
 
 impl Widget for LiveWidget<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let t = &self.theme.theme;
+        let t = self.theme;
         let fg = to_ratatui_color(&t.foreground);
         let bg = to_ratatui_color(&t.background);
         let base = Style::default().fg(fg).bg(bg);
-        let c = |idx: usize| to_ratatui_color(&t.colors[idx]);
+        let ansi = t.ansi.as_array();
+        let c = |idx: usize| to_ratatui_color(ansi[idx]);
 
         // Fill background
         for y in area.top()..area.bottom() {
@@ -152,13 +153,13 @@ fn style_ls_line(
     let name = raw[name_start..].to_owned();
 
     let name_style = if first_char == 'd' {
-        Style::default().fg(c(12)).bg(bg) // directory: blue
+        Style::default().fg(c(12)).bg(bg)
     } else if first_char == 'l' {
-        Style::default().fg(c(14)).bg(bg) // symlink: bright cyan
+        Style::default().fg(c(14)).bg(bg)
     } else if perms.contains('x') {
-        Style::default().fg(c(10)).bg(bg) // executable: green
+        Style::default().fg(c(10)).bg(bg)
     } else if name.starts_with('.') {
-        Style::default().fg(c(8)).bg(bg) // hidden file: gray
+        Style::default().fg(c(8)).bg(bg)
     } else {
         base
     };

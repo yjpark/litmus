@@ -6,16 +6,16 @@ use ratatui::{
     widgets::Widget,
 };
 
-use crate::theme_data::ThemeWithExtras;
+use litmus_model::Theme;
 use super::util::to_ratatui_color;
 
 pub struct MockupsWidget<'a> {
-    pub theme: &'a ThemeWithExtras,
+    pub theme: &'a Theme,
 }
 
 impl<'a> Widget for MockupsWidget<'a> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let t = &self.theme.theme;
+        let t = self.theme;
         let fg = to_ratatui_color(&t.foreground);
         let bg = to_ratatui_color(&t.background);
         let base = Style::default().fg(fg).bg(bg);
@@ -27,7 +27,8 @@ impl<'a> Widget for MockupsWidget<'a> {
             }
         }
 
-        let c = |idx: usize| to_ratatui_color(&t.colors[idx]);
+        let ansi = t.ansi.as_array();
+        let c = |idx: usize| to_ratatui_color(ansi[idx]);
 
         // Prompt spans helper
         let prompt_spans = || -> Vec<Span<'static>> {

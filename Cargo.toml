@@ -10,3 +10,6 @@ license = "MIT"
 [workspace.dependencies]
 litmus-model = { path = "crates/litmus-model" }
 serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+toml = "0.8"
+serde_yml = "0.0.12"

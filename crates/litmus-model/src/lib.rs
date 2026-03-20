@@ -1,4 +1,8 @@
+pub mod base16;
+pub mod defaults;
+pub mod error;
 pub mod kitty;
+pub mod toml_format;
 
 use serde::{Deserialize, Serialize};
 
@@ -31,9 +35,69 @@ impl Color {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AnsiColors {
+    pub black: Color,
+    pub red: Color,
+    pub green: Color,
+    pub yellow: Color,
+    pub blue: Color,
+    pub magenta: Color,
+    pub cyan: Color,
+    pub white: Color,
+    pub bright_black: Color,
+    pub bright_red: Color,
+    pub bright_green: Color,
+    pub bright_yellow: Color,
+    pub bright_blue: Color,
+    pub bright_magenta: Color,
+    pub bright_cyan: Color,
+    pub bright_white: Color,
+}
+
+impl AnsiColors {
+    pub fn from_array(c: [Color; 16]) -> Self {
+        let [black, red, green, yellow, blue, magenta, cyan, white,
+             bright_black, bright_red, bright_green, bright_yellow,
+             bright_blue, bright_magenta, bright_cyan, bright_white] = c;
+        Self {
+            black, red, green, yellow, blue, magenta, cyan, white,
+            bright_black, bright_red, bright_green, bright_yellow,
+            bright_blue, bright_magenta, bright_cyan, bright_white,
+        }
+    }
+
+    pub fn as_array(&self) -> [&Color; 16] {
+        [
+            &self.black, &self.red, &self.green, &self.yellow,
+            &self.blue, &self.magenta, &self.cyan, &self.white,
+            &self.bright_black, &self.bright_red, &self.bright_green, &self.bright_yellow,
+            &self.bright_blue, &self.bright_magenta, &self.bright_cyan, &self.bright_white,
+        ]
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Theme {
     pub name: String,
     pub background: Color,
     pub foreground: Color,
-    pub colors: Vec<Color>,
+    pub cursor: Color,
+    pub selection_background: Color,
+    pub selection_foreground: Color,
+    pub ansi: AnsiColors,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ansi_colors_round_trip() {
+        let colors: [Color; 16] = std::array::from_fn(|i| Color::new(i as u8, i as u8, i as u8));
+        let ansi = AnsiColors::from_array(colors.clone());
+        let arr = ansi.as_array();
+        for (i, c) in arr.iter().enumerate() {
+            assert_eq!(**c, colors[i]);
+        }
+    }
 }
