@@ -1,4 +1,4 @@
-[tasks.beans-serve]
+[tasks._beans-serve]
 run = 'beans-serve --cors-origin "*"'
 description = "Start beans dev server"
 
@@ -14,7 +14,7 @@ description = "Build web frontend (release)"
 run = "cargo build --release --package litmus-cli"
 description = "Build CLI binary (release)"
 
-[tasks.cli]
+[tasks._cli]
 run = "cargo run --package litmus-cli"
 description = "Run the litmus TUI"
 
@@ -26,7 +26,7 @@ description = "Type-check workspace"
 run = "cargo fmt --all"
 description = "Format all Rust code"
 
-[tasks.docs-serve]
+[tasks._docs-serve]
 run = "cd docs && mdbook serve --port 8882 --hostname 0.0.0.0"
 description = "Start mdbook live-reload dev server"
 
