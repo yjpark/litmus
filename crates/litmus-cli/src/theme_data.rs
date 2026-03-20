@@ -1,4 +1,5 @@
 use litmus_model::{Color, Theme};
+use std::path::Path;
 
 pub struct ThemeWithExtras {
     pub theme: Theme,
@@ -100,6 +101,22 @@ pub fn solarized_dark() -> ThemeWithExtras {
         cursor: Color::new(0x83, 0x94, 0x96),
         selection: Color::new(0x07, 0x36, 0x42),
     }
+}
+
+pub fn load_kitty_theme(path: &Path) -> Option<ThemeWithExtras> {
+    let input = std::fs::read_to_string(path).ok()?;
+    let kt = litmus_model::kitty::parse_kitty_theme(&input)?;
+    let cursor = kt.cursor.unwrap_or_else(|| kt.theme.foreground.clone());
+    let selection = kt.selection_background.unwrap_or_else(|| {
+        // Default: blend background toward foreground slightly
+        let bg = &kt.theme.background;
+        Color::new(
+            bg.r.saturating_add(0x28),
+            bg.g.saturating_add(0x28),
+            bg.b.saturating_add(0x28),
+        )
+    });
+    Some(ThemeWithExtras { theme: kt.theme, cursor, selection })
 }
 
 pub fn all_themes() -> Vec<ThemeWithExtras> {

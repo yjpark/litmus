@@ -14,7 +14,7 @@ use ratatui::{
     style::{Color as RColor, Style},
     text::{Line, Span},
 };
-use std::{io, process::Command};
+use std::{io, path::Path, process::Command};
 use theme_data::ThemeWithExtras;
 use widgets::{LiveWidget, MockupsWidget, SwatchesWidget};
 
@@ -44,9 +44,14 @@ struct App {
 }
 
 impl App {
-    fn new() -> Self {
+    fn new(extra_themes: Vec<ThemeWithExtras>) -> Self {
+        let themes = if extra_themes.is_empty() {
+            theme_data::all_themes()
+        } else {
+            extra_themes
+        };
         App {
-            themes: theme_data::all_themes(),
+            themes,
             theme_index: 0,
             view: View::Swatches,
             git_diff: capture_command("git", &["diff"]),
@@ -86,8 +91,24 @@ impl App {
 fn main() -> Result<()> {
     color_eyre::install()?;
 
+    let conf_paths: Vec<_> = std::env::args()
+        .skip(1)
+        .filter(|a| a.ends_with(".conf"))
+        .collect();
+    let extra_themes: Vec<ThemeWithExtras> = conf_paths
+        .iter()
+        .filter_map(|p| {
+            let path = Path::new(p);
+            let t = theme_data::load_kitty_theme(path);
+            if t.is_none() {
+                eprintln!("Warning: could not load theme from {p}");
+            }
+            t
+        })
+        .collect();
+
     let mut terminal = setup_terminal()?;
-    let result = run(&mut terminal);
+    let result = run(&mut terminal, extra_themes);
     restore_terminal(&mut terminal)?;
     result
 }
@@ -120,8 +141,8 @@ fn capture_command(program: &str, args: &[&str]) -> Vec<String> {
         .unwrap_or_default()
 }
 
-fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> {
-    let mut app = App::new();
+fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>, extra_themes: Vec<ThemeWithExtras>) -> Result<()> {
+    let mut app = App::new(extra_themes);
 
     loop {
         terminal.draw(|frame| {
