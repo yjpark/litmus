@@ -1,12 +1,13 @@
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
-    style::{Color, Style},
+    style::{Style},
     text::{Line, Span},
     widgets::Widget,
 };
 
 use crate::theme_data::ThemeWithExtras;
+use super::util::to_ratatui_color;
 
 pub struct SwatchesWidget<'a> {
     pub theme: &'a ThemeWithExtras,
@@ -14,10 +15,6 @@ pub struct SwatchesWidget<'a> {
 
 const LABELS: [&str; 8] = ["blk", "red", "grn", "ylw", "blu", "mag", "cyn", "wht"];
 const BRIGHT_SUFFIX: &str = "+";
-
-fn to_ratatui_color(c: &litmus_model::Color) -> Color {
-    Color::Rgb(c.r, c.g, c.b)
-}
 
 impl<'a> Widget for SwatchesWidget<'a> {
     fn render(self, area: Rect, buf: &mut Buffer) {

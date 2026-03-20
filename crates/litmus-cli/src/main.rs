@@ -9,7 +9,12 @@ use crossterm::{
 };
 use ratatui::{Terminal, backend::CrosstermBackend};
 use std::io;
-use widgets::SwatchesWidget;
+use widgets::{MockupsWidget, SwatchesWidget};
+
+enum View {
+    Swatches,
+    Mockups,
+}
 
 fn main() -> Result<()> {
     color_eyre::install()?;
@@ -37,10 +42,15 @@ fn restore_terminal(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Re
 
 fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> {
     let theme = theme_data::tokyo_night();
+    let mut view = View::Swatches;
 
     loop {
         terminal.draw(|frame| {
-            frame.render_widget(SwatchesWidget { theme: &theme }, frame.area());
+            let area = frame.area();
+            match view {
+                View::Swatches => frame.render_widget(SwatchesWidget { theme: &theme }, area),
+                View::Mockups => frame.render_widget(MockupsWidget { theme: &theme }, area),
+            }
         })?;
 
         if event::poll(std::time::Duration::from_millis(100))? {
@@ -48,6 +58,12 @@ fn run(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> {
                 if key.kind == KeyEventKind::Press {
                     match key.code {
                         KeyCode::Char('q') | KeyCode::Esc => return Ok(()),
+                        KeyCode::Tab => {
+                            view = match view {
+                                View::Swatches => View::Mockups,
+                                View::Mockups => View::Swatches,
+                            };
+                        }
                         _ => {}
                     }
                 }
