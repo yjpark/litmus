@@ -1,0 +1,23 @@
+[tasks.beans-serve]
+run = 'beans-serve --cors-origin "*"'
+description = "Start beans dev server"
+
+[tasks.dev]
+run = "cd crates/litmus-web && dx serve"
+description = "Run Dioxus dev server"
+
+[tasks.build-web]
+run = "cd crates/litmus-web && dx build --release"
+description = "Build web frontend (release)"
+
+[tasks.build-cli]
+run = "cargo build --release --package litmus-cli"
+description = "Build CLI binary (release)"
+
+[tasks.check]
+run = "cargo check --workspace"
+description = "Type-check workspace"
+
+[tasks.fmt]
+run = "cargo fmt --all"
+description = "Format all Rust code"

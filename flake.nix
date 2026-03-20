@@ -64,8 +64,9 @@
         devShells.default = craneLib.devShell {
           checks = self.checks.${system};
           packages = [
+            pkgs.sccache
+            pkgs.mise
             pkgs.dioxus-cli
-            pkgs.just
           ];
         };
       });
