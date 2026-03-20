@@ -23,8 +23,8 @@ enum Route {
     ThemeDetail { slug: String },
     #[route("/scene/:scene_id")]
     SceneAcrossThemes { scene_id: String },
-    #[route("/compare/:left/:right")]
-    CompareThemes { left: String, right: String },
+    #[route("/compare/:slugs")]
+    CompareThemes { slugs: String },
 }
 
 #[component]
@@ -416,8 +416,7 @@ fn ThemeDetail(slug: String) -> Element {
                         }
                         Link {
                             to: Route::CompareThemes {
-                                left: this_slug.clone(),
-                                right: compare_partner,
+                                slugs: format!("{},{}", this_slug.clone(), compare_partner),
                             },
                             style: "color: #7aa2f7; text-decoration: none; font-size: 0.9rem;",
                             "Compare..."
@@ -660,8 +659,7 @@ fn CompareBar() -> Element {
                     if can_compare {
                         Link {
                             to: Route::CompareThemes {
-                                left: sel.0[0].clone(),
-                                right: sel.0[1].clone(),
+                                slugs: sel.0.join(","),
                             },
                             class: "compare-bar-btn",
                             "Go to Compare"
@@ -680,24 +678,150 @@ fn CompareBar() -> Element {
     }
 }
 
+/// Color diff table showing which colors differ between compared themes.
+#[component]
+fn ColorDiffTable(themes: Vec<litmus_model::Theme>) -> Element {
+    let mut expanded = use_signal(|| false);
+    let is_expanded = *expanded.read();
+
+    // Build diff rows: (name, [hex per theme], differs?)
+    let mut diff_rows: Vec<(String, Vec<String>, bool)> = Vec::new();
+
+    // Helper to add a row
+    let add_row = |rows: &mut Vec<(String, Vec<String>, bool)>,
+                   name: &str,
+                   values: Vec<String>| {
+        let differs = values.windows(2).any(|w| w[0] != w[1]);
+        rows.push((name.to_string(), values, differs));
+    };
+
+    // Special colors
+    add_row(&mut diff_rows, "bg", themes.iter().map(|t| t.background.to_hex()).collect());
+    add_row(&mut diff_rows, "fg", themes.iter().map(|t| t.foreground.to_hex()).collect());
+    add_row(&mut diff_rows, "cursor", themes.iter().map(|t| t.cursor.to_hex()).collect());
+
+    // ANSI colors
+    for (i, name) in ANSI_NAMES.iter().enumerate() {
+        let values: Vec<String> = themes
+            .iter()
+            .map(|t| t.ansi.as_array()[i].to_hex())
+            .collect();
+        add_row(&mut diff_rows, name, values);
+    }
+
+    let diff_count = diff_rows.iter().filter(|(_, _, d)| *d).count();
+
+    rsx! {
+        div {
+            style: "margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.1); \
+                    border-radius: 0.5rem; overflow: hidden;",
+
+            // Header
+            div {
+                style: "padding: 0.5rem 0.75rem; cursor: pointer; display: flex; \
+                        justify-content: space-between; align-items: center; \
+                        background: rgba(255,255,255,0.03);",
+                onclick: move |_| expanded.set(!is_expanded),
+
+                span {
+                    class: "mono",
+                    style: "font-size: 0.8rem;",
+                    "Color differences: {diff_count}/19"
+                }
+                span {
+                    class: "mono",
+                    style: "font-size: 0.7rem; opacity: 0.5;",
+                    if is_expanded { "collapse" } else { "expand" }
+                }
+            }
+
+            // Table
+            if is_expanded {
+                div {
+                    style: "padding: 0.5rem 0.75rem; overflow-x: auto;",
+
+                    table {
+                        style: "width: 100%; border-collapse: collapse; font-size: 0.75rem; \
+                                font-family: monospace;",
+
+                        thead {
+                            tr {
+                                th {
+                                    style: "text-align: left; padding: 0.25rem 0.5rem; \
+                                            border-bottom: 1px solid rgba(255,255,255,0.1);",
+                                    "Color"
+                                }
+                                for theme in &themes {
+                                    th {
+                                        style: "text-align: left; padding: 0.25rem 0.5rem; \
+                                                border-bottom: 1px solid rgba(255,255,255,0.1);",
+                                        "{theme.name}"
+                                    }
+                                }
+                            }
+                        }
+
+                        tbody {
+                            for (name, values, differs) in &diff_rows {
+                                tr {
+                                    style: if *differs {
+                                        "background: rgba(247, 168, 184, 0.05);"
+                                    } else {
+                                        ""
+                                    },
+                                    td {
+                                        style: "padding: 0.25rem 0.5rem; opacity: 0.8; \
+                                                white-space: nowrap;",
+                                        "{name}"
+                                    }
+                                    for val in values {
+                                        td {
+                                            style: "padding: 0.25rem 0.5rem;",
+                                            div {
+                                                style: "display: flex; align-items: center; gap: 0.3rem;",
+                                                div {
+                                                    style: "width: 14px; height: 14px; border-radius: 2px; \
+                                                            background: {val}; border: 1px solid rgba(255,255,255,0.2); \
+                                                            flex-shrink: 0;",
+                                                }
+                                                span {
+                                                    style: "opacity: 0.7; font-size: 0.65rem;",
+                                                    "{val}"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 fn theme_slug(name: &str) -> String {
     name.to_lowercase().replace(' ', "-")
 }
 
-/// Side-by-side theme comparison.
+/// Multi-theme comparison (2-4 themes side by side).
 #[component]
-fn CompareThemes(left: String, right: String) -> Element {
+fn CompareThemes(slugs: String) -> Element {
     let all_themes = themes::load_embedded_themes();
     let scenes = litmus_model::scenes::all_scenes();
+    let slug_list: Vec<&str> = slugs.split(',').filter(|s| !s.is_empty()).collect();
 
-    let left_theme = all_themes.iter().find(|t| theme_slug(&t.name) == left);
-    let right_theme = all_themes.iter().find(|t| theme_slug(&t.name) == right);
+    let compare_themes: Vec<litmus_model::Theme> = slug_list
+        .iter()
+        .filter_map(|slug| all_themes.iter().find(|t| theme_slug(&t.name) == *slug).cloned())
+        .collect();
 
-    let (Some(left_theme), Some(right_theme)) = (left_theme, right_theme) else {
+    if compare_themes.is_empty() {
         return rsx! {
             div {
-                h2 { "Theme not found" }
-                p { "Could not find one or both themes." }
+                h2 { "No themes found" }
+                p { "Could not find any matching themes." }
                 Link {
                     to: Route::ThemeList {},
                     style: "color: #7aa2f7;",
@@ -705,10 +829,15 @@ fn CompareThemes(left: String, right: String) -> Element {
                 }
             }
         };
-    };
+    }
 
-    let left_theme = left_theme.clone();
-    let right_theme = right_theme.clone();
+    let n = compare_themes.len();
+    let title = compare_themes
+        .iter()
+        .map(|t| t.name.as_str())
+        .collect::<Vec<_>>()
+        .join(" vs ");
+    let grid_cols = format!("repeat({n}, 1fr)");
 
     rsx! {
         div {
@@ -722,15 +851,19 @@ fn CompareThemes(left: String, right: String) -> Element {
             }
 
             h2 {
-                style: "font-size: 1.3rem; margin-bottom: 1.5rem;",
-                "{left_theme.name} vs {right_theme.name}"
+                style: "font-size: 1.3rem; margin-bottom: 1rem;",
+                "{title}"
             }
 
-            // Theme selectors for changing comparison
+            // Theme selectors
             CompareSelector {
                 all_themes: all_themes.clone(),
-                current_left: left.clone(),
-                current_right: right.clone(),
+                current_slugs: slug_list.iter().map(|s| s.to_string()).collect(),
+            }
+
+            // Color diff table
+            if compare_themes.len() >= 2 {
+                ColorDiffTable { themes: compare_themes.clone() }
             }
 
             for scene in &scenes {
@@ -743,27 +876,21 @@ fn CompareThemes(left: String, right: String) -> Element {
                     }
 
                     div {
-                        style: "display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;",
-                        class: "compare-grid",
+                        style: "display: grid; grid-template-columns: {grid_cols}; gap: 0.75rem; \
+                                overflow-x: auto;",
 
-                        div {
+                        for theme in &compare_themes {
                             div {
-                                style: "font-size: 0.8rem; margin-bottom: 0.25rem; opacity: 0.7;",
-                                "{left_theme.name}"
-                            }
-                            scene_renderer::SceneView {
-                                theme: left_theme.clone(),
-                                scene: scene.clone(),
-                            }
-                        }
-                        div {
-                            div {
-                                style: "font-size: 0.8rem; margin-bottom: 0.25rem; opacity: 0.7;",
-                                "{right_theme.name}"
-                            }
-                            scene_renderer::SceneView {
-                                theme: right_theme.clone(),
-                                scene: scene.clone(),
+                                style: "min-width: 250px;",
+                                div {
+                                    style: "font-size: 0.8rem; margin-bottom: 0.25rem; opacity: 0.7;",
+                                    "{theme.name}"
+                                }
+                                scene_renderer::SceneView {
+                                    theme: theme.clone(),
+                                    scene: scene.clone(),
+                                    compact: n > 2,
+                                }
                             }
                         }
                     }
@@ -773,60 +900,46 @@ fn CompareThemes(left: String, right: String) -> Element {
     }
 }
 
-/// Dropdowns for selecting comparison themes.
+/// Dropdowns for selecting comparison themes (supports 2-4).
 #[component]
 fn CompareSelector(
     all_themes: Vec<litmus_model::Theme>,
-    current_left: String,
-    current_right: String,
+    current_slugs: Vec<String>,
 ) -> Element {
     let nav = use_navigator();
-    let themes_for_right = all_themes.clone();
-
-    let mut left_slug = use_signal(|| current_left.clone());
-    let mut right_slug = use_signal(|| current_right.clone());
 
     rsx! {
         div {
-            style: "display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; \
+            style: "display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; \
                     align-items: center;",
 
-            select {
-                style: "background: #1a1b26; color: #c0caf5; border: 1px solid #33467c; \
-                        padding: 0.4rem 0.6rem; border-radius: 0.25rem;",
-                value: "{current_left}",
-                onchange: move |evt: Event<FormData>| {
-                    left_slug.set(evt.value());
-                    nav.push(Route::CompareThemes {
-                        left: evt.value(),
-                        right: right_slug.read().clone(),
-                    });
-                },
-                for t in &all_themes {
-                    option {
-                        value: "{theme_slug(&t.name)}",
-                        "{t.name}"
-                    }
-                }
-            }
-
-            span { style: "opacity: 0.6;", "vs" }
-
-            select {
-                style: "background: #1a1b26; color: #c0caf5; border: 1px solid #33467c; \
-                        padding: 0.4rem 0.6rem; border-radius: 0.25rem;",
-                value: "{current_right}",
-                onchange: move |evt: Event<FormData>| {
-                    right_slug.set(evt.value());
-                    nav.push(Route::CompareThemes {
-                        left: left_slug.read().clone(),
-                        right: evt.value(),
-                    });
-                },
-                for t in &themes_for_right {
-                    option {
-                        value: "{theme_slug(&t.name)}",
-                        "{t.name}"
+            for (idx, slug) in current_slugs.iter().enumerate() {
+                {
+                    let all = all_themes.clone();
+                    let slugs = current_slugs.clone();
+                    let current_val = slug.clone();
+                    rsx! {
+                        if idx > 0 {
+                            span { style: "opacity: 0.6; font-size: 0.85rem;", "vs" }
+                        }
+                        select {
+                            style: "background: #1a1b26; color: #c0caf5; border: 1px solid #33467c; \
+                                    padding: 0.4rem 0.6rem; border-radius: 0.25rem; font-size: 0.85rem;",
+                            value: "{current_val}",
+                            onchange: move |evt: Event<FormData>| {
+                                let mut new_slugs = slugs.clone();
+                                new_slugs[idx] = evt.value();
+                                nav.push(Route::CompareThemes {
+                                    slugs: new_slugs.join(","),
+                                });
+                            },
+                            for t in &all {
+                                option {
+                                    value: "{theme_slug(&t.name)}",
+                                    "{t.name}"
+                                }
+                            }
+                        }
                     }
                 }
             }

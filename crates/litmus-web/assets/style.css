@@ -227,18 +227,7 @@ body {
   }
 }
 
-/* Compare grid */
-.compare-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-@media (max-width: 768px) {
-  .compare-grid {
-    grid-template-columns: 1fr;
-  }
-}
+/* Compare grid — N-column layout is set inline via grid-template-columns */
 
 /* Scenes container */
 .scenes-container {
