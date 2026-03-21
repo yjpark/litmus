@@ -12,8 +12,8 @@ pub fn SceneAcrossThemes(scene_id: String) -> Element {
     let all_themes = themes::load_embedded_themes();
     let scenes = litmus_model::scenes::all_scenes();
     let scene = scenes.iter().find(|s| s.id == scene_id);
-    let filter = use_context::<Signal<FilterState>>();
-    let cvd = filter.read().cvd;
+    let cvd_sim = use_context::<Signal<CvdSimulation>>();
+    let cvd = cvd_sim.read().0;
 
     match scene {
         Some(scene) => {
@@ -47,7 +47,7 @@ pub fn SceneAcrossThemes(scene_id: String) -> Element {
                                                 class: "accent-link scene-grid-theme-name",
                                                 "{theme.name}"
                                             }
-                                            CompareToggle {
+                                            ShortlistToggle {
                                                 slug: theme_slug(&theme.name),
                                                 name: theme.name.clone(),
                                             }

@@ -19,12 +19,12 @@ pub fn ThemeDetail(slug: String) -> Element {
     let theme = all_themes.iter().find(|t| theme_slug(&t.name) == slug);
     let mut palette_expanded = use_signal(|| false);
     let mut issues_expanded = use_signal(|| false);
-    let filter = use_context::<Signal<FilterState>>();
+    let cvd_sim = use_context::<Signal<CvdSimulation>>();
     let active_scene = use_context::<Signal<ActiveScene>>();
 
     match theme {
         Some(theme) => {
-            let cvd = filter.read().cvd;
+            let cvd = cvd_sim.read().0;
             let base_theme = theme.clone();
             let theme = maybe_simulate(&base_theme, cvd);
             let bg = theme.background.to_hex();
@@ -44,7 +44,7 @@ pub fn ThemeDetail(slug: String) -> Element {
             let readability = litmus_model::contrast::readability_score(&theme) as u8;
 
             let scene_count = scenes.len();
-            let mut compare_sel = use_context::<Signal<CompareSelection>>();
+            let mut shortlist = use_context::<Signal<Shortlist>>();
             let detail_slug = this_slug.clone();
             let mut active_scene_write = active_scene;
 
@@ -76,10 +76,10 @@ pub fn ThemeDetail(slug: String) -> Element {
                                 }
                             }
                             Key::Character(ref c) if c == "c" => {
-                                let mut sel = compare_sel.write();
+                                let mut sel = shortlist.write();
                                 if let Some(pos) = sel.0.iter().position(|s| s == &detail_slug) {
                                     sel.0.remove(pos);
-                                } else if sel.0.len() < MAX_COMPARE {
+                                } else if sel.0.len() < MAX_SHORTLIST {
                                     sel.0.push(detail_slug.clone());
                                 }
                             }
@@ -109,7 +109,8 @@ pub fn ThemeDetail(slug: String) -> Element {
                                 }
                             }
                         }
-                        CompareToggle { slug: this_slug, name: theme.name.clone() }
+                        ShortlistToggle { slug: this_slug.clone(), name: theme.name.clone() }
+                        UseAsAppThemeButton { slug: this_slug }
                     }
 
                     // Expandable contrast issues
@@ -152,7 +153,7 @@ pub fn ThemeDetail(slug: String) -> Element {
                                 }
                             }
                         }
-                        span { class: "mono scene-hint", "\u{2190} \u{2192} navigate \u{00B7} c compare" }
+                        span { class: "mono scene-hint", "\u{2190} \u{2192} navigate \u{00B7} c shortlist" }
                     }
 
                     // Active scene

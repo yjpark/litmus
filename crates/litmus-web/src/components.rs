@@ -35,27 +35,50 @@ pub fn ColorSwatch(label: String, color: String) -> Element {
     }
 }
 
-/// Button to add/remove a theme from the compare selection.
+/// Button to add/remove a theme from the shortlist.
 #[component]
-pub fn CompareToggle(slug: String, name: String) -> Element {
-    let mut selection = use_context::<Signal<CompareSelection>>();
-    let is_selected = selection.read().0.contains(&slug);
+pub fn ShortlistToggle(slug: String, name: String) -> Element {
+    let mut shortlist = use_context::<Signal<Shortlist>>();
+    let is_selected = shortlist.read().0.contains(&slug);
 
     let slug_for_click = slug.clone();
     rsx! {
         button {
-            class: if is_selected { "compare-toggle compare-toggle-active" } else { "compare-toggle" },
+            class: if is_selected { "shortlist-toggle shortlist-toggle-active" } else { "shortlist-toggle" },
             aria_pressed: if is_selected { "true" } else { "false" },
             onclick: move |evt: Event<MouseData>| {
                 evt.stop_propagation();
-                let mut sel = selection.write();
+                let mut sel = shortlist.write();
                 if let Some(pos) = sel.0.iter().position(|s| s == &slug_for_click) {
                     sel.0.remove(pos);
-                } else if sel.0.len() < MAX_COMPARE {
+                } else if sel.0.len() < MAX_SHORTLIST {
                     sel.0.push(slug_for_click.clone());
                 }
             },
-            if is_selected { "- Remove" } else { "+ Compare" }
+            if is_selected { "Shortlisted" } else { "+ Shortlist" }
+        }
+    }
+}
+
+/// Button to use a theme as the app chrome theme.
+#[component]
+pub fn UseAsAppThemeButton(slug: String) -> Element {
+    let mut app_theme = use_context::<Signal<AppThemeSlug>>();
+    let is_active = app_theme.read().0.as_deref() == Some(&slug);
+
+    let slug_for_click = slug.clone();
+    rsx! {
+        button {
+            class: if is_active { "use-as-app-theme-btn use-as-app-theme-btn-active" } else { "use-as-app-theme-btn" },
+            onclick: move |evt: Event<MouseData>| {
+                evt.stop_propagation();
+                if is_active {
+                    app_theme.set(AppThemeSlug(None));
+                } else {
+                    app_theme.set(AppThemeSlug(Some(slug_for_click.clone())));
+                }
+            },
+            if is_active { "\u{2713} App Theme" } else { "Use as App Theme" }
         }
     }
 }

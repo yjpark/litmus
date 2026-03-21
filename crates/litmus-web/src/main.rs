@@ -32,8 +32,8 @@ pub enum Route {
 
 #[component]
 fn App() -> Element {
-    use_context_provider(|| Signal::new(CompareSelection::default()));
-    use_context_provider(|| Signal::new(FilterState::default()));
+    use_context_provider(|| Signal::new(Shortlist::default()));
+    use_context_provider(|| Signal::new(CvdSimulation::default()));
     use_context_provider(|| Signal::new(ActiveScene::default()));
     use_context_provider(|| Signal::new(AppThemeSlug::default()));
     use_context_provider(|| Signal::new(SidebarOpen::default()));

@@ -1,10 +1,11 @@
 use litmus_model::cvd::CvdType;
 
 pub const MAX_COMPARE: usize = 4;
+pub const MAX_SHORTLIST: usize = 8;
 
-/// Global compare selection state — stores slugs of themes selected for comparison.
+/// Global shortlist state — stores slugs of themes the user has favorited.
 #[derive(Clone, Default)]
-pub struct CompareSelection(pub Vec<String>);
+pub struct Shortlist(pub Vec<String>);
 
 /// Filter mode for light/dark themes.
 #[derive(Clone, Copy, PartialEq)]
@@ -14,13 +15,12 @@ pub enum VariantFilter {
     Light,
 }
 
-/// Global filter state — persists across navigation.
+/// Filter state — used locally on the browse page.
 #[derive(Clone)]
 pub struct FilterState {
     pub query: String,
     pub variant: VariantFilter,
     pub min_readability: Option<u8>,
-    pub cvd: Option<CvdType>,
 }
 
 impl Default for FilterState {
@@ -29,10 +29,13 @@ impl Default for FilterState {
             query: String::new(),
             variant: VariantFilter::All,
             min_readability: None,
-            cvd: None,
         }
     }
 }
+
+/// Global CVD simulation state — affects all pages.
+#[derive(Clone, Default)]
+pub struct CvdSimulation(pub Option<CvdType>);
 
 /// Currently selected scene (by index) — used on ThemeDetail.
 #[derive(Clone, Default)]

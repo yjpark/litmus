@@ -11,9 +11,10 @@ use crate::Route;
 pub fn CompareThemes(slugs: String) -> Element {
     let all_themes = themes::load_embedded_themes();
     let scenes = litmus_model::scenes::all_scenes();
+    let cvd_sim = use_context::<Signal<CvdSimulation>>();
+    let cvd = cvd_sim.read().0;
+
     let slug_list: Vec<&str> = slugs.split(',').filter(|s| !s.is_empty()).collect();
-    let filter = use_context::<Signal<FilterState>>();
-    let cvd = filter.read().cvd;
 
     let compare_themes: Vec<litmus_model::Theme> = slug_list
         .iter()
@@ -43,11 +44,6 @@ pub fn CompareThemes(slugs: String) -> Element {
         div { class: "page-compare",
             h2 { class: "page-title", "{title}" }
 
-            CompareSelector {
-                all_themes: all_themes.clone(),
-                current_slugs: slug_list.iter().map(|s| s.to_string()).collect(),
-            }
-
             if compare_themes.len() >= 2 {
                 ColorDiffTable { themes: compare_themes.clone() }
             }
@@ -76,49 +72,6 @@ pub fn CompareThemes(slugs: String) -> Element {
                                     theme: theme.clone(),
                                     scene: scene.clone(),
                                     compact: n > 2,
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-/// Dropdowns for selecting comparison themes (supports 2-4).
-#[component]
-fn CompareSelector(
-    all_themes: Vec<litmus_model::Theme>,
-    current_slugs: Vec<String>,
-) -> Element {
-    let nav = use_navigator();
-
-    rsx! {
-        div { class: "compare-selector",
-            for (idx, slug) in current_slugs.iter().enumerate() {
-                {
-                    let all = all_themes.clone();
-                    let slugs = current_slugs.clone();
-                    let current_val = slug.clone();
-                    rsx! {
-                        if idx > 0 {
-                            span { class: "compare-vs", "vs" }
-                        }
-                        select {
-                            class: "compare-select",
-                            value: "{current_val}",
-                            onchange: move |evt: Event<FormData>| {
-                                let mut new_slugs = slugs.clone();
-                                new_slugs[idx] = evt.value();
-                                nav.push(Route::CompareThemes {
-                                    slugs: new_slugs.join(","),
-                                });
-                            },
-                            for t in &all {
-                                option {
-                                    value: "{theme_slug(&t.name)}",
-                                    "{t.name}"
                                 }
                             }
                         }

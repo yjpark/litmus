@@ -123,155 +123,96 @@ body {
   margin-bottom: 0.5rem;
 }
 
-/* Sidebar search */
-.sidebar-search {
-  width: 100%;
-  font-size: var(--font-size-sm);
-  padding: 0.4rem 0.6rem;
-  border: 1px solid var(--app-border);
-  border-radius: 0.25rem;
-  background: var(--app-surface);
-  color: var(--app-fg);
-  font-family: inherit;
-  outline: none;
-  transition: border-color 0.15s ease;
-}
-
-.sidebar-search:focus {
-  border-color: var(--app-accent);
-}
-
-.sidebar-search::placeholder {
-  color: var(--app-muted);
-}
-
-/* Sidebar filters */
-.sidebar-filters {
+/* Sidebar nav links */
+.sidebar-nav {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.sidebar-divider {
-  opacity: 0.3;
-  margin: 0 0.1rem;
-}
-
-.sidebar-count {
-  font-size: 0.7rem;
-  color: var(--app-muted);
-  margin-left: auto;
-}
-
-/* Sidebar CVD */
-.sidebar-cvd {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  align-items: center;
-}
-
-/* Sidebar readability filter */
-.sidebar-readability {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.sidebar-readability .sidebar-section-label {
-  margin-bottom: 0;
-}
-
-.sidebar-readability-select {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.4rem;
-  background: var(--app-surface);
-  color: var(--app-fg);
-  border: 1px solid var(--app-border);
-  border-radius: 0.25rem;
-  font-family: inherit;
-  cursor: pointer;
-}
-
-/* Sidebar theme list */
-.sidebar-theme-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0;
-  border-bottom: 1px solid var(--app-border);
-}
-
-.sidebar-family {
-  margin-bottom: 0;
-}
-
-.sidebar-family-name {
-  font-size: 0.65rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--app-muted);
-  padding: 0.4rem 1rem 0.2rem;
-}
-
-.sidebar-theme-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.35rem 0.75rem;
+.sidebar-nav-link {
+  display: block;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
   text-decoration: none;
-  font-size: 0.8rem;
-  transition: filter 0.1s ease;
-  cursor: pointer;
-  border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+  color: var(--app-fg);
+  border-radius: 0.25rem;
+  transition: background 0.15s ease;
 }
 
-.sidebar-theme-item:hover {
-  filter: brightness(1.15);
+.sidebar-nav-link:hover {
+  background: var(--app-hover);
 }
 
-/* Active theme highlight — Dioxus adds .active to current route Links */
-.sidebar-theme-item.active {
-  outline: 2px solid var(--app-accent);
-  outline-offset: -2px;
+.sidebar-nav-link.active {
+  background: var(--app-active);
+  color: var(--app-accent);
 }
 
-.sidebar-theme-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.sidebar-readability-badge {
-  font-size: 0.65rem;
-  opacity: 0.7;
-  flex-shrink: 0;
-  font-family: monospace;
-}
-
-/* Filter badge (count) */
-.filter-badge {
-  font-size: 0.65rem;
-  opacity: 0.6;
-}
-
-/* Sidebar compare */
-.sidebar-compare {
+/* Sidebar shortlist */
+.sidebar-shortlist {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.sidebar-compare-chips {
+.sidebar-shortlist-items {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 
-.sidebar-compare-actions {
+.sidebar-shortlist-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.2rem 0;
+  font-size: 0.8rem;
+}
+
+.sidebar-shortlist-check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.sidebar-shortlist-check input[type="checkbox"] {
+  accent-color: var(--app-accent);
+  cursor: pointer;
+}
+
+.sidebar-shortlist-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-shortlist-remove {
+  background: none;
+  border: none;
+  color: var(--app-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0 0.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.sidebar-shortlist-remove:hover {
+  color: var(--app-error);
+}
+
+.sidebar-shortlist-actions {
   display: flex;
   gap: 0.4rem;
+  align-items: center;
+}
+
+.sidebar-shortlist-hint {
+  font-size: 0.7rem;
+  color: var(--app-muted);
 }
 
 .sidebar-compare-btn {
@@ -308,21 +249,13 @@ body {
   opacity: 1;
 }
 
-/* Sidebar app theme */
-.sidebar-app-theme {
+/* Sidebar CVD */
+.sidebar-cvd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
   margin-top: auto;
-}
-
-.sidebar-app-theme-select {
-  width: 100%;
-  font-size: 0.75rem;
-  padding: 0.35rem 0.5rem;
-  background: var(--app-surface);
-  color: var(--app-fg);
-  border: 1px solid var(--app-border);
-  border-radius: 0.25rem;
-  font-family: inherit;
-  cursor: pointer;
 }
 
 /* ==========================================================================
@@ -457,6 +390,55 @@ body {
   border-color: var(--app-accent);
 }
 
+/* Filter badge (count) */
+.filter-badge {
+  font-size: 0.65rem;
+  opacity: 0.6;
+}
+
+/* ==========================================================================
+   Inline filter bar (browse page)
+   ========================================================================== */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.filter-bar-search {
+  font-size: var(--font-size-sm);
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.25rem;
+  background: var(--app-surface);
+  color: var(--app-fg);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease;
+  min-width: 160px;
+}
+
+.filter-bar-search:focus {
+  border-color: var(--app-accent);
+}
+
+.filter-bar-search::placeholder {
+  color: var(--app-muted);
+}
+
+.filter-bar-readability {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.5rem;
+  background: var(--app-surface);
+  color: var(--app-fg);
+  border: 1px solid var(--app-border);
+  border-radius: 0.25rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
 /* ==========================================================================
    Theme cards
    ========================================================================== */
@@ -500,6 +482,12 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-top: 0.5rem;
+}
+
+.theme-card-actions {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
 }
 
 /* Swatch row */
@@ -555,16 +543,6 @@ body {
 
 .filter-count {
   font-size: 0.8rem;
-  color: var(--app-muted);
-}
-
-.family-group {
-  margin-bottom: 2rem;
-}
-
-.family-name {
-  font-size: 1rem;
-  margin-bottom: 0.75rem;
   color: var(--app-muted);
 }
 
@@ -800,6 +778,64 @@ body {
 }
 
 /* ==========================================================================
+   Shortlist toggle button (on cards / detail)
+   ========================================================================== */
+.shortlist-toggle {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.2rem;
+  background: transparent;
+  color: var(--app-fg);
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  opacity: 0.6;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.shortlist-toggle:hover {
+  opacity: 1;
+  background: var(--app-hover);
+}
+
+.shortlist-toggle-active {
+  opacity: 1;
+  background: var(--app-active);
+  border-color: var(--app-accent);
+  color: var(--app-accent);
+}
+
+/* ==========================================================================
+   Use as App Theme button
+   ========================================================================== */
+.use-as-app-theme-btn {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.2rem;
+  background: transparent;
+  color: var(--app-fg);
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  opacity: 0.6;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.use-as-app-theme-btn:hover {
+  opacity: 1;
+  background: var(--app-hover);
+}
+
+.use-as-app-theme-btn-active {
+  opacity: 1;
+  background: var(--app-active);
+  border-color: var(--app-success);
+  color: var(--app-success);
+}
+
+/* ==========================================================================
    Export
    ========================================================================== */
 .export-section {
@@ -948,83 +984,6 @@ body {
   text-decoration: none;
 }
 
-.compare-selector {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.compare-vs {
-  opacity: 0.6;
-  font-size: 0.85rem;
-}
-
-.compare-select {
-  background: var(--app-surface);
-  color: var(--app-fg);
-  border: 1px solid var(--app-border);
-  padding: 0.4rem 0.6rem;
-  border-radius: 0.25rem;
-  font-size: 0.85rem;
-  font-family: inherit;
-}
-
-/* Compare toggle button */
-.compare-toggle {
-  font-size: 0.65rem;
-  padding: 0.15rem 0.45rem;
-  border: 1px solid var(--app-border);
-  border-radius: 0.2rem;
-  background: transparent;
-  color: var(--app-fg);
-  cursor: pointer;
-  font-family: inherit;
-  white-space: nowrap;
-  opacity: 0.6;
-  transition: opacity 0.15s ease, background 0.15s ease;
-}
-
-.compare-toggle:hover {
-  opacity: 1;
-  background: var(--app-hover);
-}
-
-.compare-toggle-active {
-  opacity: 1;
-  background: var(--app-active);
-  border-color: var(--app-accent);
-  color: var(--app-accent);
-}
-
-/* Compare chips */
-.compare-chip {
-  font-size: 0.75rem;
-  padding: 0.2rem 0.5rem;
-  background: var(--app-active);
-  border: 1px solid var(--app-accent);
-  border-radius: 0.25rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.compare-chip-remove {
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  font-size: 0.65rem;
-  opacity: 0.6;
-  padding: 0;
-  line-height: 1;
-}
-
-.compare-chip-remove:hover {
-  opacity: 1;
-}
-
 /* ==========================================================================
    Color diff table
    ========================================================================== */
@@ -1132,15 +1091,13 @@ body {
 .scene-tab:focus-visible,
 .export-btn:focus-visible,
 .export-copy-btn:focus-visible,
-.compare-toggle:focus-visible,
-.compare-chip-remove:focus-visible,
-.theme-card:focus-visible,
-.sidebar-search:focus-visible,
-.sidebar-theme-item:focus-visible,
+.shortlist-toggle:focus-visible,
+.use-as-app-theme-btn:focus-visible,
+.sidebar-shortlist-remove:focus-visible,
 .sidebar-compare-btn:focus-visible,
 .sidebar-clear-btn:focus-visible,
-.sidebar-app-theme-select:focus-visible,
 .hamburger-btn:focus-visible,
+.theme-card:focus-visible,
 a:focus-visible,
 button:focus-visible,
 select:focus-visible {
@@ -1195,7 +1152,7 @@ select:focus-visible {
 }
 
 /* ==========================================================================
-   Mobile (≤768px)
+   Mobile (<=768px)
    ========================================================================== */
 @media (max-width: 768px) {
   .sidebar-wrapper {
@@ -1235,7 +1192,6 @@ select:focus-visible {
 
   .main-content {
     padding: 1rem;
-    /* offset for mobile header */
   }
 
   .theme-grid {
@@ -1257,7 +1213,8 @@ select:focus-visible {
   .filter-btn,
   .scene-tab,
   .export-btn,
-  .compare-toggle {
+  .shortlist-toggle,
+  .use-as-app-theme-btn {
     min-height: 44px;
     min-width: 44px;
     display: inline-flex;
@@ -1267,6 +1224,15 @@ select:focus-visible {
 
   .mono, pre, code {
     font-size: 0.9rem;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-bar-search {
+    width: 100%;
   }
 }
 
