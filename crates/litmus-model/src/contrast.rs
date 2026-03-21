@@ -78,7 +78,7 @@ pub fn validate_scene_contrast(
 
     for (line_idx, line) in scene.lines.iter().enumerate() {
         for (span_idx, span) in line.spans.iter().enumerate() {
-            if span.text.trim().is_empty() {
+            if span.text.trim().is_empty() || span.style.dim || span.fg.is_none() {
                 continue;
             }
 
@@ -139,7 +139,7 @@ pub fn readability_score(theme: &Theme) -> f64 {
     for scene in &scenes {
         for line in &scene.lines {
             for span in &line.spans {
-                if span.text.trim().is_empty() {
+                if span.text.trim().is_empty() || span.style.dim || span.fg.is_none() {
                     continue;
                 }
                 total += 1;
@@ -262,5 +262,96 @@ mod tests {
         assert_eq!(issues.len(), 1);
         assert_eq!(issues[0].text, "bad contrast");
         assert!(issues[0].ratio < WCAG_AA_NORMAL);
+    }
+
+    #[test]
+    fn plain_spans_excluded_from_scoring() {
+        use crate::scene::*;
+        use crate::AnsiColors;
+
+        // Light theme: foreground has low contrast against background
+        let theme = Theme {
+            name: "light-test".into(),
+            background: Color::new(250, 250, 250), // #fafafa
+            foreground: Color::new(87, 95, 102),    // #575f66 (~3.95:1 — fails AA)
+            cursor: Color::new(255, 106, 0),
+            selection_background: Color::new(209, 228, 244),
+            selection_foreground: Color::new(87, 95, 102),
+            ansi: AnsiColors::from_array([
+                Color::new(0, 0, 0),
+                Color::new(255, 51, 51),
+                Color::new(76, 191, 153),
+                Color::new(255, 170, 51),
+                Color::new(57, 186, 230),
+                Color::new(163, 122, 204),
+                Color::new(76, 191, 153),
+                Color::new(87, 95, 102),
+                Color::new(171, 178, 191),
+                Color::new(255, 51, 51),
+                Color::new(76, 191, 153),
+                Color::new(255, 170, 51),
+                Color::new(57, 186, 230),
+                Color::new(163, 122, 204),
+                Color::new(76, 191, 153),
+                Color::new(255, 255, 255),
+            ]),
+        };
+
+        let scene = Scene {
+            id: "test".into(),
+            name: "Test".into(),
+            description: "Test".into(),
+            lines: vec![SceneLine::new(vec![
+                // Plain text (fg=None) — should be SKIPPED
+                StyledSpan::plain("plain text"),
+                // Explicitly colored — should be counted
+                StyledSpan::colored("colored text", ThemeColor::Ansi(4)),
+            ])],
+        };
+
+        let issues = validate_scene_contrast(&scene, &theme, WCAG_AA_NORMAL, WCAG_AA_LARGE);
+        // Plain span should NOT generate an issue even though fg/bg ratio < 4.5
+        assert!(issues.iter().all(|i| i.text != "plain text"));
+    }
+
+    #[test]
+    fn dim_spans_excluded_from_scoring() {
+        use crate::scene::*;
+        use crate::AnsiColors;
+
+        let theme = Theme {
+            name: "dim-test".into(),
+            background: Color::new(30, 30, 30),
+            foreground: Color::new(200, 200, 200),
+            cursor: Color::new(200, 200, 200),
+            selection_background: Color::new(60, 60, 60),
+            selection_foreground: Color::new(200, 200, 200),
+            ansi: AnsiColors::from_array([
+                Color::new(30, 30, 30), Color::new(50, 20, 20),
+                Color::new(0, 200, 0), Color::new(200, 200, 0),
+                Color::new(0, 0, 200), Color::new(200, 0, 200),
+                Color::new(0, 200, 200), Color::new(200, 200, 200),
+                Color::new(80, 80, 80), Color::new(255, 50, 50),
+                Color::new(50, 255, 50), Color::new(255, 255, 50),
+                Color::new(50, 50, 255), Color::new(255, 50, 255),
+                Color::new(50, 255, 255), Color::new(255, 255, 255),
+            ]),
+        };
+
+        let scene = Scene {
+            id: "test".into(),
+            name: "Test".into(),
+            description: "Test".into(),
+            lines: vec![SceneLine::new(vec![
+                // Dim span with low-contrast color — should be skipped
+                StyledSpan::colored("dim text", ThemeColor::Ansi(1)).dim(),
+                // Non-dim low-contrast — should be caught
+                StyledSpan::colored("visible text", ThemeColor::Ansi(1)),
+            ])],
+        };
+
+        let issues = validate_scene_contrast(&scene, &theme, WCAG_AA_NORMAL, WCAG_AA_LARGE);
+        assert_eq!(issues.len(), 1);
+        assert_eq!(issues[0].text, "visible text");
     }
 }

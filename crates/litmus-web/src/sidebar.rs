@@ -29,7 +29,27 @@ pub fn Sidebar() -> Element {
             compare_slugs.push(s.clone());
         }
     }
-    let can_compare = compare_slugs.len() >= 2;
+
+    // If fewer than 2 compare slugs, fill with alphabetically-first themes not already present
+    if compare_slugs.len() < 2 {
+        let mut fillers: Vec<String> = all_themes.iter()
+            .map(|t| theme_slug(&t.name))
+            .filter(|s| !compare_slugs.contains(s))
+            .collect();
+        fillers.sort();
+        for f in fillers {
+            if compare_slugs.len() >= 2 {
+                break;
+            }
+            compare_slugs.push(f);
+        }
+    }
+
+    let compare_label = if sl_count > 0 || app_slug.is_some() {
+        format!("Compare ({})", compare_slugs.len())
+    } else {
+        "Compare...".to_string()
+    };
     let compare_url = compare_slugs.join(",");
 
     let show_shortlist = sl_count > 0 || app_slug.is_some();
@@ -56,13 +76,11 @@ pub fn Sidebar() -> Element {
                     onclick: move |_| sidebar_open.set(SidebarOpen(false)),
                     "Browse Themes"
                 }
-                if can_compare {
-                    Link {
-                        to: Route::CompareThemes { slugs: compare_url.clone() },
-                        class: "sidebar-nav-link",
-                        onclick: move |_| sidebar_open.set(SidebarOpen(false)),
-                        "Compare ({compare_slugs.len()})"
-                    }
+                Link {
+                    to: Route::CompareThemes { slugs: compare_url.clone() },
+                    class: "sidebar-nav-link",
+                    onclick: move |_| sidebar_open.set(SidebarOpen(false)),
+                    "{compare_label}"
                 }
             }
 
@@ -92,7 +110,7 @@ pub fn Sidebar() -> Element {
                             }
                         }
 
-                        for slug in &sl.0 {
+                        for slug in sl.0.iter().filter(|s| Some(s.as_str()) != app_slug.as_deref()) {
                             {
                                 let name = all_themes.iter()
                                     .find(|t| theme_slug(&t.name) == *slug)
@@ -123,14 +141,6 @@ pub fn Sidebar() -> Element {
                     }
 
                     div { class: "sidebar-shortlist-actions",
-                        if can_compare {
-                            Link {
-                                to: Route::CompareThemes { slugs: compare_url },
-                                class: "sidebar-compare-btn",
-                                onclick: move |_| sidebar_open.set(SidebarOpen(false)),
-                                "Compare ({compare_slugs.len()})"
-                            }
-                        }
                         if sl_count > 0 {
                             button {
                                 class: "sidebar-clear-btn",

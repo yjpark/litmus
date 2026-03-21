@@ -864,29 +864,26 @@ body {
    Use as App Theme button
    ========================================================================== */
 .use-as-app-theme-btn {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   padding: 0.15rem 0.45rem;
-  border: 1px solid var(--app-border);
+  border: 1px solid var(--app-accent);
   border-radius: 0.2rem;
-  background: transparent;
-  color: var(--app-fg);
+  background: var(--app-accent);
+  color: var(--app-bg);
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
-  opacity: 0.6;
-  transition: opacity 0.15s ease, background 0.15s ease;
+  transition: filter 0.15s ease, background 0.15s ease;
 }
 
 .use-as-app-theme-btn:hover {
-  opacity: 1;
-  background: var(--app-hover);
+  filter: brightness(1.1);
 }
 
 .use-as-app-theme-btn-active {
-  opacity: 1;
-  background: var(--app-active);
+  background: var(--app-success);
   border-color: var(--app-success);
-  color: var(--app-success);
+  color: var(--app-bg);
 }
 
 /* ==========================================================================

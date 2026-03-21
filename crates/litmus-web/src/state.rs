@@ -41,9 +41,15 @@ pub struct CvdSimulation(pub Option<CvdType>);
 #[derive(Clone, Default)]
 pub struct ActiveScene(pub Option<usize>);
 
-/// App chrome theme slug. None = default (Tokyo Night-inspired).
-#[derive(Clone, Default)]
+/// App chrome theme slug.
+#[derive(Clone)]
 pub struct AppThemeSlug(pub Option<String>);
+
+impl Default for AppThemeSlug {
+    fn default() -> Self {
+        Self(Some("tokyo-night".to_string()))
+    }
+}
 
 /// Mobile sidebar drawer state.
 #[derive(Clone, Default)]

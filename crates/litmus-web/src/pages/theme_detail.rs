@@ -150,7 +150,7 @@ pub fn ThemeDetail(slug: String) -> Element {
                                 }
                             }
                         }
-                        ShortlistToggle { slug: this_slug.clone(), name: theme.name.clone() }
+                        ShortlistCheckbox { slug: this_slug.clone(), name: theme.name.clone() }
                         UseAsAppThemeButton { slug: this_slug }
                     }
 
