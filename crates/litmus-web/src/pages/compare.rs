@@ -50,6 +50,7 @@ pub fn CompareThemes(slugs: String) -> Element {
 
             for scene in &scenes {
                 div { class: "compare-scene-group",
+                    id: "scene-{scene.id}",
                     h3 { class: "compare-scene-name", "{scene.name}" }
 
                     div {
@@ -78,6 +79,8 @@ pub fn CompareThemes(slugs: String) -> Element {
                     }
                 }
             }
+
+            SceneMinimap { scenes: scenes.clone() }
         }
     }
 }

@@ -12,7 +12,7 @@ static ANSI_NAMES: &[&str] = &[
     "bright blue", "bright magenta", "bright cyan", "bright white",
 ];
 
-/// Single theme detail page with scene navigation via sidebar's ActiveScene.
+/// Single theme detail page — all scenes rendered vertically with minimap.
 #[component]
 pub fn ThemeDetail(slug: String) -> Element {
     let all_themes = themes::load_embedded_themes();
@@ -20,7 +20,6 @@ pub fn ThemeDetail(slug: String) -> Element {
     let mut palette_expanded = use_signal(|| false);
     let mut issues_expanded = use_signal(|| false);
     let cvd_sim = use_context::<Signal<CvdSimulation>>();
-    let active_scene = use_context::<Signal<ActiveScene>>();
 
     match theme {
         Some(theme) => {
@@ -31,8 +30,6 @@ pub fn ThemeDetail(slug: String) -> Element {
             let fg = theme.foreground.to_hex();
             let this_slug = theme_slug(&theme.name);
             let scenes = litmus_model::scenes::all_scenes();
-            let scene_idx = active_scene.read().0.unwrap_or(0);
-            let tab_idx = scene_idx.min(scenes.len().saturating_sub(1));
             let expanded = *palette_expanded.read();
             let issues_open = *issues_expanded.read();
 
@@ -43,34 +40,26 @@ pub fn ThemeDetail(slug: String) -> Element {
             );
             let readability = litmus_model::contrast::readability_score(&theme) as u8;
 
-            let scene_count = scenes.len();
             let mut shortlist = use_context::<Signal<Shortlist>>();
             let app_theme = use_context::<Signal<AppThemeSlug>>();
             let is_current_theme = app_theme.read().0.as_deref() == Some(this_slug.as_str());
             let detail_slug = this_slug.clone();
-            let mut active_scene_write = active_scene;
 
-            // Count issues per scene for tab badges
-            let mut issues_per_scene: std::collections::HashMap<&str, usize> = std::collections::HashMap::new();
+            // Count issues per scene
+            let mut issues_per_scene: std::collections::HashMap<&str, Vec<(usize, usize, SpanIssueDetail)>> = std::collections::HashMap::new();
             for issue in &issues {
-                *issues_per_scene.entry(issue.scene_id.as_str()).or_insert(0) += 1;
+                issues_per_scene.entry(issue.scene_id.as_str()).or_default().push(
+                    (issue.line, issue.span, SpanIssueDetail {
+                        ratio: issue.ratio,
+                        threshold: issue.threshold,
+                        level: issue.level.to_string(),
+                        fg_hex: issue.fg.to_hex(),
+                        bg_hex: issue.bg.to_hex(),
+                    })
+                );
             }
 
-            // Build issue_details for the active scene view
-            let active_scene_details: Vec<(usize, usize, SpanIssueDetail)> = issues.iter()
-                .filter(|i| scenes.get(tab_idx).is_some_and(|s| s.id == i.scene_id))
-                .map(|i| (i.line, i.span, SpanIssueDetail {
-                    ratio: i.ratio,
-                    threshold: i.threshold,
-                    level: i.level.to_string(),
-                    fg_hex: i.fg.to_hex(),
-                    bg_hex: i.bg.to_hex(),
-                }))
-                .collect();
-
             // Group issues by (scene_id, line_idx) for the expanded issues list
-            // Each unique line appears once, collecting all issue spans for that line.
-            // Result: Vec<(scene_id, scene_name, Vec<(line_idx, Vec<(span_idx, SpanIssueDetail)>)>)>
             #[allow(clippy::type_complexity)]
             let mut issues_by_scene_line: Vec<(String, String, Vec<(usize, Vec<(usize, SpanIssueDetail)>)>)> = Vec::new();
             for issue in &issues {
@@ -108,16 +97,6 @@ pub fn ThemeDetail(slug: String) -> Element {
                     autofocus: true,
                     onkeydown: move |evt: Event<KeyboardData>| {
                         match evt.key() {
-                            Key::ArrowLeft => {
-                                if tab_idx > 0 {
-                                    active_scene_write.set(ActiveScene(Some(tab_idx - 1)));
-                                }
-                            }
-                            Key::ArrowRight => {
-                                if tab_idx + 1 < scene_count {
-                                    active_scene_write.set(ActiveScene(Some(tab_idx + 1)));
-                                }
-                            }
                             Key::Character(ref c) if c == "c" => {
                                 if !is_current_theme {
                                     let mut sel = shortlist.write();
@@ -163,13 +142,19 @@ pub fn ThemeDetail(slug: String) -> Element {
                         div { class: "contrast-issues-list",
                             for (scene_id, scene_name, line_groups) in &issues_by_scene_line {
                                 {
-                                    let target_idx = scenes.iter().position(|s| s.id == *scene_id).unwrap_or(0);
-                                    let scene_obj = scenes.get(target_idx);
+                                    let scene_obj = scenes.iter().find(|s| s.id == *scene_id);
+                                    let scroll_id = scene_id.clone();
                                     rsx! {
                                         div { class: "contrast-issue-group",
                                             button {
                                                 class: "contrast-issue-scene mono",
-                                                onclick: move |_| active_scene_write.set(ActiveScene(Some(target_idx))),
+                                                onclick: move |_| {
+                                                    let js = format!(
+                                                        "document.getElementById('scene-{}').scrollIntoView({{behavior:'smooth',block:'start'}})",
+                                                        scroll_id
+                                                    );
+                                                    dioxus::document::eval(&js);
+                                                },
                                                 "{scene_name} \u{2192}"
                                             }
                                             for (line_idx, span_details) in line_groups.iter() {
@@ -204,37 +189,30 @@ pub fn ThemeDetail(slug: String) -> Element {
                         }
                     }
 
-                    // Scene tabs (at top, before palette)
-                    div { class: "scene-nav",
-                        div { class: "scene-tabs", role: "tablist",
-                            for (i, scene) in scenes.iter().enumerate() {
-                                {
-                                    let scene_issue_count = issues_per_scene.get(scene.id.as_str()).copied().unwrap_or(0);
-                                    rsx! {
-                                        button {
-                                            class: if i == tab_idx { "scene-tab scene-tab-active" } else { "scene-tab" },
-                                            role: "tab",
-                                            aria_selected: if i == tab_idx { "true" } else { "false" },
-                                            onclick: move |_| active_scene_write.set(ActiveScene(Some(i))),
-                                            "{scene.name}"
-                                            if scene_issue_count > 0 {
-                                                span { class: "scene-tab-badge", "{scene_issue_count}" }
-                                            }
+                    // All scenes rendered vertically
+                    for scene in &scenes {
+                        {
+                            let scene_issues = issues_per_scene
+                                .get(scene.id.as_str())
+                                .cloned()
+                                .unwrap_or_default();
+                            let issue_count = scene_issues.len();
+                            rsx! {
+                                div {
+                                    class: "detail-scene-section",
+                                    id: "scene-{scene.id}",
+                                    h3 { class: "detail-scene-heading",
+                                        "{scene.name}"
+                                        if issue_count > 0 {
+                                            span { class: "scene-tab-badge", "{issue_count}" }
                                         }
                                     }
+                                    scene_renderer::SceneView {
+                                        theme: theme.clone(),
+                                        scene: scene.clone(),
+                                        issue_details: scene_issues,
+                                    }
                                 }
-                            }
-                        }
-                        span { class: "mono scene-hint", "\u{2190} \u{2192} navigate \u{00B7} c shortlist" }
-                    }
-
-                    // Active scene
-                    if let Some(scene) = scenes.get(tab_idx) {
-                        div { role: "tabpanel",
-                            scene_renderer::SceneView {
-                                theme: theme.clone(),
-                                scene: scene.clone(),
-                                issue_details: active_scene_details.clone(),
                             }
                         }
                     }
@@ -298,6 +276,8 @@ pub fn ThemeDetail(slug: String) -> Element {
 
                     ExportButtons { theme: theme.clone() }
                 }
+
+                SceneMinimap { scenes: scenes.clone() }
             }
         }
         None => {

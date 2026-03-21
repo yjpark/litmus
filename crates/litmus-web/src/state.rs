@@ -51,6 +51,10 @@ impl Default for AppThemeSlug {
     }
 }
 
+/// Set of scene IDs currently visible in the viewport (for minimap highlighting).
+#[derive(Clone, Default)]
+pub struct VisibleScenes(pub std::collections::HashSet<String>);
+
 /// Mobile sidebar drawer state.
 #[derive(Clone, Default)]
 pub struct SidebarOpen(pub bool);

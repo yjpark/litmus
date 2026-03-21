@@ -350,6 +350,99 @@ fn ExportFormatBtn(
     }
 }
 
+/// Scene minimap — fixed vertical strip on the right edge showing all scene names.
+/// Highlights scenes currently visible in the viewport via IntersectionObserver.
+#[component]
+pub fn SceneMinimap(scenes: Vec<litmus_model::scene::Scene>) -> Element {
+    let mut visible = use_context::<Signal<VisibleScenes>>();
+
+    // Set up IntersectionObserver on mount to track which scenes are in view
+    use_effect(move || {
+        let scene_ids: Vec<String> = litmus_model::scenes::all_scenes()
+            .iter()
+            .map(|s| s.id.clone())
+            .collect();
+        // Build JS array literal from scene IDs
+        let ids_js: Vec<String> = scene_ids.iter().map(|id| format!("\"{}\"", id)).collect();
+        let ids_array = format!("[{}]", ids_js.join(","));
+        let js = format!(
+            r#"
+            window.__litmus_visible_scenes = {{}};
+            const ids = {ids_array};
+            if (window.__litmus_minimap_observer) {{
+                window.__litmus_minimap_observer.disconnect();
+            }}
+            const observer = new IntersectionObserver((entries) => {{
+                entries.forEach(e => {{
+                    const id = e.target.id.replace('scene-', '');
+                    if (e.isIntersecting) {{
+                        window.__litmus_visible_scenes[id] = true;
+                    }} else {{
+                        delete window.__litmus_visible_scenes[id];
+                    }}
+                }});
+            }}, {{ threshold: 0.1 }});
+            ids.forEach(id => {{
+                const el = document.getElementById('scene-' + id);
+                if (el) observer.observe(el);
+            }});
+            window.__litmus_minimap_observer = observer;
+            "#
+        );
+        eval(&js);
+    });
+
+    // Poll visible scenes from JS every 200ms using eval-based sleep
+    use_future(move || async move {
+        loop {
+            let js = r#"
+                await new Promise(r => setTimeout(r, 200));
+                return Object.keys(window.__litmus_visible_scenes || {}).join(",");
+            "#;
+            if let Ok(result) = eval(js).await {
+                let csv = result.to_string();
+                // Result is a JSON string like "\"id1,id2\"" — strip quotes
+                let csv = csv.trim_matches('"');
+                let set: std::collections::HashSet<String> = if csv.is_empty() {
+                    std::collections::HashSet::new()
+                } else {
+                    csv.split(',').map(|s| s.to_string()).collect()
+                };
+                if set != visible.read().0 {
+                    visible.set(VisibleScenes(set));
+                }
+            }
+        }
+    });
+
+    let visible_set = visible.read().0.clone();
+
+    rsx! {
+        nav { class: "scene-minimap",
+            aria_label: "Scene navigation",
+            for scene in &scenes {
+                {
+                    let is_visible = visible_set.contains(&scene.id);
+                    let scene_id = scene.id.clone();
+                    rsx! {
+                        button {
+                            class: if is_visible { "scene-minimap-item scene-minimap-item-active" } else { "scene-minimap-item" },
+                            onclick: move |_| {
+                                let js = format!(
+                                    "document.getElementById('scene-{}').scrollIntoView({{behavior:'smooth',block:'start'}})",
+                                    scene_id
+                                );
+                                eval(&js);
+                            },
+                            "{scene.name}"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 /// Color diff table showing which colors differ between compared themes.
 #[component]
 pub fn ColorDiffTable(themes: Vec<litmus_model::Theme>) -> Element {

@@ -473,6 +473,13 @@ button.sidebar-feel-lucky:hover {
   gap: 0.5rem;
   align-items: center;
   margin-bottom: 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--app-bg);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--app-border);
 }
 
 .filter-bar-search {
@@ -496,15 +503,39 @@ button.sidebar-feel-lucky:hover {
   color: var(--app-muted);
 }
 
+.filter-bar-readability-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.filter-bar-readability-wrap::after {
+  content: "";
+  position: absolute;
+  right: 0.45rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--app-fg);
+  pointer-events: none;
+}
+
 .filter-bar-readability {
   font-size: 0.75rem;
-  padding: 0.3rem 0.5rem;
+  padding: 0.3rem 1.4rem 0.3rem 0.5rem;
+  appearance: none;
+  -webkit-appearance: none;
   background: var(--app-surface);
   color: var(--app-fg);
   border: 1px solid var(--app-border);
   border-radius: 0.25rem;
   font-family: inherit;
   cursor: pointer;
+}
+
+.filter-bar-readability option {
+  background: var(--app-bg);
+  color: var(--app-fg);
 }
 
 /* ==========================================================================
@@ -1349,6 +1380,65 @@ select:focus-visible {
 }
 
 /* ==========================================================================
+   Detail scene sections (vertical layout)
+   ========================================================================== */
+.detail-scene-section {
+  margin-bottom: 2rem;
+  scroll-margin-top: 1rem;
+}
+
+.detail-scene-heading {
+  font-size: 0.95rem;
+  color: var(--app-muted);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ==========================================================================
+   Scene minimap — fixed right-edge navigation
+   ========================================================================== */
+.scene-minimap {
+  position: fixed;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 120px;
+}
+
+.scene-minimap-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-size: 0.7rem;
+  font-family: inherit;
+  padding: 0.25rem 0.5rem;
+  background: none;
+  border: none;
+  border-left: 2px solid transparent;
+  color: var(--app-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scene-minimap-item:hover {
+  color: var(--app-fg);
+}
+
+.scene-minimap-item-active {
+  border-left-color: var(--app-accent);
+  color: var(--app-accent);
+}
+
+/* ==========================================================================
    Mobile (<=768px)
    ========================================================================== */
 @media (max-width: 768px) {
@@ -1426,10 +1516,15 @@ select:focus-visible {
   .filter-bar {
     flex-direction: column;
     align-items: stretch;
+    top: 45px;
   }
 
   .filter-bar-search {
     width: 100%;
+  }
+
+  .scene-minimap {
+    display: none;
   }
 }
 
