@@ -37,12 +37,12 @@ jobs:
 
       - name: Copy Cloudflare config files
         run: |
-          cp crates/litmus-web/_redirects crates/litmus-web/dist/
-          cp crates/litmus-web/_headers crates/litmus-web/dist/
+          cp crates/litmus-web/_redirects target/dx/litmus-web/release/web/public/
+          cp crates/litmus-web/_headers target/dx/litmus-web/release/web/public/
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy crates/litmus-web/dist/ --project-name=litmus
+          command: pages deploy target/dx/litmus-web/release/web/public/ --project-name=litmus
