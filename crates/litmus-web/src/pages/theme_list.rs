@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::components::{ShortlistToggle, UseAsAppThemeButton};
+use crate::components::{ShortlistCheckbox, UseAsAppThemeButton};
 use crate::scene_renderer;
 use crate::state::*;
 use crate::themes;
@@ -131,26 +131,26 @@ fn ThemeCard(theme: litmus_model::Theme) -> Element {
     let preview_scene = litmus_model::scenes::shell_prompt_scene();
 
     rsx! {
-        Link {
-            to: Route::ThemeDetail { slug: slug.clone() },
-            class: "theme-card-link",
+        div {
+            class: "theme-card",
+            style: "background: {bg}; color: {fg};",
 
-            div {
-                class: "theme-card",
-                style: "background: {bg}; color: {fg};",
+            Link {
+                to: Route::ThemeDetail { slug: slug.clone() },
+                class: "theme-card-link",
 
-                div { class: "theme-card-header",
-                    span { class: "theme-card-name", "{theme.name}" }
-                    span { class: "theme-card-meta", "{variant} {fg_bg_ratio:.1}:1 readability: {readability}%" }
-                }
+                div { class: "theme-card-body",
+                    div { class: "theme-card-header",
+                        span { class: "theme-card-name", "{theme.name}" }
+                        span { class: "theme-card-meta", "{variant} {fg_bg_ratio:.1}:1 readability: {readability}%" }
+                    }
 
-                scene_renderer::ScenePreview {
-                    theme: theme.clone(),
-                    scene: preview_scene,
-                    max_lines: 5,
-                }
+                    scene_renderer::ScenePreview {
+                        theme: theme.clone(),
+                        scene: preview_scene,
+                        max_lines: 5,
+                    }
 
-                div { class: "theme-card-footer",
                     div { class: "swatch-row",
                         for color in theme.ansi.as_array().iter() {
                             div {
@@ -159,11 +159,12 @@ fn ThemeCard(theme: litmus_model::Theme) -> Element {
                             }
                         }
                     }
-                    div { class: "theme-card-actions",
-                        ShortlistToggle { slug: slug.clone(), name: theme.name.clone() }
-                        UseAsAppThemeButton { slug }
-                    }
                 }
+            }
+
+            div { class: "theme-card-actions",
+                ShortlistCheckbox { slug: slug.clone(), name: theme.name.clone() }
+                UseAsAppThemeButton { slug }
             }
         }
     }

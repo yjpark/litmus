@@ -81,7 +81,7 @@ pub fn LineView(theme: Theme, line: SceneLine, #[props(default)] line_idx: usize
                     .find(|(l, s, _)| *l == line_idx && *s == i)
                     .map(|(_, _, d)| d.clone());
                 rsx! {
-                    SpanView { key: "{i}", theme: theme.clone(), span: span.clone(), issue_detail: detail }
+                    SpanView { key: "{i}", theme: theme.clone(), span: span.clone(), issue_detail: detail, line_idx: line_idx }
                 }
             }
         }
@@ -90,7 +90,7 @@ pub fn LineView(theme: Theme, line: SceneLine, #[props(default)] line_idx: usize
 
 /// Render a single styled span as an HTML <span> with inline styles.
 #[component]
-fn SpanView(theme: Theme, span: StyledSpan, #[props(default)] issue_detail: Option<SpanIssueDetail>) -> Element {
+fn SpanView(theme: Theme, span: StyledSpan, #[props(default)] issue_detail: Option<SpanIssueDetail>, #[props(default)] line_idx: usize) -> Element {
     let mut styles = Vec::new();
 
     if let Some(ref fg) = span.fg {
@@ -130,8 +130,13 @@ fn SpanView(theme: Theme, span: StyledSpan, #[props(default)] issue_detail: Opti
                     } else {
                         "for large/bold text"
                     };
+                    let tooltip_class = if line_idx < 2 {
+                        "contrast-tooltip contrast-tooltip-below"
+                    } else {
+                        "contrast-tooltip"
+                    };
                     rsx! {
-                        span { class: "contrast-tooltip",
+                        span { class: "{tooltip_class}",
                             span { class: "contrast-tooltip-rule",
                                 "WCAG {d.level}: requires {d.threshold:.0}:1 {level_text}"
                             }

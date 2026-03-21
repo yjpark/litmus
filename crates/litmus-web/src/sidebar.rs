@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use dioxus::prelude::*;
 
 use crate::components::FilterButton;
@@ -14,32 +12,27 @@ pub fn Sidebar() -> Element {
     let mut shortlist = use_context::<Signal<Shortlist>>();
     let mut cvd_sim = use_context::<Signal<CvdSimulation>>();
     let mut sidebar_open = use_context::<Signal<SidebarOpen>>();
+    let app_theme = use_context::<Signal<AppThemeSlug>>();
 
     let cvd = cvd_sim.read().0;
     let sl = shortlist.read().clone();
     let sl_count = sl.0.len();
+    let app_slug = app_theme.read().0.clone();
 
-    // Local state: which shortlisted themes are checked for compare
-    let mut checked = use_signal(HashSet::<String>::new);
-    // Sync checked set: remove entries no longer in shortlist
-    {
-        let sl_set: HashSet<String> = sl.0.iter().cloned().collect();
-        let current_checked = checked.read().clone();
-        let valid: HashSet<String> = current_checked.intersection(&sl_set).cloned().collect();
-        if valid.len() != current_checked.len() {
-            checked.set(valid);
+    // Build compare URL: app theme + shortlist slugs (deduped)
+    let mut compare_slugs: Vec<String> = Vec::new();
+    if let Some(ref slug) = app_slug {
+        compare_slugs.push(slug.clone());
+    }
+    for s in &sl.0 {
+        if !compare_slugs.contains(s) {
+            compare_slugs.push(s.clone());
         }
     }
-    let checked_val = checked.read().clone();
-    let checked_count = checked_val.len();
-    let can_compare = (2..=MAX_COMPARE).contains(&checked_count);
-
-    // Build compare URL from checked slugs (preserve shortlist order)
-    let compare_slugs: Vec<String> = sl.0.iter()
-        .filter(|s| checked_val.contains(*s))
-        .cloned()
-        .collect();
+    let can_compare = compare_slugs.len() >= 2;
     let compare_url = compare_slugs.join(",");
+
+    let show_shortlist = sl_count > 0 || app_slug.is_some();
 
     rsx! {
         aside {
@@ -68,40 +61,51 @@ pub fn Sidebar() -> Element {
                         to: Route::CompareThemes { slugs: compare_url.clone() },
                         class: "sidebar-nav-link",
                         onclick: move |_| sidebar_open.set(SidebarOpen(false)),
-                        "Compare ({checked_count})"
+                        "Compare ({compare_slugs.len()})"
                     }
                 }
             }
 
             // Shortlist
-            if sl_count > 0 {
+            if show_shortlist {
                 div { class: "sidebar-section sidebar-shortlist",
-                    div { class: "sidebar-section-label", "Shortlist ({sl_count})" }
+                    div { class: "sidebar-section-label", "Shortlist" }
                     div { class: "sidebar-shortlist-items",
+                        // Pinned app theme entry
+                        if let Some(ref app_s) = app_slug {
+                            {
+                                let name = all_themes.iter()
+                                    .find(|t| theme_slug(&t.name) == *app_s)
+                                    .map(|t| t.name.clone())
+                                    .unwrap_or_else(|| app_s.clone());
+                                rsx! {
+                                    div { class: "sidebar-shortlist-item sidebar-shortlist-current",
+                                        Link {
+                                            to: Route::ThemeDetail { slug: app_s.clone() },
+                                            class: "sidebar-shortlist-name-link",
+                                            onclick: move |_| sidebar_open.set(SidebarOpen(false)),
+                                            span { class: "sidebar-shortlist-name", "{name}" }
+                                        }
+                                        span { class: "sidebar-current-badge", "current" }
+                                    }
+                                }
+                            }
+                        }
+
                         for slug in &sl.0 {
                             {
                                 let name = all_themes.iter()
                                     .find(|t| theme_slug(&t.name) == *slug)
                                     .map(|t| t.name.clone())
                                     .unwrap_or_else(|| slug.clone());
-                                let slug_check = slug.clone();
                                 let slug_remove = slug.clone();
-                                let is_checked = checked_val.contains(slug);
+                                let slug_link = slug.clone();
                                 rsx! {
                                     div { class: "sidebar-shortlist-item",
-                                        label { class: "sidebar-shortlist-check",
-                                            input {
-                                                r#type: "checkbox",
-                                                checked: is_checked,
-                                                onchange: move |_| {
-                                                    let mut c = checked.write();
-                                                    if c.contains(&slug_check) {
-                                                        c.remove(&slug_check);
-                                                    } else if c.len() < MAX_COMPARE {
-                                                        c.insert(slug_check.clone());
-                                                    }
-                                                },
-                                            }
+                                        Link {
+                                            to: Route::ThemeDetail { slug: slug_link },
+                                            class: "sidebar-shortlist-name-link",
+                                            onclick: move |_| sidebar_open.set(SidebarOpen(false)),
                                             span { class: "sidebar-shortlist-name", "{name}" }
                                         }
                                         button {
@@ -124,17 +128,17 @@ pub fn Sidebar() -> Element {
                                 to: Route::CompareThemes { slugs: compare_url },
                                 class: "sidebar-compare-btn",
                                 onclick: move |_| sidebar_open.set(SidebarOpen(false)),
-                                "Compare ({checked_count})"
+                                "Compare ({compare_slugs.len()})"
                             }
-                        } else if checked_count > MAX_COMPARE {
-                            span { class: "sidebar-shortlist-hint", "Max {MAX_COMPARE} for compare" }
                         }
-                        button {
-                            class: "sidebar-clear-btn",
-                            onclick: move |_| {
-                                shortlist.write().0.clear();
-                            },
-                            "Clear"
+                        if sl_count > 0 {
+                            button {
+                                class: "sidebar-clear-btn",
+                                onclick: move |_| {
+                                    shortlist.write().0.clear();
+                                },
+                                "Clear"
+                            }
                         }
                     }
                 }

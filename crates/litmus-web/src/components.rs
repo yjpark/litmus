@@ -35,7 +35,37 @@ pub fn ColorSwatch(label: String, color: String) -> Element {
     }
 }
 
-/// Button to add/remove a theme from the shortlist.
+/// Checkbox to add/remove a theme from the shortlist (used on cards).
+#[component]
+pub fn ShortlistCheckbox(slug: String, name: String) -> Element {
+    let mut shortlist = use_context::<Signal<Shortlist>>();
+    let is_selected = shortlist.read().0.contains(&slug);
+
+    let slug_for_click = slug.clone();
+    rsx! {
+        label {
+            class: if is_selected { "shortlist-checkbox shortlist-checkbox-active" } else { "shortlist-checkbox" },
+            onclick: move |evt: Event<MouseData>| {
+                evt.stop_propagation();
+            },
+            input {
+                r#type: "checkbox",
+                checked: is_selected,
+                onchange: move |_| {
+                    let mut sel = shortlist.write();
+                    if let Some(pos) = sel.0.iter().position(|s| s == &slug_for_click) {
+                        sel.0.remove(pos);
+                    } else if sel.0.len() < MAX_SHORTLIST {
+                        sel.0.push(slug_for_click.clone());
+                    }
+                },
+            }
+            span { "Shortlist" }
+        }
+    }
+}
+
+/// Button to add/remove a theme from the shortlist (used on detail page).
 #[component]
 pub fn ShortlistToggle(slug: String, name: String) -> Element {
     let mut shortlist = use_context::<Signal<Shortlist>>();
@@ -78,7 +108,7 @@ pub fn UseAsAppThemeButton(slug: String) -> Element {
                     app_theme.set(AppThemeSlug(Some(slug_for_click.clone())));
                 }
             },
-            if is_active { "\u{2713} App Theme" } else { "Use as App Theme" }
+            if is_active { "\u{2713} Applied" } else { "Apply" }
         }
     }
 }
