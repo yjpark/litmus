@@ -82,9 +82,8 @@ pub fn Shell() -> Element {
     let is_open = sidebar_open.read().0;
 
     // Apply app theme via CSS custom properties
-    let slug = app_theme.read().0.clone();
     use_effect(move || {
-        let slug = slug.clone();
+        let slug = app_theme.read().0.clone();
         let js = match &slug {
             Some(s) => {
                 let all_themes = themes::load_embedded_themes();

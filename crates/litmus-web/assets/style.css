@@ -172,16 +172,38 @@ body {
   align-items: center;
 }
 
+/* Sidebar readability filter */
+.sidebar-readability {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sidebar-readability .sidebar-section-label {
+  margin-bottom: 0;
+}
+
+.sidebar-readability-select {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.4rem;
+  background: var(--app-surface);
+  color: var(--app-fg);
+  border: 1px solid var(--app-border);
+  border-radius: 0.25rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
 /* Sidebar theme list */
 .sidebar-theme-list {
   flex: 1;
   overflow-y: auto;
-  padding: 0.5rem 0;
+  padding: 0;
   border-bottom: 1px solid var(--app-border);
 }
 
 .sidebar-family {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0;
 }
 
 .sidebar-family-name {
@@ -196,31 +218,23 @@ body {
 .sidebar-theme-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.3rem 1rem;
+  justify-content: space-between;
+  padding: 0.35rem 0.75rem;
   text-decoration: none;
-  color: var(--app-fg);
   font-size: 0.8rem;
-  transition: background 0.1s ease;
+  transition: filter 0.1s ease;
   cursor: pointer;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.1);
 }
 
 .sidebar-theme-item:hover {
-  background: var(--app-hover);
+  filter: brightness(1.15);
 }
 
 /* Active theme highlight — Dioxus adds .active to current route Links */
 .sidebar-theme-item.active {
-  background: var(--app-active);
-  color: var(--app-accent);
-}
-
-.sidebar-theme-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  border: 1px solid var(--app-border);
+  outline: 2px solid var(--app-accent);
+  outline-offset: -2px;
 }
 
 .sidebar-theme-name {
@@ -229,31 +243,17 @@ body {
   white-space: nowrap;
 }
 
-/* Sidebar scenes */
-.sidebar-scene-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
+.sidebar-readability-badge {
+  font-size: 0.65rem;
+  opacity: 0.7;
+  flex-shrink: 0;
+  font-family: monospace;
 }
 
-.sidebar-scene-chip {
-  font-size: 0.7rem;
-  padding: 0.2rem 0.5rem;
-  border: 1px solid var(--app-border);
-  border-radius: 0.25rem;
-  text-decoration: none;
-  color: var(--app-fg);
-  transition: background 0.1s ease;
-}
-
-.sidebar-scene-chip:hover {
-  background: var(--app-hover);
-}
-
-.sidebar-scene-chip.active {
-  background: var(--app-active);
-  border-color: var(--app-accent);
-  color: var(--app-accent);
+/* Filter badge (count) */
+.filter-badge {
+  font-size: 0.65rem;
+  opacity: 0.6;
 }
 
 /* Sidebar compare */
@@ -611,6 +611,63 @@ body {
 
 .detail-issues {
   font-size: 0.8rem;
+}
+
+.detail-readability {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.detail-issues-toggle {
+  font-size: 0.8rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+}
+
+.detail-issues-toggle:hover {
+  text-decoration: underline;
+}
+
+/* Contrast issues expandable list */
+.contrast-issues-list {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  max-height: 20rem;
+  overflow-y: auto;
+}
+
+.contrast-issue-group {
+  margin-bottom: 0.5rem;
+}
+
+.contrast-issue-group:last-child {
+  margin-bottom: 0;
+}
+
+.contrast-issue-scene {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--app-muted);
+}
+
+.contrast-issue-item {
+  padding-left: 1rem;
+  line-height: 1.6;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.contrast-issue-text {
+  color: var(--app-warning);
 }
 
 /* Color palette */
@@ -1080,7 +1137,6 @@ body {
 .theme-card:focus-visible,
 .sidebar-search:focus-visible,
 .sidebar-theme-item:focus-visible,
-.sidebar-scene-chip:focus-visible,
 .sidebar-compare-btn:focus-visible,
 .sidebar-clear-btn:focus-visible,
 .sidebar-app-theme-select:focus-visible,
@@ -1201,8 +1257,7 @@ select:focus-visible {
   .filter-btn,
   .scene-tab,
   .export-btn,
-  .compare-toggle,
-  .sidebar-scene-chip {
+  .compare-toggle {
     min-height: 44px;
     min-width: 44px;
     display: inline-flex;

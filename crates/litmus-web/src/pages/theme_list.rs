@@ -59,6 +59,7 @@ fn ThemeCard(theme: litmus_model::Theme) -> Element {
     let is_light = litmus_model::contrast::relative_luminance(&theme.background) > 0.5;
     let variant = if is_light { "light" } else { "dark" };
     let fg_bg_ratio = litmus_model::contrast::contrast_ratio(&theme.foreground, &theme.background);
+    let readability = litmus_model::contrast::readability_score(&theme) as u8;
     let preview_scene = litmus_model::scenes::shell_prompt_scene();
 
     rsx! {
@@ -72,7 +73,7 @@ fn ThemeCard(theme: litmus_model::Theme) -> Element {
 
                 div { class: "theme-card-header",
                     span { class: "theme-card-name", "{theme.name}" }
-                    span { class: "theme-card-meta", "{variant} {fg_bg_ratio:.1}:1" }
+                    span { class: "theme-card-meta", "{variant} {fg_bg_ratio:.1}:1 readability: {readability}%" }
                 }
 
                 scene_renderer::ScenePreview {

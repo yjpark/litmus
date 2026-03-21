@@ -18,6 +18,7 @@ pub fn ThemeDetail(slug: String) -> Element {
     let all_themes = themes::load_embedded_themes();
     let theme = all_themes.iter().find(|t| theme_slug(&t.name) == slug);
     let mut palette_expanded = use_signal(|| false);
+    let mut issues_expanded = use_signal(|| false);
     let filter = use_context::<Signal<FilterState>>();
     let active_scene = use_context::<Signal<ActiveScene>>();
 
@@ -33,16 +34,29 @@ pub fn ThemeDetail(slug: String) -> Element {
             let scene_idx = active_scene.read().0.unwrap_or(0);
             let tab_idx = scene_idx.min(scenes.len().saturating_sub(1));
             let expanded = *palette_expanded.read();
+            let issues_open = *issues_expanded.read();
 
             let issues = litmus_model::contrast::validate_theme_readability(&theme);
+            let issue_count = issues.len();
             let fg_bg_ratio = litmus_model::contrast::contrast_ratio(
                 &theme.foreground, &theme.background,
             );
+            let readability = litmus_model::contrast::readability_score(&theme) as u8;
 
             let scene_count = scenes.len();
             let mut compare_sel = use_context::<Signal<CompareSelection>>();
             let detail_slug = this_slug.clone();
             let mut active_scene_write = active_scene;
+
+            // Group issues by scene for the expandable list
+            let mut issues_by_scene: Vec<(String, Vec<&litmus_model::contrast::ContrastIssue>)> = Vec::new();
+            for issue in &issues {
+                if let Some(group) = issues_by_scene.iter_mut().find(|(id, _)| id == &issue.scene_id) {
+                    group.1.push(issue);
+                } else {
+                    issues_by_scene.push((issue.scene_id.clone(), vec![issue]));
+                }
+            }
 
             rsx! {
                 div {
@@ -83,12 +97,72 @@ pub fn ThemeDetail(slug: String) -> Element {
                                 span { class: "text-error", "{fg_bg_ratio:.1}:1" }
                             }
                         }
-                        if !issues.is_empty() {
-                            span { class: "text-error detail-issues",
-                                "{issues.len()} contrast issue(s)"
+                        span { class: "detail-readability mono", "readability: {readability}%" }
+                        if issue_count > 0 {
+                            button {
+                                class: "detail-issues-toggle text-error",
+                                onclick: move |_| issues_expanded.set(!issues_open),
+                                if issues_open {
+                                    "{issue_count} contrast issue(s) \u{25BC}"
+                                } else {
+                                    "{issue_count} contrast issue(s) \u{25B6}"
+                                }
                             }
                         }
                         CompareToggle { slug: this_slug, name: theme.name.clone() }
+                    }
+
+                    // Expandable contrast issues
+                    if issues_open && issue_count > 0 {
+                        div { class: "contrast-issues-list",
+                            for (scene_id, scene_issues) in &issues_by_scene {
+                                div { class: "contrast-issue-group",
+                                    div { class: "contrast-issue-scene mono", "{scene_id}:" }
+                                    for issue in scene_issues {
+                                        div { class: "contrast-issue-item mono",
+                                            span { class: "contrast-issue-text", "\"{issue.text}\"" }
+                                            " \u{2014} fg "
+                                            span {
+                                                class: "color-chip",
+                                                style: "background: {issue.fg.to_hex()};",
+                                            }
+                                            span { " {issue.fg.to_hex()} on bg " }
+                                            span {
+                                                class: "color-chip",
+                                                style: "background: {issue.bg.to_hex()};",
+                                            }
+                                            span { " {issue.bg.to_hex()} \u{2014} {issue.ratio:.1}:1 (need {issue.threshold:.1}:1)" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Scene tabs (at top, before palette)
+                    div { class: "scene-nav",
+                        div { class: "scene-tabs", role: "tablist",
+                            for (i, scene) in scenes.iter().enumerate() {
+                                button {
+                                    class: if i == tab_idx { "scene-tab scene-tab-active" } else { "scene-tab" },
+                                    role: "tab",
+                                    aria_selected: if i == tab_idx { "true" } else { "false" },
+                                    onclick: move |_| active_scene_write.set(ActiveScene(Some(i))),
+                                    "{scene.name}"
+                                }
+                            }
+                        }
+                        span { class: "mono scene-hint", "\u{2190} \u{2192} navigate \u{00B7} c compare" }
+                    }
+
+                    // Active scene
+                    if let Some(scene) = scenes.get(tab_idx) {
+                        div { role: "tabpanel",
+                            scene_renderer::SceneView {
+                                theme: theme.clone(),
+                                scene: scene.clone(),
+                            }
+                        }
                     }
 
                     // Compact color palette (expandable)
@@ -144,32 +218,6 @@ pub fn ThemeDetail(slug: String) -> Element {
                                         }
                                     }
                                 }
-                            }
-                        }
-                    }
-
-                    // Scene tabs (kept here for scene-specific context; mirrors sidebar selection)
-                    div { class: "scene-nav",
-                        div { class: "scene-tabs", role: "tablist",
-                            for (i, scene) in scenes.iter().enumerate() {
-                                button {
-                                    class: if i == tab_idx { "scene-tab scene-tab-active" } else { "scene-tab" },
-                                    role: "tab",
-                                    aria_selected: if i == tab_idx { "true" } else { "false" },
-                                    onclick: move |_| active_scene_write.set(ActiveScene(Some(i))),
-                                    "{scene.name}"
-                                }
-                            }
-                        }
-                        span { class: "mono scene-hint", "← → navigate · c compare" }
-                    }
-
-                    // Active scene
-                    if let Some(scene) = scenes.get(tab_idx) {
-                        div { role: "tabpanel",
-                            scene_renderer::SceneView {
-                                theme: theme.clone(),
-                                scene: scene.clone(),
                             }
                         }
                     }

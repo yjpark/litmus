@@ -19,7 +19,7 @@ pub enum VariantFilter {
 pub struct FilterState {
     pub query: String,
     pub variant: VariantFilter,
-    pub good_contrast: bool,
+    pub min_readability: Option<u8>,
     pub cvd: Option<CvdType>,
 }
 
@@ -28,7 +28,7 @@ impl Default for FilterState {
         Self {
             query: String::new(),
             variant: VariantFilter::All,
-            good_contrast: false,
+            min_readability: None,
             cvd: None,
         }
     }
@@ -75,9 +75,9 @@ pub fn theme_passes_filter(
             }
         }
     }
-    if filter.good_contrast {
-        let issues = litmus_model::contrast::validate_theme_readability(theme);
-        if !issues.is_empty() {
+    if let Some(min) = filter.min_readability {
+        let score = litmus_model::contrast::readability_score(theme);
+        if score < min as f64 {
             return false;
         }
     }

@@ -113,6 +113,51 @@ pub fn validate_scene_contrast(
     issues
 }
 
+/// Calculate a readability score for a theme: percentage of non-whitespace
+/// spans across all scenes that pass WCAG AA contrast thresholds.
+/// Returns a value 0.0..100.0.
+pub fn readability_score(theme: &Theme) -> f64 {
+    let scenes = crate::scenes::all_scenes();
+    let default_bg = &theme.background;
+    let mut total = 0u32;
+    let mut passing = 0u32;
+
+    for scene in &scenes {
+        for line in &scene.lines {
+            for span in &line.spans {
+                if span.text.trim().is_empty() {
+                    continue;
+                }
+                total += 1;
+                let fg = span
+                    .fg
+                    .as_ref()
+                    .map(|c| c.resolve(theme))
+                    .unwrap_or(&theme.foreground);
+                let bg = span
+                    .bg
+                    .as_ref()
+                    .map(|c| c.resolve(theme))
+                    .unwrap_or(default_bg);
+                let ratio = contrast_ratio(fg, bg);
+                let threshold = if span.style.bold {
+                    WCAG_AA_LARGE
+                } else {
+                    WCAG_AA_NORMAL
+                };
+                if ratio >= threshold {
+                    passing += 1;
+                }
+            }
+        }
+    }
+
+    if total == 0 {
+        return 100.0;
+    }
+    (passing as f64 / total as f64) * 100.0
+}
+
 /// Validate all built-in scenes against a theme using WCAG AA thresholds.
 pub fn validate_theme_readability(theme: &Theme) -> Vec<ContrastIssue> {
     let scenes = crate::scenes::all_scenes();
