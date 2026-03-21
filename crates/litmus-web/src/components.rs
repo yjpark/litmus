@@ -355,6 +355,7 @@ fn ExportFormatBtn(
 #[component]
 pub fn SceneMinimap(scenes: Vec<litmus_model::scene::Scene>) -> Element {
     let mut visible = use_context::<Signal<VisibleScenes>>();
+    let scene_issue_counts = use_context::<Signal<SceneIssueCounts>>();
 
     // Set up IntersectionObserver on mount to track which scenes are in view
     use_effect(move || {
@@ -416,6 +417,7 @@ pub fn SceneMinimap(scenes: Vec<litmus_model::scene::Scene>) -> Element {
     });
 
     let visible_set = visible.read().0.clone();
+    let issue_counts = scene_issue_counts.read().0.clone();
 
     rsx! {
         nav { class: "scene-minimap",
@@ -424,6 +426,7 @@ pub fn SceneMinimap(scenes: Vec<litmus_model::scene::Scene>) -> Element {
                 {
                     let is_visible = visible_set.contains(&scene.id);
                     let scene_id = scene.id.clone();
+                    let issue_count = issue_counts.get(&scene.id).copied().unwrap_or(0);
                     rsx! {
                         button {
                             class: if is_visible { "scene-minimap-item scene-minimap-item-active" } else { "scene-minimap-item" },
@@ -435,6 +438,9 @@ pub fn SceneMinimap(scenes: Vec<litmus_model::scene::Scene>) -> Element {
                                 eval(&js);
                             },
                             "{scene.name}"
+                            if issue_count > 0 {
+                                span { class: "scene-tab-badge", "{issue_count}" }
+                            }
                         }
                     }
                 }

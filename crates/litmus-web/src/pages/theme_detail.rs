@@ -56,6 +56,16 @@ pub fn ThemeDetail(slug: String) -> Element {
                 );
             }
 
+            // Publish per-scene issue counts to context for the minimap
+            let mut scene_issue_counts = use_context::<Signal<SceneIssueCounts>>();
+            let counts: std::collections::HashMap<String, usize> = issues_per_scene
+                .iter()
+                .map(|(k, v)| (k.to_string(), v.len()))
+                .collect();
+            if counts != scene_issue_counts.read().0 {
+                scene_issue_counts.set(SceneIssueCounts(counts));
+            }
+
             rsx! {
                 div {
                     class: "page-theme-detail",

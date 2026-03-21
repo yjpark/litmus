@@ -29,13 +29,6 @@ pub fn SceneView(
 
     rsx! {
         div { class: "{class}",
-            if !compact {
-                div {
-                    style: "margin-bottom: 0.5rem; font-weight: bold; \
-                            font-size: 0.85rem; opacity: 0.7;",
-                    "{scene.name}"
-                }
-            }
             pre {
                 style: "background-color: {bg}; color: {fg};",
                 for (i, line) in scene.lines.iter().enumerate() {

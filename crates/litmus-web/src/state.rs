@@ -55,6 +55,10 @@ impl Default for AppThemeSlug {
 #[derive(Clone, Default)]
 pub struct VisibleScenes(pub std::collections::HashSet<String>);
 
+/// Per-scene contrast issue counts (set by detail page, read by minimap).
+#[derive(Clone, Default)]
+pub struct SceneIssueCounts(pub std::collections::HashMap<String, usize>);
+
 /// Mobile sidebar drawer state.
 #[derive(Clone, Default)]
 pub struct SidebarOpen(pub bool);

@@ -38,6 +38,7 @@ fn App() -> Element {
     use_context_provider(|| Signal::new(AppThemeSlug::default()));
     use_context_provider(|| Signal::new(SidebarOpen::default()));
     use_context_provider(|| Signal::new(VisibleScenes::default()));
+    use_context_provider(|| Signal::new(SceneIssueCounts::default()));
 
     rsx! {
         document::Link { rel: "stylesheet", href: asset!("assets/style.css") }
