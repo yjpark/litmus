@@ -62,7 +62,7 @@ pub fn Sidebar() -> Element {
     }
 
     let compare_label = if has_shortlist {
-        format!("Compare ({})", compare_slugs.len())
+        "Side by Side".to_string()
     } else {
         "Feel Lucky".to_string()
     };
@@ -145,7 +145,7 @@ pub fn Sidebar() -> Element {
             // Shortlist
             if show_shortlist {
                 div { class: "sidebar-section sidebar-shortlist",
-                    div { class: "sidebar-section-label", "Shortlist" }
+                    div { class: "sidebar-section-label", "Shortlist ({compare_slugs.len()})" }
                     div { class: "sidebar-shortlist-items",
                         // Pinned app theme entry
                         if let Some(ref app_s) = app_slug {
