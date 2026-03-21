@@ -1,6 +1,5 @@
 use dioxus::prelude::*;
 
-use crate::components::FilterButton;
 use crate::state::*;
 use crate::themes;
 use crate::Route;
@@ -27,6 +26,7 @@ pub fn Sidebar() -> Element {
     let mut sidebar_open = use_context::<Signal<SidebarOpen>>();
     let app_theme = use_context::<Signal<AppThemeSlug>>();
     let nav = navigator();
+    let current_route = use_route::<Route>();
 
     let cvd = cvd_sim.read().0;
     let sl = shortlist.read().clone();
@@ -73,6 +73,14 @@ pub fn Sidebar() -> Element {
     // Collect all theme slugs for the "Feel Lucky" random pick
     let all_slugs: Vec<String> = all_themes.iter().map(|t| theme_slug(&t.name)).collect();
 
+    // Determine which nav item is active based on current route
+    let is_browse_active = matches!(current_route, Route::ThemeList {} | Route::ThemeDetail { .. });
+    let is_compare_active = matches!(current_route, Route::CompareThemes { .. } | Route::SceneAcrossThemes { .. });
+    let detail_slug = match &current_route {
+        Route::ThemeDetail { slug } => Some(slug.clone()),
+        _ => None,
+    };
+
     rsx! {
         aside {
             class: "sidebar",
@@ -91,14 +99,14 @@ pub fn Sidebar() -> Element {
             div { class: "sidebar-section sidebar-nav",
                 Link {
                     to: Route::ThemeList {},
-                    class: "sidebar-nav-link",
+                    class: if is_browse_active { "sidebar-nav-link active" } else { "sidebar-nav-link" },
                     onclick: move |_| sidebar_open.set(SidebarOpen(false)),
                     "Browse Themes"
                 }
                 if has_shortlist {
                     Link {
                         to: Route::CompareThemes { slugs: compare_url.clone() },
-                        class: "sidebar-nav-link",
+                        class: if is_compare_active { "sidebar-nav-link active" } else { "sidebar-nav-link" },
                         onclick: move |_| sidebar_open.set(SidebarOpen(false)),
                         "{compare_label}"
                     }
@@ -154,8 +162,10 @@ pub fn Sidebar() -> Element {
                                     .find(|t| theme_slug(&t.name) == *app_s)
                                     .map(|t| t.name.clone())
                                     .unwrap_or_else(|| app_s.clone());
+                                let is_viewing = detail_slug.as_deref() == Some(app_s.as_str());
                                 rsx! {
-                                    div { class: "sidebar-shortlist-item sidebar-shortlist-current",
+                                    div {
+                                        class: if is_viewing { "sidebar-shortlist-item sidebar-shortlist-current sidebar-shortlist-viewing" } else { "sidebar-shortlist-item sidebar-shortlist-current" },
                                         Link {
                                             to: Route::ThemeDetail { slug: app_s.clone() },
                                             class: "sidebar-shortlist-name-link",
@@ -174,10 +184,12 @@ pub fn Sidebar() -> Element {
                                     .find(|t| theme_slug(&t.name) == *slug)
                                     .map(|t| t.name.clone())
                                     .unwrap_or_else(|| slug.clone());
+                                let is_viewing = detail_slug.as_deref() == Some(slug.as_str());
                                 let slug_remove = slug.clone();
                                 let slug_link = slug.clone();
                                 rsx! {
-                                    div { class: "sidebar-shortlist-item",
+                                    div {
+                                        class: if is_viewing { "sidebar-shortlist-item sidebar-shortlist-viewing" } else { "sidebar-shortlist-item" },
                                         Link {
                                             to: Route::ThemeDetail { slug: slug_link },
                                             class: "sidebar-shortlist-name-link",
@@ -214,27 +226,46 @@ pub fn Sidebar() -> Element {
 
             // CVD (pinned to bottom)
             div { class: "sidebar-section sidebar-cvd",
-                span { class: "sidebar-section-label",
+                label { class: "sidebar-section-label",
                     title: "Simulate color vision deficiency",
+                    r#for: "cvd-select",
                     "CVD"
                 }
-                FilterButton {
-                    label: "Normal",
-                    active: cvd.is_none(),
-                    onclick: move |_| cvd_sim.set(CvdSimulation(None)),
-                }
-                for cvd_type in litmus_model::cvd::CvdType::all() {
-                    {
-                        let ct = *cvd_type;
-                        let label = ct.label();
-                        let desc = ct.description();
-                        rsx! {
-                            button {
-                                class: if cvd == Some(ct) { "filter-btn filter-btn-active" } else { "filter-btn" },
-                                aria_pressed: if cvd == Some(ct) { "true" } else { "false" },
-                                title: "{desc}",
-                                onclick: move |_| cvd_sim.set(CvdSimulation(Some(ct))),
-                                "{label}"
+                select {
+                    id: "cvd-select",
+                    class: "sidebar-cvd-select",
+                    onchange: move |evt: Event<FormData>| {
+                        let val = evt.value();
+                        let sim = match val.as_str() {
+                            "protanopia" => Some(litmus_model::cvd::CvdType::Protanopia),
+                            "deuteranopia" => Some(litmus_model::cvd::CvdType::Deuteranopia),
+                            "tritanopia" => Some(litmus_model::cvd::CvdType::Tritanopia),
+                            _ => None,
+                        };
+                        cvd_sim.set(CvdSimulation(sim));
+                    },
+                    option {
+                        value: "normal",
+                        selected: cvd.is_none(),
+                        "Normal Vision"
+                    }
+                    for cvd_type in litmus_model::cvd::CvdType::all() {
+                        {
+                            let ct = *cvd_type;
+                            let label = ct.label();
+                            let desc = ct.description();
+                            let val = match ct {
+                                litmus_model::cvd::CvdType::Protanopia => "protanopia",
+                                litmus_model::cvd::CvdType::Deuteranopia => "deuteranopia",
+                                litmus_model::cvd::CvdType::Tritanopia => "tritanopia",
+                            };
+                            rsx! {
+                                option {
+                                    value: val,
+                                    selected: cvd == Some(ct),
+                                    title: "{desc}",
+                                    "{label}"
+                                }
                             }
                         }
                     }

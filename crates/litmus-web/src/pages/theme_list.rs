@@ -124,9 +124,6 @@ fn ThemeCard(theme: litmus_model::Theme) -> Element {
     let bg = theme.background.to_hex();
     let fg = theme.foreground.to_hex();
     let slug = theme_slug(&theme.name);
-    let is_light = litmus_model::contrast::relative_luminance(&theme.background) > 0.5;
-    let variant = if is_light { "light" } else { "dark" };
-    let fg_bg_ratio = litmus_model::contrast::contrast_ratio(&theme.foreground, &theme.background);
     let readability = litmus_model::contrast::readability_score(&theme) as u8;
     let preview_scene = litmus_model::scenes::shell_prompt_scene();
 
@@ -142,7 +139,6 @@ fn ThemeCard(theme: litmus_model::Theme) -> Element {
                 div { class: "theme-card-body",
                     div { class: "theme-card-header",
                         span { class: "theme-card-name", "{theme.name}" }
-                        span { class: "theme-card-meta", "{variant} {fg_bg_ratio:.1}:1 readability: {readability}%" }
                     }
 
                     scene_renderer::ScenePreview {
@@ -163,8 +159,15 @@ fn ThemeCard(theme: litmus_model::Theme) -> Element {
             }
 
             div { class: "theme-card-actions",
-                ShortlistCheckbox { slug: slug.clone(), name: theme.name.clone() }
-                UseAsAppThemeButton { slug }
+                span { class: "theme-card-score",
+                    title: "Readability score",
+                    span { class: "theme-card-score-icon", "\u{1F4C8}" }
+                    span { class: "mono", "{readability}%" }
+                }
+                span { class: "theme-card-actions-right",
+                    ShortlistCheckbox { slug: slug.clone(), name: theme.name.clone() }
+                    UseAsAppThemeButton { slug }
+                }
             }
         }
     }
