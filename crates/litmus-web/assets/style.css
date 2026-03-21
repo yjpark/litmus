@@ -645,38 +645,8 @@ body {
   text-decoration: underline;
 }
 
-.contrast-issue-item {
-  padding-left: 1rem;
-  line-height: 1.6;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.contrast-issue-sample {
-  padding: 0.15rem 0.5rem;
-  border-radius: 3px;
-  border: 1px solid rgba(128, 128, 128, 0.2);
-  font-size: 0.75rem;
-}
-
-.contrast-issue-ratio {
-  font-weight: 600;
-  color: var(--app-error);
-}
-
-.contrast-issue-need {
-  font-weight: normal;
-  opacity: 0.6;
-}
-
-.contrast-issue-hex {
-  font-size: 0.65rem;
-  opacity: 0.5;
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
+.contrast-issue-line {
+  padding-left: 0.5rem;
 }
 
 /* Color palette */
@@ -1193,6 +1163,57 @@ select:focus-visible {
   outline: 1px dashed var(--app-error);
   outline-offset: 1px;
   border-radius: 2px;
+  position: relative;
+}
+
+/* Tooltip — positioned above the span on hover */
+.contrast-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: var(--app-fg);
+  pointer-events: none;
+}
+
+.contrast-issue-span:hover .contrast-tooltip {
+  display: block;
+}
+
+.contrast-tooltip-rule {
+  opacity: 0.8;
+}
+
+.contrast-tooltip-ratio {
+  font-weight: 600;
+  color: var(--app-error);
+}
+
+.contrast-tooltip-colors {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.65rem;
+  opacity: 0.7;
+}
+
+/* Rendered issue line in the expanded list */
+.contrast-issue-line pre {
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  margin: 0.15rem 0;
+  overflow: visible;
+  border: 1px solid rgba(128, 128, 128, 0.2);
 }
 
 /* Scene transition */

@@ -2,16 +2,26 @@ use dioxus::prelude::*;
 use litmus_model::scene::{Scene, SceneLine, StyledSpan};
 use litmus_model::Theme;
 
+/// Detail about a contrast issue on a specific span, used for tooltips.
+#[derive(Clone, PartialEq)]
+pub struct SpanIssueDetail {
+    pub ratio: f64,
+    pub threshold: f64,
+    pub level: String,
+    pub fg_hex: String,
+    pub bg_hex: String,
+}
+
 /// Render a complete scene as a terminal-style HTML block.
 ///
-/// `issue_spans` contains `(line_idx, span_idx)` pairs marking spans with
-/// contrast issues. Those spans get a visual indicator via CSS.
+/// `issue_details` contains `(line_idx, span_idx, detail)` tuples marking spans
+/// with contrast issues. Those spans get a visual indicator + tooltip via CSS.
 #[component]
 pub fn SceneView(
     theme: Theme,
     scene: Scene,
     #[props(default = false)] compact: bool,
-    #[props(default)] issue_spans: Vec<(usize, usize)>,
+    #[props(default)] issue_details: Vec<(usize, usize, SpanIssueDetail)>,
 ) -> Element {
     let bg = theme.background.to_hex();
     let fg = theme.foreground.to_hex();
@@ -29,7 +39,7 @@ pub fn SceneView(
             pre {
                 style: "background-color: {bg}; color: {fg};",
                 for (i, line) in scene.lines.iter().enumerate() {
-                    LineView { key: "{i}", theme: theme.clone(), line: line.clone(), line_idx: i, issue_spans: issue_spans.clone() }
+                    LineView { key: "{i}", theme: theme.clone(), line: line.clone(), line_idx: i, issue_details: issue_details.clone() }
                     "\n"
                 }
             }
@@ -59,7 +69,7 @@ pub fn ScenePreview(theme: Theme, scene: Scene, #[props(default = 5)] max_lines:
 
 /// Render a single scene line.
 #[component]
-fn LineView(theme: Theme, line: SceneLine, #[props(default)] line_idx: usize, #[props(default)] issue_spans: Vec<(usize, usize)>) -> Element {
+pub fn LineView(theme: Theme, line: SceneLine, #[props(default)] line_idx: usize, #[props(default)] issue_details: Vec<(usize, usize, SpanIssueDetail)>) -> Element {
     if line.spans.is_empty() {
         return rsx! { "" };
     }
@@ -67,9 +77,11 @@ fn LineView(theme: Theme, line: SceneLine, #[props(default)] line_idx: usize, #[
     rsx! {
         for (i, span) in line.spans.iter().enumerate() {
             {
-                let has_issue = issue_spans.iter().any(|(l, s)| *l == line_idx && *s == i);
+                let detail = issue_details.iter()
+                    .find(|(l, s, _)| *l == line_idx && *s == i)
+                    .map(|(_, _, d)| d.clone());
                 rsx! {
-                    SpanView { key: "{i}", theme: theme.clone(), span: span.clone(), has_issue: has_issue }
+                    SpanView { key: "{i}", theme: theme.clone(), span: span.clone(), issue_detail: detail }
                 }
             }
         }
@@ -78,7 +90,7 @@ fn LineView(theme: Theme, line: SceneLine, #[props(default)] line_idx: usize, #[
 
 /// Render a single styled span as an HTML <span> with inline styles.
 #[component]
-fn SpanView(theme: Theme, span: StyledSpan, #[props(default = false)] has_issue: bool) -> Element {
+fn SpanView(theme: Theme, span: StyledSpan, #[props(default)] issue_detail: Option<SpanIssueDetail>) -> Element {
     let mut styles = Vec::new();
 
     if let Some(ref fg) = span.fg {
@@ -105,10 +117,46 @@ fn SpanView(theme: Theme, span: StyledSpan, #[props(default = false)] has_issue:
     }
 
     let style_str = styles.join("; ");
+    let has_issue = issue_detail.is_some();
     let class = if has_issue { "contrast-issue-span" } else { "" };
 
     rsx! {
-        span { class: "{class}", style: "{style_str}", "{span.text}" }
+        span { class: "{class}", style: "{style_str}",
+            "{span.text}"
+            if let Some(d) = &issue_detail {
+                {
+                    let level_text = if d.level == "AA" {
+                        "for normal text"
+                    } else {
+                        "for large/bold text"
+                    };
+                    rsx! {
+                        span { class: "contrast-tooltip",
+                            span { class: "contrast-tooltip-rule",
+                                "WCAG {d.level}: requires {d.threshold:.0}:1 {level_text}"
+                            }
+                            br {}
+                            span { class: "contrast-tooltip-ratio",
+                                "Actual: {d.ratio:.1}:1"
+                            }
+                            br {}
+                            span { class: "contrast-tooltip-colors",
+                                span {
+                                    class: "color-chip",
+                                    style: "background: {d.fg_hex};",
+                                }
+                                " {d.fg_hex} on "
+                                span {
+                                    class: "color-chip",
+                                    style: "background: {d.bg_hex};",
+                                }
+                                " {d.bg_hex}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

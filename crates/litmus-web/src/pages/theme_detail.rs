@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 
 use crate::components::*;
-use crate::scene_renderer;
+use crate::scene_renderer::{self, SpanIssueDetail};
 use crate::state::*;
 use crate::themes;
 use crate::Route;
@@ -54,17 +54,48 @@ pub fn ThemeDetail(slug: String) -> Element {
                 *issues_per_scene.entry(issue.scene_id.as_str()).or_insert(0) += 1;
             }
 
-            // Group issues by scene, deduplicated by slug (same color pair = same issue type)
-            let mut issues_by_scene: Vec<(String, Vec<&litmus_model::contrast::ContrastIssue>)> = Vec::new();
-            let mut seen_slugs: std::collections::HashSet<&str> = std::collections::HashSet::new();
+            // Build issue_details for the active scene view
+            let active_scene_details: Vec<(usize, usize, SpanIssueDetail)> = issues.iter()
+                .filter(|i| scenes.get(tab_idx).is_some_and(|s| s.id == i.scene_id))
+                .map(|i| (i.line, i.span, SpanIssueDetail {
+                    ratio: i.ratio,
+                    threshold: i.threshold,
+                    level: i.level.to_string(),
+                    fg_hex: i.fg.to_hex(),
+                    bg_hex: i.bg.to_hex(),
+                }))
+                .collect();
+
+            // Group issues by (scene_id, line_idx) for the expanded issues list
+            // Each unique line appears once, collecting all issue spans for that line.
+            // Result: Vec<(scene_id, scene_name, Vec<(line_idx, Vec<(span_idx, SpanIssueDetail)>)>)>
+            #[allow(clippy::type_complexity)]
+            let mut issues_by_scene_line: Vec<(String, String, Vec<(usize, Vec<(usize, SpanIssueDetail)>)>)> = Vec::new();
             for issue in &issues {
-                if !seen_slugs.insert(issue.slug.as_str()) {
-                    continue;
-                }
-                if let Some(group) = issues_by_scene.iter_mut().find(|(id, _)| id == &issue.scene_id) {
-                    group.1.push(issue);
+                let scene_name = scenes.iter()
+                    .find(|s| s.id == issue.scene_id)
+                    .map(|s| s.name.clone())
+                    .unwrap_or_else(|| issue.scene_id.clone());
+                let detail = SpanIssueDetail {
+                    ratio: issue.ratio,
+                    threshold: issue.threshold,
+                    level: issue.level.to_string(),
+                    fg_hex: issue.fg.to_hex(),
+                    bg_hex: issue.bg.to_hex(),
+                };
+
+                if let Some(scene_group) = issues_by_scene_line.iter_mut().find(|(id, _, _)| id == &issue.scene_id) {
+                    if let Some(line_group) = scene_group.2.iter_mut().find(|(li, _)| *li == issue.line) {
+                        line_group.1.push((issue.span, detail));
+                    } else {
+                        scene_group.2.push((issue.line, vec![(issue.span, detail)]));
+                    }
                 } else {
-                    issues_by_scene.push((issue.scene_id.clone(), vec![issue]));
+                    issues_by_scene_line.push((
+                        issue.scene_id.clone(),
+                        scene_name,
+                        vec![(issue.line, vec![(issue.span, detail)])],
+                    ));
                 }
             }
 
@@ -123,41 +154,42 @@ pub fn ThemeDetail(slug: String) -> Element {
                         UseAsAppThemeButton { slug: this_slug }
                     }
 
-                    // Expandable contrast issues
+                    // Expandable contrast issues — rendered as actual scene lines
                     if issues_open && issue_count > 0 {
                         div { class: "contrast-issues-list",
-                            for (scene_id, scene_issues) in &issues_by_scene {
+                            for (scene_id, scene_name, line_groups) in &issues_by_scene_line {
                                 {
                                     let target_idx = scenes.iter().position(|s| s.id == *scene_id).unwrap_or(0);
+                                    let scene_obj = scenes.get(target_idx);
                                     rsx! {
                                         div { class: "contrast-issue-group",
                                             button {
                                                 class: "contrast-issue-scene mono",
                                                 onclick: move |_| active_scene_write.set(ActiveScene(Some(target_idx))),
-                                                "{scene_id} \u{2192}"
+                                                "{scene_name} \u{2192}"
                                             }
-                                            for issue in scene_issues.iter() {
-                                                div { class: "contrast-issue-item",
-                                                    span {
-                                                        class: "contrast-issue-sample mono",
-                                                        style: "color: {issue.fg.to_hex()}; background: {issue.bg.to_hex()};",
-                                                        "Sample text"
-                                                    }
-                                                    span { class: "contrast-issue-ratio mono",
-                                                        "{issue.ratio:.1}:1"
-                                                        span { class: "contrast-issue-need", " (need {issue.threshold:.1}:1)" }
-                                                    }
-                                                    span { class: "contrast-issue-hex mono",
-                                                        span {
-                                                            class: "color-chip",
-                                                            style: "background: {issue.fg.to_hex()};",
+                                            for (line_idx, span_details) in line_groups.iter() {
+                                                {
+                                                    let issue_details_for_line: Vec<(usize, usize, SpanIssueDetail)> = span_details.iter()
+                                                        .map(|(si, d)| (*line_idx, *si, d.clone()))
+                                                        .collect();
+                                                    let line = scene_obj
+                                                        .and_then(|s| s.lines.get(*line_idx))
+                                                        .cloned();
+                                                    rsx! {
+                                                        if let Some(line) = line {
+                                                            div { class: "contrast-issue-line",
+                                                                pre {
+                                                                    style: "background-color: {bg}; color: {fg};",
+                                                                    scene_renderer::LineView {
+                                                                        theme: theme.clone(),
+                                                                        line: line,
+                                                                        line_idx: *line_idx,
+                                                                        issue_details: issue_details_for_line,
+                                                                    }
+                                                                }
+                                                            }
                                                         }
-                                                        " {issue.fg.to_hex()} / "
-                                                        span {
-                                                            class: "color-chip",
-                                                            style: "background: {issue.bg.to_hex()};",
-                                                        }
-                                                        " {issue.bg.to_hex()}"
                                                     }
                                                 }
                                             }
@@ -194,19 +226,11 @@ pub fn ThemeDetail(slug: String) -> Element {
 
                     // Active scene
                     if let Some(scene) = scenes.get(tab_idx) {
-                        {
-                            let current_issue_spans: Vec<(usize, usize)> = issues.iter()
-                                .filter(|i| i.scene_id == scene.id)
-                                .map(|i| (i.line, i.span))
-                                .collect();
-                            rsx! {
-                                div { role: "tabpanel",
-                                    scene_renderer::SceneView {
-                                        theme: theme.clone(),
-                                        scene: scene.clone(),
-                                        issue_spans: current_issue_spans,
-                                    }
-                                }
+                        div { role: "tabpanel",
+                            scene_renderer::SceneView {
+                                theme: theme.clone(),
+                                scene: scene.clone(),
+                                issue_details: active_scene_details.clone(),
                             }
                         }
                     }
