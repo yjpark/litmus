@@ -25,12 +25,13 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
+            ~/.cargo/bin
             target
           key: wasm-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: wasm-
 
       - name: Install Dioxus CLI
-        run: cargo install dioxus-cli --locked
+        run: command -v dx || cargo install dioxus-cli --locked
 
       - name: Build WASM
         run: cd crates/litmus-web && dx build --release
