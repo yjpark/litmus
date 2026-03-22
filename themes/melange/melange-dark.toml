@@ -1,0 +1,26 @@
+name = "Melange Dark"
+
+[colors]
+background = "#292522"
+foreground = "#ece1d7"
+cursor = "#ece1d7"
+selection_background = "#403a36"
+selection_foreground = "#ece1d7"
+
+[colors.ansi]
+black = "#34302c"
+red = "#bd8183"
+green = "#78997a"
+yellow = "#e49b5d"
+blue = "#7f91b2"
+magenta = "#b380b0"
+cyan = "#7b9695"
+white = "#c1a78e"
+bright_black = "#867462"
+bright_red = "#d47766"
+bright_green = "#85b695"
+bright_yellow = "#ebc06d"
+bright_blue = "#a3a9ce"
+bright_magenta = "#cf9bc2"
+bright_cyan = "#89b3b6"
+bright_white = "#ece1d7"

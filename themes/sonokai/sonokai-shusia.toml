@@ -1,0 +1,26 @@
+name = "Sonokai Shusia"
+
+[colors]
+background = "#2d2a2e"
+foreground = "#e3e1e4"
+cursor = "#e3e1e4"
+selection_background = "#49464e"
+selection_foreground = "#e3e1e4"
+
+[colors.ansi]
+black = "#1a181a"
+red = "#f85e84"
+green = "#9ecd6f"
+yellow = "#e5c463"
+blue = "#7accd7"
+magenta = "#ab9df2"
+cyan = "#ef9062"
+white = "#e3e1e4"
+bright_black = "#848089"
+bright_red = "#f85e84"
+bright_green = "#9ecd6f"
+bright_yellow = "#e5c463"
+bright_blue = "#7accd7"
+bright_magenta = "#ab9df2"
+bright_cyan = "#ef9062"
+bright_white = "#e3e1e4"

@@ -1,0 +1,26 @@
+name = "Zenburn"
+
+[colors]
+background = "#3f3f3f"
+foreground = "#dcdccc"
+cursor = "#73635a"
+selection_background = "#21322f"
+selection_foreground = "#c2d87a"
+
+[colors.ansi]
+black = "#4d4d4d"
+red = "#7d5d5d"
+green = "#60b48a"
+yellow = "#f0dfaf"
+blue = "#5d6d7d"
+magenta = "#dc8cc3"
+cyan = "#8cd0d3"
+white = "#dcdccc"
+bright_black = "#709080"
+bright_red = "#dca3a3"
+bright_green = "#c3bf9f"
+bright_yellow = "#e0cf9f"
+bright_blue = "#94bff3"
+bright_magenta = "#ec93d3"
+bright_cyan = "#93e0e3"
+bright_white = "#ffffff"

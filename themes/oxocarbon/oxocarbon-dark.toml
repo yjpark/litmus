@@ -1,0 +1,26 @@
+name = "Oxocarbon Dark"
+
+[colors]
+background = "#161616"
+foreground = "#dde1e6"
+cursor = "#f2f4f8"
+selection_background = "#525252"
+selection_foreground = "#f2f4f8"
+
+[colors.ansi]
+black = "#262626"
+red = "#ee5396"
+green = "#42be65"
+yellow = "#ffe97b"
+blue = "#33b1ff"
+magenta = "#ff7eb6"
+cyan = "#3ddbd9"
+white = "#dde1e6"
+bright_black = "#393939"
+bright_red = "#ee5396"
+bright_green = "#42be65"
+bright_yellow = "#ffe97b"
+bright_blue = "#33b1ff"
+bright_magenta = "#ff7eb6"
+bright_cyan = "#3ddbd9"
+bright_white = "#ffffff"

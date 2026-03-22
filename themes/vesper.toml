@@ -1,0 +1,26 @@
+name = "Vesper"
+
+[colors]
+background = "#101010"
+foreground = "#ffffff"
+cursor = "#acb1ab"
+selection_background = "#ffffff"
+selection_foreground = "#101010"
+
+[colors.ansi]
+black = "#101010"
+red = "#f5a191"
+green = "#90b99f"
+yellow = "#e6b99d"
+blue = "#aca1cf"
+magenta = "#e29eca"
+cyan = "#ea83a5"
+white = "#a0a0a0"
+bright_black = "#7e7e7e"
+bright_red = "#ff8080"
+bright_green = "#99ffe4"
+bright_yellow = "#ffc799"
+bright_blue = "#b9aeda"
+bright_magenta = "#ecaad6"
+bright_cyan = "#f591b2"
+bright_white = "#ffffff"

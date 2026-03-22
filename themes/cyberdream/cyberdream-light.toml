@@ -1,0 +1,26 @@
+name = "Cyberdream Light"
+
+[colors]
+background = "#ffffff"
+foreground = "#16181a"
+cursor = "#16181a"
+selection_background = "#acacac"
+selection_foreground = "#16181a"
+
+[colors.ansi]
+black = "#ffffff"
+red = "#d11500"
+green = "#008b0c"
+yellow = "#997b00"
+blue = "#0057d1"
+magenta = "#a018ff"
+cyan = "#008c99"
+white = "#16181a"
+bright_black = "#acacac"
+bright_red = "#d11500"
+bright_green = "#008b0c"
+bright_yellow = "#997b00"
+bright_blue = "#0057d1"
+bright_magenta = "#a018ff"
+bright_cyan = "#008c99"
+bright_white = "#16181a"
