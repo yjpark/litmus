@@ -2,6 +2,8 @@
 
 > Litmus test your terminal themes — preview them across all your apps before you commit.
 
+🌐 **[Live App](https://litmus.edger.dev)** · 📖 **[Documentation](https://docs.litmus.edger.dev)**
+
 ## The Problem
 
 Switching terminal themes is a frustrating loop:
