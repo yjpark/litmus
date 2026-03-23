@@ -31,8 +31,8 @@ pub enum Route {
     CompareThemes { slugs: String },
 }
 
-/// CDN base URL for the screenshot manifest. Empty string disables screenshot fetching.
-const MANIFEST_URL: &str = "https://screenshots.litmus.edger.dev/manifest.json";
+/// Production screenshot manifest URL.
+const MANIFEST_CDN_URL: &str = "https://screenshots.litmus.edger.dev/manifest.json";
 
 #[component]
 fn App() -> Element {
@@ -46,22 +46,35 @@ fn App() -> Element {
     use_context_provider(|| Signal::new(ActiveProvider::default()));
     use_context_provider(|| Signal::new(ManifestState::default()));
 
-    // Fetch screenshot manifest from CDN on app load
+    // Fetch screenshot manifest on app load.
+    // In dev: derive screenshot server URL from current origin (port 8883 → 8884).
+    // In production: fetch from CDN.
     let mut manifest_state = use_context::<Signal<ManifestState>>();
     use_effect(move || {
-        if MANIFEST_URL.is_empty() {
-            return;
-        }
-        let url = MANIFEST_URL;
+        let cdn_url = MANIFEST_CDN_URL;
         let js = format!(
             r#"
-            try {{
-                const resp = await fetch("{url}");
-                if (!resp.ok) return null;
-                return await resp.text();
-            }} catch(e) {{
+            async function tryFetch(url) {{
+                try {{
+                    const resp = await fetch(url);
+                    if (resp.ok) return await resp.text();
+                }} catch(e) {{}}
                 return null;
             }}
+            // In dev, screenshot server runs on port 8884 (web app on 8883).
+            // Derive the URL from current origin so it works behind reverse proxies.
+            const origin = window.location.origin;
+            if (origin.includes("8883")) {{
+                const screenshotOrigin = origin.replace("8883", "8884");
+                const local = await tryFetch(screenshotOrigin + "/manifest.json");
+                if (local) {{
+                    // Rewrite base_url to match the actual screenshot server origin
+                    const parsed = JSON.parse(local);
+                    parsed.base_url = screenshotOrigin;
+                    return JSON.stringify(parsed);
+                }}
+            }}
+            return await tryFetch("{cdn_url}");
             "#
         );
         spawn(async move {

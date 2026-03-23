@@ -27,6 +27,7 @@ use crate::capture::sha256_hex;
 pub fn build_manifest_from_staging(
     staging_dir: &Path,
     base_url: &str,
+    url_prefix: &str,
     providers: Vec<Provider>,
     fixtures: Vec<Fixture>,
 ) -> Result<ScreenshotManifest> {
@@ -74,7 +75,11 @@ pub fn build_manifest_from_staging(
         let checksum = sha256_hex(&bytes);
 
         // Build the relative URL (relative to base_url)
-        let url = format!("v1/{}/{}/{}.{}", provider_slug, theme_slug, fixture_id, format.extension());
+        let url = if url_prefix.is_empty() {
+            format!("{}/{}/{}.{}", provider_slug, theme_slug, fixture_id, format.extension())
+        } else {
+            format!("{}/{}/{}/{}.{}", url_prefix, provider_slug, theme_slug, fixture_id, format.extension())
+        };
 
         let captured_at = Utc::now().to_rfc3339();
 

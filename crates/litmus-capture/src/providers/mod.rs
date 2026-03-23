@@ -31,7 +31,7 @@ impl Default for TermGeometry {
 }
 
 /// Trait implemented by each supported terminal emulator provider.
-pub trait ProviderCapture {
+pub trait ProviderCapture: Send + Sync {
     /// Short machine-readable identifier, e.g. "kitty".
     fn slug(&self) -> &str;
 

@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use crate::components::*;
 use crate::scene_renderer::{self, SpanIssueDetail};
-use crate::screenshot_view::{scene_id_to_fixture_id, ProviderSelector, ScreenshotSceneView};
+use crate::screenshot_view::{scene_id_to_fixture_id, ScreenshotSceneView};
 use crate::state::*;
 use crate::themes;
 
@@ -42,7 +42,7 @@ pub fn ThemeDetail(slug: String) -> Element {
             let app_theme = use_context::<Signal<AppThemeSlug>>();
             let is_current_theme = app_theme.read().0.as_deref() == Some(this_slug.as_str());
             let detail_slug = this_slug.clone();
-            let mut active_provider = use_context::<Signal<ActiveProvider>>();
+            let active_provider = use_context::<Signal<ActiveProvider>>();
             let current_provider = active_provider.read().0.clone();
 
             // Group issues per scene as (line, span, detail) tuples
@@ -111,13 +111,6 @@ pub fn ThemeDetail(slug: String) -> Element {
                         }
                         ShortlistCheckbox { slug: this_slug.clone(), name: theme.name.clone() }
                         UseAsAppThemeButton { slug: this_slug }
-                    }
-
-                    // Provider selector (shown when screenshots are available)
-                    ProviderSelector {
-                        theme_slug: theme_slug(&theme.name),
-                        active: current_provider.clone(),
-                        on_change: move |slug: String| active_provider.set(ActiveProvider(slug)),
                     }
 
                     // All scenes rendered vertically

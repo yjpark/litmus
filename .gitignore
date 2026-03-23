@@ -33,3 +33,4 @@ docs/dist/
 
 # bacon diagnostics export
 .bacon-claude-diagnostics
+staging/

@@ -18,6 +18,38 @@ description = "Build CLI binary (release)"
 run = "cargo run --package litmus-cli"
 description = "Run the litmus TUI"
 
+[tasks.capture]
+run = "cargo run --package litmus-capture -- capture-all --provider foot --keep-going"
+description = "Capture all screenshots with foot (staging/), skips existing files"
+
+[tasks.capture-manifest]
+run = "cargo run --package litmus-capture -- manifest build --base-url http://localhost:8884 --url-prefix ''"
+description = "Build manifest.json for local dev (pointing at localhost:8884)"
+
+[tasks.clean-web]
+run = "rm -rf target/dx/litmus-web"
+description = "Clean Dioxus build cache (needed when changing compile-time env vars)"
+
+[tasks.dev-screenshots]
+run = """
+echo "Starting local screenshot server on :8884 (CORS enabled)..."
+python3 -c "
+import http.server
+class H(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *a, **kw):
+        super().__init__(*a, directory='staging', **kw)
+    def end_headers(self):
+        self.send_header('Access-Control-Allow-Origin', '*')
+        super().end_headers()
+http.server.HTTPServer(('0.0.0.0', 8884), H).serve_forever()
+" &
+SPID=$!
+trap "kill $SPID 2>/dev/null" EXIT
+echo "Starting Dioxus dev server on :8883 with local manifest..."
+cd crates/litmus-web && LITMUS_MANIFEST_URL=http://localhost:8884/manifest.json dx serve --port 8883 --addr 0.0.0.0
+"""
+description = "Run web app with local screenshots (staging/ on :8884, webapp on :8883)"
+
 [tasks.check]
 run = "cargo check --workspace"
 description = "Type-check workspace"

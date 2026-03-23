@@ -91,6 +91,14 @@ struct CaptureAllArgs {
     /// Continue on failure (don't abort on first error)
     #[arg(long, default_value_t = false)]
     keep_going: bool,
+
+    /// Number of parallel capture workers (default: number of CPU cores)
+    #[arg(long, short = 'j')]
+    jobs: Option<usize>,
+
+    /// Re-capture even if output file already exists
+    #[arg(long, default_value_t = false)]
+    force: bool,
 }
 
 #[derive(Subcommand)]
@@ -111,6 +119,11 @@ struct ManifestBuildArgs {
     /// Base URL for the CDN (written into manifest.json)
     #[arg(long, env = "LITMUS_SCREENSHOTS_BASE_URL", default_value = "https://screenshots.litmus.edger.dev")]
     base_url: String,
+
+    /// URL path prefix for screenshot paths (e.g. "v1" → "v1/foot/theme/fixture.webp").
+    /// Use empty string for local dev where staging dir is served directly.
+    #[arg(long, default_value = "v1")]
+    url_prefix: String,
 
     /// Output path for manifest.json
     #[arg(long, default_value = "./staging/manifest.json")]
@@ -199,6 +212,9 @@ fn cmd_capture(args: CaptureArgs) -> Result<()> {
 }
 
 fn cmd_capture_all(args: CaptureAllArgs) -> Result<()> {
+    use rayon::prelude::*;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
     let providers: Vec<Box<dyn providers::ProviderCapture>> = match &args.provider {
         Some(slug) => {
             let p = find_provider(slug)
@@ -211,59 +227,97 @@ fn cmd_capture_all(args: CaptureAllArgs) -> Result<()> {
     let themes = load_all_themes(&args.themes_dir)?;
     let fixture_ids = list_fixture_ids(&args.fixtures_dir)?;
 
-    let total = providers.len() * themes.len() * fixture_ids.len();
-    let mut done = 0;
-    let mut failed = 0;
-
-    for provider in &providers {
-        for theme in &themes {
-            let theme_slug = theme_to_slug(&theme.name);
-            for fixture_id in &fixture_ids {
-                let fixture_dir = args.fixtures_dir.join(fixture_id);
-                let output_path = args
-                    .staging_dir
-                    .join(provider.slug())
-                    .join(&theme_slug)
-                    .join(format!("{}.webp", fixture_id));
-
-                eprintln!(
-                    "[{}/{}] {} / {} / {}",
-                    done + 1,
-                    total,
-                    provider.slug(),
-                    theme_slug,
-                    fixture_id
-                );
-
-                match capture_screenshot(&CaptureOptions {
-                    provider: provider.as_ref(),
-                    theme,
-                    fixture_dir: &fixture_dir,
-                    fixture_id,
-                    output_path: &output_path,
-                    geometry: TermGeometry::default(),
-                    timeout_secs: args.timeout,
-                }) {
-                    Ok(result) => {
-                        eprintln!("  ✓ {}x{}", result.width, result.height);
-                    }
-                    Err(e) => {
-                        eprintln!("  ✗ Error: {:#}", e);
-                        failed += 1;
-                        if !args.keep_going {
-                            bail!("capture failed (use --keep-going to continue on errors)");
-                        }
-                    }
-                }
-
-                done += 1;
+    // Build work items: (provider_idx, theme_idx, fixture_id)
+    let mut work: Vec<(usize, usize, String)> = Vec::new();
+    for (pi, _) in providers.iter().enumerate() {
+        for (ti, _) in themes.iter().enumerate() {
+            for fid in &fixture_ids {
+                work.push((pi, ti, fid.clone()));
             }
         }
     }
 
-    eprintln!("\nDone: {}/{} succeeded, {} failed", done - failed, total, failed);
-    if failed > 0 {
-        bail!("{} captures failed", failed);
+    let total = work.len();
+    let num_jobs = args.jobs.unwrap_or_else(num_cpus::get);
+    eprintln!("Capturing {} screenshots with {} workers...", total, num_jobs);
+
+    rayon::ThreadPoolBuilder::new()
+        .num_threads(num_jobs)
+        .build_global()
+        .ok(); // Ignore error if pool already initialized
+
+    let done = AtomicUsize::new(0);
+    let skipped = AtomicUsize::new(0);
+    let failed = AtomicUsize::new(0);
+    let force = args.force;
+
+    let results: Vec<Option<anyhow::Error>> = work
+        .par_iter()
+        .map(|(pi, ti, fixture_id)| {
+            let provider = &providers[*pi];
+            let theme = &themes[*ti];
+            let theme_slug = theme_to_slug(&theme.name);
+            let fixture_dir = args.fixtures_dir.join(fixture_id);
+            let output_path = args
+                .staging_dir
+                .join(provider.slug())
+                .join(&theme_slug)
+                .join(format!("{}.webp", fixture_id));
+
+            let n = done.fetch_add(1, Ordering::Relaxed) + 1;
+
+            if !force && output_path.exists() {
+                skipped.fetch_add(1, Ordering::Relaxed);
+                eprintln!(
+                    "[{}/{}] {} / {} / {} (skipped, exists)",
+                    n, total, provider.slug(), theme_slug, fixture_id
+                );
+                return None;
+            }
+
+            eprintln!(
+                "[{}/{}] {} / {} / {}",
+                n, total, provider.slug(), theme_slug, fixture_id
+            );
+
+            match capture_screenshot(&CaptureOptions {
+                provider: provider.as_ref(),
+                theme,
+                fixture_dir: &fixture_dir,
+                fixture_id,
+                output_path: &output_path,
+                geometry: TermGeometry::default(),
+                timeout_secs: args.timeout,
+            }) {
+                Ok(result) => {
+                    eprintln!("  ✓ {} / {} / {} {}x{}", provider.slug(), theme_slug, fixture_id, result.width, result.height);
+                    None
+                }
+                Err(e) => {
+                    eprintln!("  ✗ {} / {} / {} Error: {:#}", provider.slug(), theme_slug, fixture_id, e);
+                    failed.fetch_add(1, Ordering::Relaxed);
+                    Some(e)
+                }
+            }
+        })
+        .collect();
+
+    let failed_count = failed.load(Ordering::Relaxed);
+    let skipped_count = skipped.load(Ordering::Relaxed);
+    let captured = total - failed_count - skipped_count;
+    eprintln!(
+        "\nDone: {} captured, {} skipped, {} failed (of {} total)",
+        captured, skipped_count, failed_count, total
+    );
+
+    if !args.keep_going
+        && let Some(err) = results.into_iter().flatten().next()
+    {
+        return Err(err.context("capture failed (use --keep-going to continue on errors)"));
+    }
+
+    if failed_count > 0 {
+        bail!("{} captures failed", failed_count);
     }
     Ok(())
 }
@@ -290,6 +344,7 @@ fn cmd_manifest_build(args: ManifestBuildArgs) -> Result<()> {
     let manifest = build_manifest_from_staging(
         &args.staging_dir,
         &args.base_url,
+        &args.url_prefix,
         providers,
         fixtures,
     )?;

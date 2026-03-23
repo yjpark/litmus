@@ -330,6 +330,34 @@ button.sidebar-feel-lucky:hover {
 }
 
 /* Sidebar CVD */
+.sidebar-rendering {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.sidebar-rendering-select {
+  flex: 1;
+  font-family: inherit;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.25rem;
+  background: var(--app-bg);
+  color: var(--app-fg);
+  cursor: pointer;
+  appearance: auto;
+}
+
+.sidebar-rendering-select:hover {
+  border-color: var(--app-accent);
+}
+
+.sidebar-rendering-select:focus {
+  outline: 1px solid var(--app-accent);
+  outline-offset: -1px;
+}
+
 .sidebar-cvd {
   display: flex;
   gap: 0.4rem;
