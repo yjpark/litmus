@@ -114,16 +114,14 @@ pub fn capture_screenshot(opts: &CaptureOptions) -> Result<CaptureResult> {
     let wrapper_path = tmp.path().join("capture-wrapper.sh");
     fs::write(&wrapper_path, &wrapper_content).context("write wrapper script")?;
 
-    // Run the wrapper inside cage (headless Wayland compositor).
-    // WLR_BACKENDS=headless creates a headless Wayland display without DRM.
-    // WLR_RENDERER=pixman uses software rendering; foot (used for capture) renders via SHM so no OpenGL is needed.
+    // Run the wrapper inside cage (Wayland kiosk compositor).
+    // The caller controls WLR_BACKENDS and WLR_RENDERER via environment:
+    //   - Headless (foot): WLR_BACKENDS=headless WLR_RENDERER=pixman
+    //   - GPU (kitty):     Let cage auto-detect (or WLR_BACKENDS=wayland for nested)
     let cage_status = Command::new("cage")
         .args(["--"])
         .arg("bash")
         .arg(&wrapper_path)
-        .env("WLR_BACKENDS", "headless")
-        .env("WLR_RENDERER", "pixman")
-        .env("WLR_SILENT", "1")
         .status()
         .context("run cage")?;
 
