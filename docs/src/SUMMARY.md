@@ -7,4 +7,5 @@
   - [Adding Themes](./development/adding-themes.md)
   - [Adding Scenes](./development/adding-scenes.md)
 - [Milestones](./milestones.md)
+- [Next Stage Plan](./next-stage-plan.md)
 - [Agentic Workflow](./agentic-workflow.md)
