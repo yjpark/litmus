@@ -438,10 +438,10 @@ fn list_fixture_ids(fixtures_dir: &Path) -> Result<Vec<String>> {
         let path = entry.path();
         if path.is_dir() {
             // Only include if command.sh exists
-            if path.join("command.sh").exists() {
-                if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-                    ids.push(name.to_string());
-                }
+            if path.join("command.sh").exists()
+                && let Some(name) = path.file_name().and_then(|n| n.to_str())
+            {
+                ids.push(name.to_string());
             }
         }
     }

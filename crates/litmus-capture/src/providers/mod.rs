@@ -47,7 +47,7 @@ pub trait ProviderCapture {
     /// Build the command arguments to launch this terminal.
     /// - `config_path`: path to the generated config file
     /// - `command`: the shell command to run inside the terminal
-    ///              (should not exit immediately; the capture tool manages lifecycle)
+    ///   (should not exit immediately; the capture tool manages lifecycle)
     fn build_launch_args(&self, config_path: &Path, command: &str) -> Vec<String>;
 }
 

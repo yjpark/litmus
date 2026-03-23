@@ -66,12 +66,11 @@ fn App() -> Element {
         );
         spawn(async move {
             use dioxus::document::eval;
-            if let Ok(val) = eval(&js).await {
-                if let Some(text) = val.as_str() {
-                    if let Ok(manifest) = serde_json::from_str(text) {
-                        manifest_state.set(ManifestState(Some(manifest)));
-                    }
-                }
+            if let Ok(val) = eval(&js).await
+                && let Some(text) = val.as_str()
+                && let Ok(manifest) = serde_json::from_str(text)
+            {
+                manifest_state.set(ManifestState(Some(manifest)));
             }
         });
     });

@@ -30,6 +30,10 @@ level|:|file|:|line_start|:|line_end|:|message|:|rendered
 After making changes, wait a moment for bacon to recompile, then re-read
 `.bacon-claude-diagnostics` to verify the fix.
 
+**All compiler warnings must be fixed before committing.** Zero warnings is the
+standard. Check `.bacon-claude-diagnostics` for warnings (not just errors) and
+resolve them as part of every change.
+
 If `.bacon-claude-diagnostics` is absent or clearly stale (e.g. the file doesn't
 exist after the first save), warn the user that bacon does not appear to
 be running and ask them to start it in a Zellij pane with `mise run bacon-claude-diagnostics`.
