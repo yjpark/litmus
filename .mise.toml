@@ -23,8 +23,8 @@ run = "WLR_BACKENDS=headless WLR_RENDERER=pixman WLR_SILENT=1 cargo run --packag
 description = "Capture screenshots with foot (headless, no GPU needed)"
 
 [tasks.capture-kitty]
-run = "cargo run --package litmus-capture -- capture-all --provider kitty --keep-going"
-description = "Capture screenshots with kitty (requires Wayland + GPU)"
+run = "cargo run --package litmus-capture -- capture-all --provider kitty --keep-going -j $(( $(nproc) / 2 ))"
+description = "Capture screenshots with kitty at half CPU cores (requires Wayland + GPU)"
 
 [tasks.capture-manifest]
 run = "cargo run --package litmus-capture -- manifest build --base-url http://localhost:8884 --url-prefix ''"
