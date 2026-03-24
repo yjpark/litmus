@@ -1,11 +1,11 @@
 ---
 # litmus-q9lp
 title: Add TermColor, TermSpan, TermLine, TermOutput types to litmus-model
-status: in-progress
+status: completed
 type: task
 priority: normal
 created_at: 2026-03-24T13:47:13Z
-updated_at: 2026-03-24T15:05:33Z
+updated_at: 2026-03-24T15:12:00Z
 parent: litmus-coma
 ---
 
@@ -42,3 +42,16 @@ Standard xterm-256 color palette: colors 16-231 are a 6x6x6 color cube, 232-255 
 ### Commits
 1. Tests + implementation
 2. Review fixes
+
+## Summary of Changes
+
+Added `term_output` module to litmus-model with:
+
+- **`TermColor`** enum: Default, Ansi(0-15), Indexed(16-255), Rgb(r,g,b) with tagged serde
+- **`TermColor::resolve()`**: maps to concrete Color via ProviderColors + default fallback
+- **Standard xterm-256 color palette**: 6x6x6 cube (16-231) + grayscale ramp (232-255)
+- **`TermSpan`**: text + fg/bg TermColor + bold/italic/dim/underline with skip_serializing_if
+- **`TermLine`** and **`TermOutput`**: structured parsed terminal output
+- 11 tests covering resolution, palette corners, and JSON serde round-trips
+
+Existing Scene/ThemeColor types kept intact.
