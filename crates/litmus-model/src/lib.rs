@@ -11,6 +11,7 @@ pub mod scene;
 pub mod term_output;
 pub mod scenes;
 pub mod toml_format;
+pub mod wezterm;
 
 use serde::{Deserialize, Serialize};
 
