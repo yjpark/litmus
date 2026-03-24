@@ -9,7 +9,8 @@ use crate::Route;
 /// Home page: theme card grid with inline filters.
 #[component]
 pub fn ThemeList() -> Element {
-    let all_themes = themes::load_embedded_themes();
+    let active_provider = use_context::<Signal<ActiveProvider>>();
+    let all_themes = themes::themes_for_provider(&active_provider.read().0);
     let mut filter = use_signal(FilterState::default);
     let cvd_sim = use_context::<Signal<CvdSimulation>>();
     let cvd = cvd_sim.read().0;

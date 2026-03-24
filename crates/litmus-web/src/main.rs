@@ -44,6 +44,7 @@ fn App() -> Element {
     use_context_provider(|| Signal::new(VisibleScenes::default()));
     use_context_provider(|| Signal::new(SceneIssueCounts::default()));
     use_context_provider(|| Signal::new(ManifestState::default()));
+    use_context_provider(|| Signal::new(ActiveProvider::default()));
 
     // Fetch screenshot manifest on app load.
     // In dev: derive screenshot server URL from current origin (port 8883 → 8884).

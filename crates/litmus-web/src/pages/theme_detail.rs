@@ -17,7 +17,8 @@ static ANSI_NAMES: &[&str] = &[
 /// Single theme detail page — all scenes rendered vertically.
 #[component]
 pub fn ThemeDetail(slug: String) -> Element {
-    let all_themes = themes::load_embedded_themes();
+    let active_provider = use_context::<Signal<ActiveProvider>>();
+    let all_themes = themes::themes_for_provider(&active_provider.read().0);
     let theme = all_themes.iter().find(|t| theme_slug(&t.name) == slug);
     let mut palette_expanded = use_signal(|| true);
     let cvd_sim = use_context::<Signal<CvdSimulation>>();

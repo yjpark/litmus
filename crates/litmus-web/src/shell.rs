@@ -81,12 +81,15 @@ pub fn Shell() -> Element {
     let sidebar_open = use_context::<Signal<SidebarOpen>>();
     let is_open = sidebar_open.read().0;
 
+    let active_provider = use_context::<Signal<ActiveProvider>>();
+
     // Apply app theme via CSS custom properties
     use_effect(move || {
         let slug = app_theme.read().0.clone();
+        let provider = active_provider.read().0.clone();
         let js = match &slug {
             Some(s) => {
-                let all_themes = themes::load_embedded_themes();
+                let all_themes = themes::themes_for_provider(&provider);
                 if let Some(theme) = all_themes.iter().find(|t| theme_slug(&t.name) == *s) {
                     theme_to_css_vars_js(theme)
                 } else {

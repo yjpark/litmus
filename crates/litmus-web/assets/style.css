@@ -166,6 +166,48 @@ body {
   margin-bottom: 0.5rem;
 }
 
+/* Provider selector */
+.sidebar-provider {
+  padding: 0.5rem 1rem;
+}
+
+.sidebar-provider-buttons {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--app-border);
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.provider-btn {
+  flex: 1;
+  padding: 0.3rem 0.5rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  border: none;
+  background: transparent;
+  color: var(--app-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.provider-btn:not(:last-child) {
+  border-right: 1px solid var(--app-border);
+}
+
+.provider-btn:hover {
+  background: var(--app-hover);
+  color: var(--app-fg);
+}
+
+.provider-btn-active {
+  background: var(--app-active);
+  color: var(--app-accent);
+  font-weight: 600;
+}
+
 /* Sidebar nav links */
 .sidebar-nav {
   display: flex;

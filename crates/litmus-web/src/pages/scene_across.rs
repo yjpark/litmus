@@ -9,7 +9,8 @@ use crate::Route;
 /// Scene-centric view: one scene rendered across all themes in a grid.
 #[component]
 pub fn SceneAcrossThemes(scene_id: String) -> Element {
-    let all_themes = themes::load_embedded_themes();
+    let active_provider = use_context::<Signal<ActiveProvider>>();
+    let all_themes = themes::themes_for_provider(&active_provider.read().0);
     let scenes = litmus_model::scenes::all_scenes();
     let scene = scenes.iter().find(|s| s.id == scene_id);
     let cvd_sim = use_context::<Signal<CvdSimulation>>();

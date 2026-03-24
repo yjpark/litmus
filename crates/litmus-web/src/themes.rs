@@ -1,10 +1,38 @@
 use std::collections::HashMap;
+use std::sync::OnceLock;
 
 use litmus_model::provider::{
     parse_provider_colors, parse_theme_definition, ProviderColors, ProviderColorsKey,
     ThemeDefinition,
 };
 use litmus_model::Theme;
+
+/// Cached parsed theme data (definitions + provider colors).
+struct ThemeDataCache {
+    definitions: Vec<ThemeDefinition>,
+    colors: HashMap<ProviderColorsKey, ProviderColors>,
+    providers: Vec<String>,
+}
+
+static THEME_DATA_CACHE: OnceLock<ThemeDataCache> = OnceLock::new();
+
+fn cached_data() -> &'static ThemeDataCache {
+    THEME_DATA_CACHE.get_or_init(|| {
+        let (definitions, colors) = parse_all_theme_data();
+        let mut providers: Vec<String> = colors
+            .keys()
+            .map(|(_, p)| p.clone())
+            .collect::<std::collections::HashSet<_>>()
+            .into_iter()
+            .collect();
+        providers.sort();
+        ThemeDataCache {
+            definitions,
+            colors,
+            providers,
+        }
+    })
+}
 
 /// Embedded theme definitions: (slug, toml_content).
 static DEFINITION_DATA: &[(&str, &str)] = &[
@@ -173,8 +201,8 @@ static PROVIDER_COLORS_DATA: &[(&str, &str)] = &[
     ("zenburn", include_str!("../../../themes/zenburn.wezterm.toml")),
 ];
 
-/// Parsed theme data: definitions and provider color map.
-pub fn load_embedded_theme_data() -> (Vec<ThemeDefinition>, HashMap<ProviderColorsKey, ProviderColors>) {
+/// Parse all embedded theme data (uncached — use `cached_data()` for the cached version).
+fn parse_all_theme_data() -> (Vec<ThemeDefinition>, HashMap<ProviderColorsKey, ProviderColors>) {
     let mut definitions = Vec::new();
     for (slug, toml_str) in DEFINITION_DATA {
         match parse_theme_definition(toml_str, slug) {
@@ -199,32 +227,28 @@ pub fn load_embedded_theme_data() -> (Vec<ThemeDefinition>, HashMap<ProviderColo
     (definitions, colors)
 }
 
-/// Sorted list of all available provider slugs.
-#[allow(dead_code)] // Used by components after provider selector is wired up
-pub fn available_providers(colors: &HashMap<ProviderColorsKey, ProviderColors>) -> Vec<String> {
-    let mut providers: Vec<String> = colors
-        .keys()
-        .map(|(_, p)| p.clone())
-        .collect::<std::collections::HashSet<_>>()
-        .into_iter()
-        .collect();
-    providers.sort();
-    providers
+/// Parsed theme data: definitions and provider color map (cached).
+#[cfg(test)]
+pub fn load_embedded_theme_data() -> (&'static Vec<ThemeDefinition>, &'static HashMap<ProviderColorsKey, ProviderColors>) {
+    let cache = cached_data();
+    (&cache.definitions, &cache.colors)
+}
+
+/// Sorted list of all available provider slugs (cached).
+pub fn available_providers() -> &'static Vec<String> {
+    &cached_data().providers
 }
 
 /// Build renderable themes for a specific provider. Returns themes sorted by name.
 /// Only includes definitions that have provider colors for the requested provider.
-#[allow(dead_code)] // Used by components after provider selector is wired up
-pub fn themes_for_provider(
-    provider: &str,
-    definitions: &[ThemeDefinition],
-    colors: &HashMap<ProviderColorsKey, ProviderColors>,
-) -> Vec<Theme> {
-    let mut themes: Vec<Theme> = definitions
+pub fn themes_for_provider(provider: &str) -> Vec<Theme> {
+    let cache = cached_data();
+    let mut themes: Vec<Theme> = cache
+        .definitions
         .iter()
         .filter_map(|def| {
             let key = (def.slug.clone(), provider.to_string());
-            colors.get(&key).map(|pc| pc.to_theme(&def.name))
+            cache.colors.get(&key).map(|pc| pc.to_theme(&def.name))
         })
         .collect();
     themes.sort_by(|a, b| a.name.cmp(&b.name));
@@ -232,19 +256,19 @@ pub fn themes_for_provider(
 }
 
 /// Load all embedded themes using the first available provider per theme.
-/// Backward-compatible with the old API — callers that don't need provider
-/// selection can continue using this.
+/// Backward-compatible with the old API — used by tests.
+#[cfg(test)]
 pub fn load_embedded_themes() -> Vec<Theme> {
-    let (definitions, colors) = load_embedded_theme_data();
-    let mut themes: Vec<Theme> = definitions
+    let cache = cached_data();
+    let mut themes: Vec<Theme> = cache
+        .definitions
         .iter()
         .filter_map(|def| {
-            // Pick first available provider (sorted for determinism)
             let mut providers: Vec<&String> = def.providers.keys().collect();
             providers.sort();
             providers
                 .into_iter()
-                .find_map(|p| colors.get(&(def.slug.clone(), p.clone())))
+                .find_map(|p| cache.colors.get(&(def.slug.clone(), p.clone())))
                 .map(|pc| pc.to_theme(&def.name))
         })
         .collect();
@@ -260,7 +284,7 @@ mod tests {
     fn load_embedded_theme_data_parses_all_definitions() {
         let (defs, _) = load_embedded_theme_data();
         assert_eq!(defs.len(), DEFINITION_DATA.len());
-        for def in &defs {
+        for def in defs {
             assert!(!def.name.is_empty());
             assert!(!def.slug.is_empty());
         }
@@ -274,15 +298,13 @@ mod tests {
 
     #[test]
     fn available_providers_returns_kitty_and_wezterm() {
-        let (_, colors) = load_embedded_theme_data();
-        let providers = available_providers(&colors);
-        assert_eq!(providers, vec!["kitty", "wezterm"]);
+        let providers = available_providers();
+        assert_eq!(providers, &["kitty", "wezterm"]);
     }
 
     #[test]
     fn themes_for_provider_kitty_non_empty() {
-        let (defs, colors) = load_embedded_theme_data();
-        let themes = themes_for_provider("kitty", &defs, &colors);
+        let themes = themes_for_provider("kitty");
         assert!(!themes.is_empty());
         // Should be sorted by name
         for w in themes.windows(2) {
@@ -292,22 +314,20 @@ mod tests {
 
     #[test]
     fn themes_for_provider_wezterm_non_empty() {
-        let (defs, colors) = load_embedded_theme_data();
-        let themes = themes_for_provider("wezterm", &defs, &colors);
+        let themes = themes_for_provider("wezterm");
         assert!(!themes.is_empty());
     }
 
     #[test]
     fn themes_for_provider_nonexistent_empty() {
-        let (defs, colors) = load_embedded_theme_data();
-        let themes = themes_for_provider("alacritty", &defs, &colors);
+        let themes = themes_for_provider("alacritty");
         assert!(themes.is_empty());
     }
 
     #[test]
     fn every_definition_has_at_least_one_provider() {
         let (defs, colors) = load_embedded_theme_data();
-        for def in &defs {
+        for def in defs {
             let has_colors = colors
                 .keys()
                 .any(|(slug, _)| slug == &def.slug);

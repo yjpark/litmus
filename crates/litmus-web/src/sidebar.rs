@@ -21,7 +21,10 @@ fn random_index(max: usize) -> usize {
 /// Persistent left sidebar: navigation, shortlist management, CVD toggle.
 #[component]
 pub fn Sidebar() -> Element {
-    let all_themes = themes::load_embedded_themes();
+    let mut active_provider = use_context::<Signal<ActiveProvider>>();
+    let provider = active_provider.read().0.clone();
+    let all_themes = themes::themes_for_provider(&provider);
+    let providers = themes::available_providers();
     let mut shortlist = use_context::<Signal<Shortlist>>();
     let mut cvd_sim = use_context::<Signal<CvdSimulation>>();
     let mut sidebar_open = use_context::<Signal<SidebarOpen>>();
@@ -104,6 +107,27 @@ pub fn Sidebar() -> Element {
                     GitHubStars {}
                 }
                 span { class: "sidebar-subtitle", "terminal color theme previewer" }
+            }
+
+            // Provider selector
+            div { class: "sidebar-section sidebar-provider",
+                div { class: "sidebar-provider-buttons",
+                    for p in providers.iter() {
+                        {
+                            let p_clone = p.clone();
+                            let is_active = *p == provider;
+                            rsx! {
+                                button {
+                                    class: if is_active { "provider-btn provider-btn-active" } else { "provider-btn" },
+                                    onclick: move |_| {
+                                        active_provider.set(ActiveProvider(p_clone.clone()));
+                                    },
+                                    "{p}"
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             // Nav links

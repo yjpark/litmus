@@ -69,6 +69,18 @@ pub struct SidebarOpen(pub bool);
 #[derive(Clone, Default)]
 pub struct ManifestState(pub Option<ScreenshotManifest>);
 
+/// Active terminal provider (e.g., "kitty", "wezterm").
+/// Controls which provider's colors are used for theme rendering.
+#[derive(Clone)]
+pub struct ActiveProvider(pub String);
+
+impl Default for ActiveProvider {
+    fn default() -> Self {
+        let providers = crate::themes::available_providers();
+        Self(providers.first().cloned().unwrap_or_else(|| "kitty".to_string()))
+    }
+}
+
 pub fn is_light_theme(theme: &litmus_model::Theme) -> bool {
     litmus_model::contrast::relative_luminance(&theme.background) > 0.5
 }

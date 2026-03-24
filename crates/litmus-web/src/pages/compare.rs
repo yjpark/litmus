@@ -15,7 +15,8 @@ static ANSI_NAMES: &[&str] = &[
 /// Multi-theme comparison (2-4 themes side by side).
 #[component]
 pub fn CompareThemes(slugs: String) -> Element {
-    let all_themes = themes::load_embedded_themes();
+    let active_provider = use_context::<Signal<ActiveProvider>>();
+    let all_themes = themes::themes_for_provider(&active_provider.read().0);
     let scenes = litmus_model::scenes::all_scenes();
     let cvd_sim = use_context::<Signal<CvdSimulation>>();
     let cvd = cvd_sim.read().0;
