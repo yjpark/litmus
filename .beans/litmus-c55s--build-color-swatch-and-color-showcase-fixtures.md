@@ -1,11 +1,11 @@
 ---
 # litmus-c55s
 title: Build color swatch and color showcase fixtures
-status: in-progress
+status: completed
 type: task
 priority: normal
 created_at: 2026-03-24T14:01:30Z
-updated_at: 2026-03-24T15:42:23Z
+updated_at: 2026-03-24T15:45:05Z
 parent: litmus-49jz
 ---
 
@@ -41,8 +41,17 @@ A simulated CI/deploy dashboard that naturally uses all 16 ANSI colors:
 - Deterministic, self-contained printf/echo output
 
 ### Todo
-- [ ] Create color-swatch fixture (setup.sh + command.sh)
-- [ ] Create color-showcase fixture (setup.sh + command.sh)
-- [ ] Test both fixtures locally
-- [ ] Update README.md fixture inventory
-- [ ] Review
+- [x] Create color-swatch fixture (setup.sh + command.sh)
+- [x] Create color-showcase fixture (setup.sh + command.sh)
+- [x] Test both fixtures locally
+- [x] Update README.md fixture inventory
+- [x] Review
+
+## Summary of Changes
+
+Created two new fixtures:
+
+- **color-swatch**: Reference palette with 16 ANSI colors (fg labels + bg blocks), full 256-color cube, grayscale ramp, and truecolor gradient. 19 lines.
+- **color-showcase**: Simulated CI deploy dashboard exercising all 16 standard and bright ANSI colors through build, deploy, health check, and error sections. 20 lines.
+
+Both are pure printf output (no setup needed), deterministic, fit 80x24, and parse cleanly through the ANSI parser. Updated fixtures/README.md inventory.
