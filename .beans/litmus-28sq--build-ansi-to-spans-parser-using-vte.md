@@ -1,11 +1,11 @@
 ---
 # litmus-28sq
 title: Build ANSI-to-spans parser using VTE
-status: in-progress
+status: completed
 type: task
 priority: normal
 created_at: 2026-03-24T13:47:19Z
-updated_at: 2026-03-24T15:28:14Z
+updated_at: 2026-03-24T15:36:09Z
 parent: litmus-coma
 blocked_by:
     - litmus-q9lp
@@ -54,14 +54,31 @@ pub fn parse_ansi(input: &[u8], cols: u16, rows: u16) -> TermOutput
 ```
 
 ### Tests (TDD)
-- [ ] Plain text without escapes
-- [ ] Basic SGR colors (30-37, 40-47)
-- [ ] Bright colors (90-97, 100-107)
-- [ ] 256-color mode (38;5;N, 48;5;N)
-- [ ] 24-bit truecolor (38;2;R;G;B)
-- [ ] Bold/italic/dim/underline attributes
-- [ ] Reset (SGR 0) clears all attributes
-- [ ] Newline handling
-- [ ] Span collapsing (adjacent same-attr cells merge)
-- [ ] Cursor movement (basic)
-- [ ] Real git diff output parsing
+- [x] Plain text without escapes
+- [x] Basic SGR colors (30-37, 40-47)
+- [x] Bright colors (90-97, 100-107)
+- [x] 256-color mode (38;5;N, 48;5;N)
+- [x] 24-bit truecolor (38;2;R;G;B)
+- [x] Bold/italic/dim/underline attributes
+- [x] Reset (SGR 0) clears all attributes
+- [x] Newline handling
+- [x] Span collapsing (adjacent same-attr cells merge)
+- [x] Cursor movement (basic)
+- [x] Real git diff output parsing
+
+## Summary of Changes
+
+Added `ansi_parser` module to litmus-capture with:
+
+- **Cell grid architecture**: VTE-backed parser with cols×rows grid, cursor tracking, and SGR attribute state
+- **Full SGR support**: standard colors (30-47), bright (90-107), 256-color (38;5;N), truecolor (38;2;R;G;B), bold/italic/dim/underline, individual resets (22/23/24)
+- **Colon-form subparams**: handles 38:5:N and 38:2::R:G:B forms used by modern terminals
+- **Cursor operations**: CUU/CUD/CUF/CUB movement, CUP absolute positioning, EL (erase in line), ED (erase in display)
+- **Span collapsing**: merges adjacent cells with identical attributes, trims trailing default spaces
+- **`parse-ansi` CLI subcommand**: reads raw ANSI from file/stdin, outputs structured TermOutput JSON
+- **37 tests** covering all SGR mappings, edge cases (empty input, zero dimensions, column overflow), and real-world output patterns
+
+Key design decisions:
+- Characters beyond terminal width are clipped (no line wrapping)
+- Trailing default-attribute spaces are trimmed; styled spaces are preserved
+- Zero dimensions clamped to 1×1 to prevent underflow
