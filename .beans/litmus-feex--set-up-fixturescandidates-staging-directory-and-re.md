@@ -1,10 +1,11 @@
 ---
 # litmus-feex
 title: Set up fixtures/candidates/ staging directory and review workflow
-status: todo
+status: in-progress
 type: task
+priority: normal
 created_at: 2026-03-24T14:01:32Z
-updated_at: 2026-03-24T14:01:32Z
+updated_at: 2026-03-24T15:48:34Z
 parent: litmus-49jz
 ---
 
