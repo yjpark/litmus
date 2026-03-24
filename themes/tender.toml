@@ -1,26 +1,6 @@
 name = "Tender"
+variant = "dark"
 
-[colors]
-background = "#282828"
-foreground = "#eeeeee"
-cursor = "#eeeeee"
-selection_background = "#4c4c4c"
-selection_foreground = "#eeeeee"
-
-[colors.ansi]
-black = "#282828"
-red = "#f43753"
-green = "#c9d05c"
-yellow = "#ffc24b"
-blue = "#b3deef"
-magenta = "#d3b987"
-cyan = "#73cef4"
-white = "#eeeeee"
-bright_black = "#1d1d1d"
-bright_red = "#f43753"
-bright_green = "#c9d05c"
-bright_yellow = "#ffc24b"
-bright_blue = "#b3deef"
-bright_magenta = "#d3b987"
-bright_cyan = "#73cef4"
-bright_white = "#ffffff"
+[providers]
+kitty = "Tender"
+wezterm = "Tender (Gogh)"

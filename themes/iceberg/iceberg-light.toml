@@ -1,26 +1,5 @@
 name = "Iceberg Light"
+variant = "light"
 
-[colors]
-background = "#e8e9ec"
-foreground = "#33374c"
-cursor = "#33374c"
-selection_background = "#33374c"
-selection_foreground = "#e8e9ec"
-
-[colors.ansi]
-black = "#dcdfe7"
-red = "#cc517a"
-green = "#668e3d"
-yellow = "#c57339"
-blue = "#2d539e"
-magenta = "#7759b4"
-cyan = "#3f83a6"
-white = "#33374c"
-bright_black = "#8389a3"
-bright_red = "#cc3768"
-bright_green = "#598030"
-bright_yellow = "#b6662d"
-bright_blue = "#22478e"
-bright_magenta = "#6845ad"
-bright_cyan = "#327698"
-bright_white = "#262a3f"
+[providers]
+wezterm = "iceberg-light"

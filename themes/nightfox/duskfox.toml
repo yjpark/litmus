@@ -1,26 +1,6 @@
 name = "Duskfox"
+variant = "dark"
 
-[colors]
-background = "#232136"
-foreground = "#e0def4"
-cursor = "#e0def4"
-selection_background = "#433c59"
-selection_foreground = "#e0def4"
-
-[colors.ansi]
-black = "#393552"
-red = "#eb6f92"
-green = "#a3be8c"
-yellow = "#f6c177"
-blue = "#569fba"
-magenta = "#c4a7e7"
-cyan = "#9ccfd8"
-white = "#e0def4"
-bright_black = "#47407d"
-bright_red = "#f083a2"
-bright_green = "#b1d196"
-bright_yellow = "#f9cb8c"
-bright_blue = "#65b1cd"
-bright_magenta = "#ccb1ed"
-bright_cyan = "#a6dae3"
-bright_white = "#e2e0f7"
+[providers]
+kitty = "Duskfox"
+wezterm = "duskfox"

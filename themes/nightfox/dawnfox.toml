@@ -1,26 +1,6 @@
 name = "Dawnfox"
+variant = "light"
 
-[colors]
-background = "#faf4ed"
-foreground = "#575279"
-cursor = "#575279"
-selection_background = "#d0d8d8"
-selection_foreground = "#575279"
-
-[colors.ansi]
-black = "#575279"
-red = "#b4637a"
-green = "#618774"
-yellow = "#ea9d34"
-blue = "#286983"
-magenta = "#907aa9"
-cyan = "#56949f"
-white = "#e5e9f0"
-bright_black = "#5f5695"
-bright_red = "#c26d85"
-bright_green = "#629f81"
-bright_yellow = "#eea846"
-bright_blue = "#2d81a3"
-bright_magenta = "#9a80b9"
-bright_cyan = "#5ca7b4"
-bright_white = "#e6ebf3"
+[providers]
+kitty = "Dawnfox"
+wezterm = "dawnfox"

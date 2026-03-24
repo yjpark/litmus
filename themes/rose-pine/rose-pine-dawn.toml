@@ -1,26 +1,5 @@
 name = "Rosé Pine Dawn"
+variant = "light"
 
-[colors]
-background = "#faf4ed"
-foreground = "#575279"
-cursor = "#9893a5"
-selection_background = "#dfdad9"
-selection_foreground = "#575279"
-
-[colors.ansi]
-black = "#f2e9e1"
-red = "#b4637a"
-green = "#56949f"
-yellow = "#ea9d34"
-blue = "#286983"
-magenta = "#907aa9"
-cyan = "#d7827e"
-white = "#575279"
-bright_black = "#9893a5"
-bright_red = "#b4637a"
-bright_green = "#56949f"
-bright_yellow = "#ea9d34"
-bright_blue = "#286983"
-bright_magenta = "#907aa9"
-bright_cyan = "#d7827e"
-bright_white = "#575279"
+[providers]
+kitty = "Rosé Pine Dawn"

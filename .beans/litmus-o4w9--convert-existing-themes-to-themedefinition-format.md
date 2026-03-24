@@ -1,11 +1,11 @@
 ---
 # litmus-o4w9
 title: Convert existing themes to ThemeDefinition format
-status: todo
+status: in-progress
 type: task
 priority: normal
 created_at: 2026-03-24T13:23:04Z
-updated_at: 2026-03-24T13:23:18Z
+updated_at: 2026-03-24T15:21:00Z
 parent: litmus-knrz
 blocked_by:
     - litmus-z20l

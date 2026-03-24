@@ -1,26 +1,6 @@
 name = "Catppuccin Mocha"
+variant = "dark"
 
-[colors]
-background = "#1e1e2e"
-foreground = "#cdd6f4"
-cursor = "#f5e0dc"
-selection_background = "#313244"
-selection_foreground = "#cdd6f4"
-
-[colors.ansi]
-black = "#45475a"
-red = "#f38ba8"
-green = "#a6e3a1"
-yellow = "#f9e2af"
-blue = "#89b4fa"
-magenta = "#cba6f7"
-cyan = "#89dceb"
-white = "#bac2de"
-bright_black = "#585b70"
-bright_red = "#f38ba8"
-bright_green = "#a6e3a1"
-bright_yellow = "#f9e2af"
-bright_blue = "#89b4fa"
-bright_magenta = "#cba6f7"
-bright_cyan = "#89dceb"
-bright_white = "#a6adc8"
+[providers]
+kitty = "Catppuccin-Mocha"
+wezterm = "catppuccin-mocha"

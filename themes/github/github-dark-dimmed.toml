@@ -1,26 +1,5 @@
 name = "GitHub Dark Dimmed"
+variant = "dark"
 
-[colors]
-background = "#22272e"
-foreground = "#adbac7"
-cursor = "#adbac7"
-selection_background = "#3d4752"
-selection_foreground = "#adbac7"
-
-[colors.ansi]
-black = "#545d68"
-red = "#f47067"
-green = "#57ab5a"
-yellow = "#c69026"
-blue = "#539bf5"
-magenta = "#b083f0"
-cyan = "#39c5cf"
-white = "#909dab"
-bright_black = "#636e7b"
-bright_red = "#ff938a"
-bright_green = "#6bc46d"
-bright_yellow = "#daaa3f"
-bright_blue = "#6cb6ff"
-bright_magenta = "#dcbdfb"
-bright_cyan = "#56d4dd"
-bright_white = "#cdd9e5"
+[providers]
+kitty = "GitHub Dark Dimmed"

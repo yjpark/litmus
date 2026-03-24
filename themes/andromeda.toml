@@ -1,26 +1,5 @@
 name = "Andromeda"
+variant = "dark"
 
-[colors]
-background = "#23262e"
-foreground = "#d5ced9"
-cursor = "#ffe66d"
-selection_background = "#3d4352"
-selection_foreground = "#d5ced9"
-
-[colors.ansi]
-black = "#23262e"
-red = "#ee5d43"
-green = "#96e072"
-yellow = "#ffe66d"
-blue = "#7cb7ff"
-magenta = "#ff00aa"
-cyan = "#00e8c6"
-white = "#d5ced9"
-bright_black = "#3d4352"
-bright_red = "#ee5d43"
-bright_green = "#96e072"
-bright_yellow = "#ffe66d"
-bright_blue = "#7cb7ff"
-bright_magenta = "#ff00aa"
-bright_cyan = "#00e8c6"
-bright_white = "#f7f7f8"
+[providers]
+wezterm = "Andromeda"

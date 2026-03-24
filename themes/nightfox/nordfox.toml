@@ -1,26 +1,6 @@
 name = "Nordfox"
+variant = "dark"
 
-[colors]
-background = "#2e3440"
-foreground = "#cdcecf"
-cursor = "#cdcecf"
-selection_background = "#3e4a5b"
-selection_foreground = "#cdcecf"
-
-[colors.ansi]
-black = "#3b4252"
-red = "#bf616a"
-green = "#a3be8c"
-yellow = "#ebcb8b"
-blue = "#81a1c1"
-magenta = "#b48ead"
-cyan = "#88c0d0"
-white = "#e5e9f0"
-bright_black = "#465780"
-bright_red = "#d06f79"
-bright_green = "#b1d196"
-bright_yellow = "#f0d399"
-bright_blue = "#8cafd2"
-bright_magenta = "#c895bf"
-bright_cyan = "#93ccdc"
-bright_white = "#e7ecf4"
+[providers]
+kitty = "Nordfox"
+wezterm = "nordfox"

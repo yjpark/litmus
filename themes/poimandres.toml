@@ -1,26 +1,5 @@
 name = "Poimandres"
+variant = "dark"
 
-[colors]
-background = "#1b1e28"
-foreground = "#a6accd"
-cursor = "#a6accd"
-selection_background = "#303340"
-selection_foreground = "#a6accd"
-
-[colors.ansi]
-black = "#1b1e28"
-red = "#d0679d"
-green = "#5de4c7"
-yellow = "#fffac2"
-blue = "#89ddff"
-magenta = "#fcc5e9"
-cyan = "#add7ff"
-white = "#ffffff"
-bright_black = "#a6accd"
-bright_red = "#d0679d"
-bright_green = "#5de4c7"
-bright_yellow = "#fffac2"
-bright_blue = "#add7ff"
-bright_magenta = "#fae4fc"
-bright_cyan = "#89ddff"
-bright_white = "#ffffff"
+[providers]
+wezterm = "Poimandres"

@@ -1,26 +1,6 @@
 name = "Tokyo Night Day"
+variant = "light"
 
-[colors]
-background = "#e1e2e7"
-foreground = "#3760bf"
-cursor = "#3760bf"
-selection_background = "#b6bfe2"
-selection_foreground = "#3760bf"
-
-[colors.ansi]
-black = "#e9e9ed"
-red = "#f52a65"
-green = "#587539"
-yellow = "#8c6c3e"
-blue = "#2e7de9"
-magenta = "#9854f1"
-cyan = "#007197"
-white = "#6172b0"
-bright_black = "#a1a6c5"
-bright_red = "#f52a65"
-bright_green = "#587539"
-bright_yellow = "#8c6c3e"
-bright_blue = "#2e7de9"
-bright_magenta = "#9854f1"
-bright_cyan = "#007197"
-bright_white = "#3760bf"
+[providers]
+kitty = "Tokyo Night Day"
+wezterm = "Tokyo Night Day"
