@@ -74,6 +74,12 @@ pub fn load_bundled_themes(provider: Option<&str>) -> Vec<Theme> {
     }
 
     if themes.is_empty() {
+        if let Some(prov) = provider {
+            eprintln!(
+                "Warning: no themes found for provider '{}'; falling back to built-in themes",
+                prov
+            );
+        }
         return all_themes();
     }
 

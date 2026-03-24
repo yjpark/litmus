@@ -25,7 +25,10 @@ fn parse_provider_arg(args: &[String]) -> (Option<String>, Vec<String>) {
     let mut iter = args.iter();
     while let Some(arg) = iter.next() {
         if arg == "--provider" {
-            provider = iter.next().cloned();
+            match iter.next() {
+                Some(val) => provider = Some(val.clone()),
+                None => eprintln!("Warning: --provider requires a value (e.g. --provider kitty)"),
+            }
         } else if let Some(val) = arg.strip_prefix("--provider=") {
             provider = Some(val.to_string());
         } else {
