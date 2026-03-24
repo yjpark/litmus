@@ -1,11 +1,11 @@
 ---
 # litmus-y6dc
 title: Update litmus-web to provider-scoped theme rendering
-status: in-progress
+status: completed
 type: task
 priority: normal
 created_at: 2026-03-24T13:23:07Z
-updated_at: 2026-03-24T15:52:26Z
+updated_at: 2026-03-24T23:55:04Z
 parent: litmus-knrz
 blocked_by:
     - litmus-jmna
@@ -78,9 +78,21 @@ Depends on: new model types, converted themes
 - Provider switch on detail page → redirect if theme unavailable
 
 ### Todo
-- [ ] Update themes.rs with provider-based loading
-- [ ] Add ActiveProvider signal
-- [ ] Add provider selector UI
-- [ ] Update all pages to filter by provider
-- [ ] Handle navigation edge cases
-- [ ] Compiles for wasm32, zero warnings
+- [x] Update themes.rs with provider-based loading
+- [x] Add ActiveProvider signal
+- [x] Add provider selector UI
+- [x] Update all pages to filter by provider
+- [x] Handle navigation edge cases (graceful fallback — detail page shows "not found" with link back)
+- [x] Compiles for wasm32, zero warnings
+
+## Summary of Changes
+
+Phase 1: Rewrote themes.rs with two embedded arrays (DEFINITION_DATA + PROVIDER_COLORS_DATA), OnceLock caching, and new API: themes_for_provider(), available_providers(). Converted 6 remaining old-format themes (cyberdream, melange, light-owl, oxocarbon-light) to ThemeDefinition + provider colors.
+
+Phase 2: Added ActiveProvider signal to state.rs with default-to-first-available provider.
+
+Phase 3: Added provider segmented control in sidebar. Updated all 4 pages (ThemeList, ThemeDetail, Compare, SceneAcross) and Shell to read from ActiveProvider signal.
+
+Phase 4: ThemeDetail gracefully shows "not found" with back link when theme unavailable for selected provider. Shortlist items persist across provider switches (raw slug shown if name unavailable).
+
+All 169 tests pass, zero compiler warnings, wasm32 compilation verified.
