@@ -1,11 +1,11 @@
 ---
 # litmus-jmna
 title: Add ThemeDefinition and ProviderColors types to litmus-model
-status: in-progress
+status: completed
 type: task
 priority: normal
 created_at: 2026-03-24T13:22:47Z
-updated_at: 2026-03-24T14:57:30Z
+updated_at: 2026-03-24T15:04:55Z
 parent: litmus-knrz
 ---
 
@@ -35,3 +35,18 @@ Keep the old Theme struct and parsers intact — they'll be removed in a later t
 ### Commits
 1. Tests commit (failing)
 2. Implementation commit
+
+## Summary of Changes
+
+Added `provider` module to litmus-model with:
+
+- **`Variant`** enum (Dark/Light) with lowercase serde
+- **`ThemeDefinition`** struct: name, variant, slug (from filename), providers HashMap<String, String>
+- **`ProviderColors`** struct: provider slug, source_version, all 21 color fields matching Theme
+- TOML parsing for both types via `parse_theme_definition()` and `parse_provider_colors()`
+- **`load_themes_dir()`** recursive directory loader returning Vec<ThemeDefinition> + HashMap<(slug, provider), ProviderColors>
+- Shared `parse_hex_color()` helper extracted to lib.rs, reused across toml_format and provider modules
+- Filename/TOML provider validation in the loader
+- 20 tests covering parsing, serde, edge cases, directory loading, error propagation
+
+Old Theme struct left intact as specified.
