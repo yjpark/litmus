@@ -5,7 +5,9 @@ status: todo
 type: task
 priority: normal
 created_at: 2026-03-23T15:17:33Z
-updated_at: 2026-03-24T14:05:40Z
+updated_at: 2026-03-24T14:12:47Z
+blocked_by:
+    - litmus-y6dc
 ---
 
 ## Goal
@@ -28,6 +30,6 @@ The compare page (`pages/compare.rs`) shows 2-4 themes side by side. Each column
 
 ## Dependencies
 
+- Blocked by `litmus-y6dc` (global provider selector) — provider is app-level state, no need for a per-page provider dropdown
 - Uses existing `ScreenshotImage` component and manifest infrastructure
-- No dependency on litmus-knrz or litmus-coma — works with current system
-- Will automatically benefit from those epics when they land
+- Toggle is just Simulated/Screenshot; provider comes from global state
