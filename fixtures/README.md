@@ -67,3 +67,5 @@ FIXTURE_WORK_DIR=/tmp/litmus-capture-XXXXXX
 | `git-log` | `git log --graph` | Log graph colors and branch decorations |
 | `python-repl` | `python3` session | REPL output, tracebacks, colored values |
 | `htop` | `top -b -n 1` | System monitor colors: CPU, memory, process table |
+| `color-swatch` | ANSI palette | Reference palette: 16 ANSI, 256-color cube, truecolor gradient |
+| `color-showcase` | CI dashboard | Simulated deploy pipeline exercising all 16 ANSI colors |
