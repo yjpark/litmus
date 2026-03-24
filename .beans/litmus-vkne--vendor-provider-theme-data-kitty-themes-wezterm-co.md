@@ -1,10 +1,11 @@
 ---
 # litmus-vkne
 title: Vendor provider theme data (kitty-themes, wezterm color schemes)
-status: todo
+status: in-progress
 type: task
+priority: normal
 created_at: 2026-03-24T13:22:50Z
-updated_at: 2026-03-24T13:22:50Z
+updated_at: 2026-03-24T15:07:36Z
 parent: litmus-knrz
 ---
 
