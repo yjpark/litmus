@@ -1,11 +1,11 @@
 ---
 # litmus-bcel
 title: Update contrast validation for TermColor
-status: in-progress
+status: completed
 type: task
 priority: normal
 created_at: 2026-03-24T13:47:35Z
-updated_at: 2026-03-25T00:23:04Z
+updated_at: 2026-03-25T00:27:09Z
 parent: litmus-coma
 blocked_by:
     - litmus-q9lp
@@ -31,3 +31,15 @@ Depends on: TermOutput types, web rendering migration
 4. Validate all other pairs using APCA
 5. Add `validate_all_fixtures_contrast(fixtures: &[TermOutput], theme: &Theme)` convenience
 6. Tests: low-contrast detection, skip-fixed-pairs, dim exclusion
+
+## Summary of Changes
+
+- Added `TermContrastIssue` struct with fixture_id and TermColor variant fields
+- Added `validate_term_output_contrast()` — validates TermOutput spans using APCA
+  - Skips fixed-color pairs (Indexed/Rgb vs Indexed/Rgb)
+  - Skips Default/Default pairs (theme-controlled)
+  - Skips dim and whitespace-only spans
+- Added `validate_fixtures_contrast()` — aggregates across multiple fixtures
+- 7 tests: ANSI detection, fixed-pair skip, fixed-on-theme, dim skip, default/default skip, Ansi-on-Ansi bg, multi-fixture aggregation
+
+Commits: f868232, 53b2a5e
