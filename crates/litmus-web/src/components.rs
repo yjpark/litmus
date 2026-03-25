@@ -404,19 +404,17 @@ fn ExportFormatBtn(
     }
 }
 
-/// Scene minimap — fixed vertical strip on the right edge showing all scene names.
-/// Highlights scenes currently visible in the viewport via IntersectionObserver.
+/// Scene minimap — fixed vertical strip on the right edge showing all fixture/scene names.
+/// Highlights sections currently visible in the viewport via IntersectionObserver.
 #[component]
-pub fn SceneMinimap(scenes: Vec<litmus_model::scene::Scene>, #[props(default = true)] show_badges: bool) -> Element {
+pub fn SceneMinimap(items: Vec<(String, String)>, #[props(default = true)] show_badges: bool) -> Element {
     let mut visible = use_context::<Signal<VisibleScenes>>();
     let scene_issue_counts = use_context::<Signal<SceneIssueCounts>>();
 
-    // Set up IntersectionObserver on mount to track which scenes are in view
+    // Set up IntersectionObserver on mount to track which sections are in view
+    let item_ids: Vec<String> = items.iter().map(|(id, _)| id.clone()).collect();
     use_effect(move || {
-        let scene_ids: Vec<String> = litmus_model::scenes::all_scenes()
-            .iter()
-            .map(|s| s.id.clone())
-            .collect();
+        let scene_ids = item_ids.clone();
         // Build JS array literal from scene IDs
         let ids_js: Vec<String> = scene_ids.iter().map(|id| format!("\"{}\"", id)).collect();
         let ids_array = format!("[{}]", ids_js.join(","));
@@ -476,22 +474,22 @@ pub fn SceneMinimap(scenes: Vec<litmus_model::scene::Scene>, #[props(default = t
     rsx! {
         nav { class: "scene-minimap",
             aria_label: "Scene navigation",
-            for scene in &scenes {
+            for (id, name) in &items {
                 {
-                    let is_visible = visible_set.contains(&scene.id);
-                    let scene_id = scene.id.clone();
-                    let issue_count = issue_counts.get(&scene.id).copied().unwrap_or(0);
+                    let is_visible = visible_set.contains(id);
+                    let item_id = id.clone();
+                    let issue_count = issue_counts.get(id).copied().unwrap_or(0);
                     rsx! {
                         button {
                             class: if is_visible { "scene-minimap-item scene-minimap-item-active" } else { "scene-minimap-item" },
                             onclick: move |_| {
                                 let js = format!(
                                     "document.getElementById('scene-{}').scrollIntoView({{behavior:'smooth',block:'start'}})",
-                                    scene_id
+                                    item_id
                                 );
                                 eval(&js);
                             },
-                            "{scene.name}"
+                            "{name}"
                             if show_badges && issue_count > 0 {
                                 span { class: "scene-tab-badge", "{issue_count}" }
                             }

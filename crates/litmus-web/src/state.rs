@@ -111,7 +111,8 @@ pub fn theme_passes_filter(
         }
     }
     if let Some(min) = filter.min_readability {
-        let score = litmus_model::contrast::readability_score(theme);
+        let all_fixtures = crate::fixtures::all_fixtures();
+        let score = litmus_model::contrast::term_readability_score(theme, all_fixtures);
         if score < min as f64 {
             return false;
         }

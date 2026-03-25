@@ -283,9 +283,12 @@ pub fn Sidebar() -> Element {
             // Scene minimap (shown on detail + compare pages)
             if matches!(current_route, Route::ThemeDetail { .. } | Route::CompareThemes { .. }) {
                 div { class: "sidebar-section",
-                    div { class: "sidebar-section-label", "Scenes" }
+                    div { class: "sidebar-section-label", "Fixtures" }
                     SceneMinimap {
-                        scenes: litmus_model::scenes::all_scenes(),
+                        items: crate::fixtures::all_fixtures()
+                            .iter()
+                            .map(|f| (f.id.clone(), f.name.clone()))
+                            .collect(),
                         show_badges: matches!(current_route, Route::ThemeDetail { .. }),
                     }
                 }

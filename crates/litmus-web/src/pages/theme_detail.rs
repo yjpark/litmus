@@ -2,9 +2,8 @@ use dioxus::prelude::*;
 
 use crate::components::*;
 use crate::fixtures;
-use crate::scene_renderer::{self, SpanIssueDetail};
 use crate::screenshot_view::{
-    has_screenshot_for_provider, manifest_provider_slugs, scene_id_to_fixture_id, ScreenshotImage,
+    has_screenshot_for_provider, manifest_provider_slugs, ScreenshotImage,
 };
 use crate::state::*;
 use crate::term_renderer;
@@ -33,15 +32,15 @@ pub fn ThemeDetail(slug: String) -> Element {
             let bg = theme.background.to_hex();
             let fg = theme.foreground.to_hex();
             let this_slug = theme_slug(&theme.name);
-            let scenes = litmus_model::scenes::all_scenes();
+            let all_fixtures = fixtures::all_fixtures();
             let expanded = *palette_expanded.read();
 
-            let issues = litmus_model::contrast::validate_theme_readability(&theme);
+            let issues = litmus_model::contrast::validate_fixtures_contrast(all_fixtures, &theme);
             let issue_count = issues.len();
             let fg_bg_ratio = litmus_model::contrast::contrast_ratio(
                 &theme.foreground, &theme.background,
             );
-            let readability = litmus_model::contrast::readability_score(&theme) as u8;
+            let readability = litmus_model::contrast::term_readability_score(&theme, all_fixtures) as u8;
 
             let mut shortlist = use_context::<Signal<Shortlist>>();
             let app_theme = use_context::<Signal<AppThemeSlug>>();
@@ -51,25 +50,17 @@ pub fn ThemeDetail(slug: String) -> Element {
             let providers = manifest_provider_slugs(&manifest_state.read().0);
             let mut selected_provider = use_signal(|| "kitty".to_string());
 
-            // Group issues per scene as (line, span, detail) tuples
-            let mut issues_per_scene: std::collections::HashMap<&str, Vec<(usize, usize, SpanIssueDetail)>> = std::collections::HashMap::new();
+            // Group issues per fixture for the minimap badge counts
+            let mut issues_per_fixture: std::collections::HashMap<&str, usize> = std::collections::HashMap::new();
             for issue in &issues {
-                issues_per_scene.entry(issue.scene_id.as_str()).or_default().push(
-                    (issue.line, issue.span, SpanIssueDetail {
-                        ratio: issue.ratio,
-                        threshold: issue.threshold,
-                        level: issue.level.to_string(),
-                        fg_hex: issue.fg.to_hex(),
-                        bg_hex: issue.bg.to_hex(),
-                    })
-                );
+                *issues_per_fixture.entry(issue.fixture_id.as_str()).or_default() += 1;
             }
 
-            // Publish per-scene issue counts to context for the minimap
+            // Publish per-fixture issue counts to context for the minimap
             let mut scene_issue_counts = use_context::<Signal<SceneIssueCounts>>();
-            let counts: std::collections::HashMap<String, usize> = issues_per_scene
+            let counts: std::collections::HashMap<String, usize> = issues_per_fixture
                 .iter()
-                .map(|(k, v)| (k.to_string(), v.len()))
+                .map(|(k, v)| (k.to_string(), *v))
                 .collect();
             if counts != scene_issue_counts.read().0 {
                 scene_issue_counts.set(SceneIssueCounts(counts));
@@ -137,58 +128,38 @@ pub fn ThemeDetail(slug: String) -> Element {
                         }
                     }
 
-                    // All scenes rendered as side-by-side (simulated + screenshot)
-                    for scene in &scenes {
+                    // All fixtures rendered as side-by-side (terminal output + screenshot)
+                    for fixture in all_fixtures {
                         {
-                            let scene_issues = issues_per_scene
-                                .get(scene.id.as_str())
-                                .cloned()
-                                .unwrap_or_default();
-                            let scene_issue_count = scene_issues.len();
-                            let fixture_id = scene_id_to_fixture_id(&scene.id);
+                            let fixture_issue_count = issues_per_fixture
+                                .get(fixture.id.as_str())
+                                .copied()
+                                .unwrap_or(0);
                             let t_slug = theme_slug(&theme.name);
                             let cur_provider = selected_provider.read().clone();
-                            let has_screenshot = fixture_id.is_some()
-                                && has_screenshot_for_provider(
-                                    &manifest_state.read().0,
-                                    &cur_provider,
-                                    &t_slug,
-                                    fixture_id.unwrap(),
-                                );
+                            let has_screenshot = has_screenshot_for_provider(
+                                &manifest_state.read().0,
+                                &cur_provider,
+                                &t_slug,
+                                &fixture.id,
+                            );
                             rsx! {
                                 div {
                                     class: "detail-scene-section",
-                                    id: "scene-{scene.id}",
+                                    id: "scene-{fixture.id}",
                                     h3 { class: "detail-scene-heading",
-                                        "{scene.name}"
-                                        if scene_issue_count > 0 {
-                                            span { class: "scene-tab-badge", "{scene_issue_count}" }
+                                        "{fixture.name}"
+                                        if fixture_issue_count > 0 {
+                                            span { class: "scene-tab-badge", "{fixture_issue_count}" }
                                         }
                                     }
                                     div { class: "scene-split",
-                                        // Left: rendered terminal output (or simulated fallback)
+                                        // Left: rendered terminal output
                                         div { class: "scene-split-panel",
-                                            {
-                                                let fixture_output = fixture_id
-                                                    .and_then(fixtures::fixture_by_id);
-                                                if let Some(output) = fixture_output {
-                                                    rsx! {
-                                                        span { class: "scene-split-label", "Terminal Output" }
-                                                        term_renderer::TermOutputView {
-                                                            theme: theme.clone(),
-                                                            output: output.clone(),
-                                                        }
-                                                    }
-                                                } else {
-                                                    rsx! {
-                                                        span { class: "scene-split-label", "Simulated" }
-                                                        scene_renderer::SceneView {
-                                                            theme: theme.clone(),
-                                                            scene: scene.clone(),
-                                                            issue_details: scene_issues,
-                                                        }
-                                                    }
-                                                }
+                                            span { class: "scene-split-label", "Terminal Output" }
+                                            term_renderer::TermOutputView {
+                                                theme: theme.clone(),
+                                                output: fixture.clone(),
                                             }
                                         }
                                         // Right: real screenshot or placeholder
@@ -197,7 +168,7 @@ pub fn ThemeDetail(slug: String) -> Element {
                                             if has_screenshot {
                                                 ScreenshotImage {
                                                     theme_slug: t_slug,
-                                                    fixture_id: fixture_id.unwrap().to_string(),
+                                                    fixture_id: fixture.id.clone(),
                                                     provider: cur_provider.clone(),
                                                 }
                                             } else {

@@ -26,14 +26,8 @@ fn parsed() -> &'static Vec<TermOutput> {
 }
 
 /// Get all embedded fixtures.
-#[cfg(test)]
-fn all_fixtures() -> &'static Vec<TermOutput> {
+pub fn all_fixtures() -> &'static Vec<TermOutput> {
     parsed()
-}
-
-/// Find a fixture by ID.
-pub fn fixture_by_id(id: &str) -> Option<&'static TermOutput> {
-    parsed().iter().find(|f| f.id == id)
 }
 
 /// Get the first fixture (for preview cards).
@@ -61,12 +55,6 @@ mod tests {
             assert!(!f.id.is_empty(), "fixture id should not be empty");
             assert!(!f.lines.is_empty(), "fixture {} has no lines", f.id);
         }
-    }
-
-    #[test]
-    fn fixture_by_id_finds_git_diff() {
-        assert!(fixture_by_id("git-diff").is_some());
-        assert!(fixture_by_id("nonexistent").is_none());
     }
 
     #[test]

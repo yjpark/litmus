@@ -2,8 +2,6 @@ use dioxus::prelude::*;
 
 use crate::components::ColorSwatch;
 use crate::fixtures;
-use crate::scene_renderer;
-use crate::screenshot_view::scene_id_to_fixture_id;
 use crate::state::*;
 use crate::term_renderer;
 use crate::themes;
@@ -20,7 +18,7 @@ static ANSI_NAMES: &[&str] = &[
 pub fn CompareThemes(slugs: String) -> Element {
     let active_provider = use_context::<Signal<ActiveProvider>>();
     let all_themes = themes::themes_for_provider(&active_provider.read().0);
-    let scenes = litmus_model::scenes::all_scenes();
+    let all_fixtures = fixtures::all_fixtures();
     let cvd_sim = use_context::<Signal<CvdSimulation>>();
     let cvd = cvd_sim.read().0;
 
@@ -64,34 +62,18 @@ pub fn CompareThemes(slugs: String) -> Element {
                 }
             }
 
-            for scene in &scenes {
+            for fixture in all_fixtures {
                 div { class: "compare-scene-group",
-                    id: "scene-{scene.id}",
-                    h3 { class: "compare-scene-name", "{scene.name}" }
+                    id: "scene-{fixture.id}",
+                    h3 { class: "compare-scene-name", "{fixture.name}" }
 
                     div { class: "compare-grid",
                         for theme in &compare_themes {
                             div { class: "compare-grid-item",
-                                {
-                                    let fixture_output = scene_id_to_fixture_id(&scene.id)
-                                        .and_then(fixtures::fixture_by_id);
-                                    if let Some(output) = fixture_output {
-                                        rsx! {
-                                            term_renderer::TermOutputView {
-                                                theme: theme.clone(),
-                                                output: output.clone(),
-                                                compact: n > 2,
-                                            }
-                                        }
-                                    } else {
-                                        rsx! {
-                                            scene_renderer::SceneView {
-                                                theme: theme.clone(),
-                                                scene: scene.clone(),
-                                                compact: n > 2,
-                                            }
-                                        }
-                                    }
+                                term_renderer::TermOutputView {
+                                    theme: theme.clone(),
+                                    output: fixture.clone(),
+                                    compact: n > 2,
                                 }
                             }
                         }

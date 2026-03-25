@@ -7,9 +7,7 @@ pub mod error;
 pub mod export;
 pub mod kitty;
 pub mod provider;
-pub mod scene;
 pub mod term_output;
-pub mod scenes;
 pub mod toml_format;
 pub mod wezterm;
 

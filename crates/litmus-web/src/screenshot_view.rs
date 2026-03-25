@@ -95,19 +95,3 @@ fn find_any_screenshot_url(
     }
     None
 }
-
-/// Map a scene ID from the simulated system to a fixture ID in the screenshot system.
-/// Returns None if there is no corresponding fixture.
-pub fn scene_id_to_fixture_id(scene_id: &str) -> Option<&'static str> {
-    match scene_id {
-        "shell-prompt" => Some("shell-prompt"),
-        "git-diff" => Some("git-diff"),
-        "ls-color" => Some("ls-color"),
-        "cargo-build" => Some("cargo-build"),
-        "log-viewer" => Some("git-log"),
-        "python-repl" => Some("python-repl"),
-        "htop" => Some("htop"),
-        "neovim" => None, // Deferred to silo support (M-Next-5)
-        _ => None,
-    }
-}

@@ -2,7 +2,6 @@ mod components;
 mod family;
 mod fixtures;
 mod pages;
-mod scene_renderer;
 mod screenshot_view;
 mod shell;
 mod sidebar;

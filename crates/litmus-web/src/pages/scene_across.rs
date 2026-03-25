@@ -2,37 +2,34 @@ use dioxus::prelude::*;
 
 use crate::components::*;
 use crate::fixtures;
-use crate::scene_renderer;
-use crate::screenshot_view::scene_id_to_fixture_id;
 use crate::state::*;
 use crate::term_renderer;
 use crate::themes;
 use crate::Route;
 
-/// Scene-centric view: one scene rendered across all themes in a grid.
+/// Fixture-centric view: one fixture rendered across all themes in a grid.
 #[component]
 pub fn SceneAcrossThemes(scene_id: String) -> Element {
     let active_provider = use_context::<Signal<ActiveProvider>>();
     let all_themes = themes::themes_for_provider(&active_provider.read().0);
-    let scenes = litmus_model::scenes::all_scenes();
-    let scene = scenes.iter().find(|s| s.id == scene_id);
+    let all_fixtures = fixtures::all_fixtures();
+    let fixture = all_fixtures.iter().find(|f| f.id == scene_id);
     let cvd_sim = use_context::<Signal<CvdSimulation>>();
     let cvd = cvd_sim.read().0;
 
-    match scene {
-        Some(scene) => {
+    match fixture {
+        Some(fixture) => {
             rsx! {
                 div { class: "page-scene-across",
-                    h2 { class: "page-title", "{scene.name}" }
-                    p { class: "page-subtitle", "{scene.description}" }
+                    h2 { class: "page-title", "{fixture.name}" }
 
-                    // Scene selector tabs
+                    // Fixture selector tabs
                     div { class: "scene-tabs scene-tabs-margin",
-                        for s in &scenes {
+                        for f in all_fixtures {
                             Link {
-                                to: Route::SceneAcrossThemes { scene_id: s.id.clone() },
-                                class: if s.id == scene.id { "scene-tab scene-tab-active" } else { "scene-tab" },
-                                "{s.name}"
+                                to: Route::SceneAcrossThemes { scene_id: f.id.clone() },
+                                class: if f.id == fixture.id { "scene-tab scene-tab-active" } else { "scene-tab" },
+                                "{f.name}"
                             }
                         }
                     }
@@ -56,26 +53,10 @@ pub fn SceneAcrossThemes(scene_id: String) -> Element {
                                                 name: theme.name.clone(),
                                             }
                                         }
-                                        {
-                                            let fixture_output = scene_id_to_fixture_id(&scene.id)
-                                                .and_then(fixtures::fixture_by_id);
-                                            if let Some(output) = fixture_output {
-                                                rsx! {
-                                                    term_renderer::TermOutputView {
-                                                        theme: sim_theme,
-                                                        output: output.clone(),
-                                                        compact: true,
-                                                    }
-                                                }
-                                            } else {
-                                                rsx! {
-                                                    scene_renderer::SceneView {
-                                                        theme: sim_theme,
-                                                        scene: scene.clone(),
-                                                        compact: true,
-                                                    }
-                                                }
-                                            }
+                                        term_renderer::TermOutputView {
+                                            theme: sim_theme,
+                                            output: fixture.clone(),
+                                            compact: true,
                                         }
                                     }
                                 }
@@ -88,8 +69,8 @@ pub fn SceneAcrossThemes(scene_id: String) -> Element {
         None => {
             rsx! {
                 div {
-                    h2 { "Scene not found" }
-                    p { "No scene matches \"{scene_id}\"." }
+                    h2 { "Fixture not found" }
+                    p { "No fixture matches \"{scene_id}\"." }
                     Link { to: Route::ThemeList {}, class: "accent-link", "Back to all themes" }
                 }
             }

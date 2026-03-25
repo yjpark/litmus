@@ -2,7 +2,6 @@ use dioxus::prelude::*;
 
 use crate::components::{ScoreRing, ShortlistCheckbox, UseAsAppThemeButton};
 use crate::fixtures;
-use crate::scene_renderer;
 use crate::term_renderer;
 use crate::state::*;
 use crate::themes;
@@ -129,7 +128,8 @@ fn ThemeCard(theme: litmus_model::Theme) -> Element {
     let bg = theme.background.to_hex();
     let fg = theme.foreground.to_hex();
     let slug = theme_slug(&theme.name);
-    let readability = litmus_model::contrast::readability_score(&theme) as u8;
+    let all_fixtures = fixtures::all_fixtures();
+    let readability = litmus_model::contrast::term_readability_score(&theme, all_fixtures) as u8;
     let preview_fixture = fixtures::default_fixture();
 
     rsx! {
@@ -151,12 +151,6 @@ fn ThemeCard(theme: litmus_model::Theme) -> Element {
                             term_renderer::TermOutputPreview {
                                 theme: theme.clone(),
                                 output: fixture.clone(),
-                                max_lines: 5,
-                            }
-                        } else {
-                            scene_renderer::ScenePreview {
-                                theme: theme.clone(),
-                                scene: litmus_model::scenes::shell_prompt_scene(),
                                 max_lines: 5,
                             }
                         }
