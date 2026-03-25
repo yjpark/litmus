@@ -1,11 +1,11 @@
 ---
 # litmus-4uyp
 title: Show all themes with availability feedback
-status: todo
+status: in-progress
 type: feature
 priority: normal
 created_at: 2026-03-25T15:05:23Z
-updated_at: 2026-03-25T15:06:54Z
+updated_at: 2026-03-25T15:52:33Z
 ---
 
 Theme list only shows themes for the active provider — switching providers refreshes the list jarringly. Show all themes instead with dimmed cards + badge for unavailable ones. ## Design: Dimmed cards with unavailable badge
@@ -20,7 +20,7 @@ Theme list only shows themes for the active provider — switching providers ref
 **Files:** themes.rs (new all_themes_with_availability()), theme_list.rs (card rendering + click gating), state.rs (filter counts), style.css (dimmed card styles)
 
 ## Tasks
-- [ ] Add all_themes_with_availability() returning (Theme, bool) tuples
+- [x] Add all_themes_with_availability() returning (Theme, bool) tuples
 - [ ] Update theme_list.rs to render unavailable cards with reduced opacity
 - [ ] Add 'unavailable' badge/icon overlay on dimmed cards
 - [ ] Suppress click/navigation for unavailable themes (cursor: not-allowed)
@@ -28,3 +28,27 @@ Theme list only shows themes for the active provider — switching providers ref
 - [ ] Filter counts reflect only available themes
 - [ ] Add CSS for dimmed card state (.theme-card--unavailable or similar)
 - [ ] Test that search/variant/readability filters apply to all themes
+
+## Plan
+
+### themes.rs
+Add `all_themes_with_availability(provider: &str) -> Vec<(Theme, bool)>`:
+- For each definition, check if provider colors exist for the requested provider → `available = true`
+- If unavailable, use first available provider's colors for rendering → `available = false`
+- Every definition has at least one provider (existing test guarantees this), so all are renderable
+- Sort alphabetically by name
+
+### theme_list.rs
+- Replace `themes_for_provider()` with `all_themes_with_availability()`
+- Pass `available: bool` to ThemeCard component
+- Filter counts (variant badges, total) count only available themes
+- Shown count / filter applies to all themes (available + unavailable)
+
+### ThemeCard component
+- Accept `available: bool` prop
+- If unavailable: wrap in div instead of Link, add `.theme-card--unavailable` class, show badge
+- If available: keep existing Link behavior
+
+### style.css
+- `.theme-card--unavailable`: opacity 0.45, cursor not-allowed, pointer-events none on card-link
+- `.theme-card-unavailable-badge`: small label overlay

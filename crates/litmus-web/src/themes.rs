@@ -255,6 +255,36 @@ pub fn themes_for_provider(provider: &str) -> Vec<Theme> {
     themes
 }
 
+/// Build all themes with availability flag for the given provider.
+/// Returns every definition as a renderable Theme (using the requested provider's colors
+/// if available, otherwise falling back to the first available provider).
+/// The bool indicates whether the theme is natively available for the requested provider.
+/// Sorted alphabetically by name.
+pub fn all_themes_with_availability(provider: &str) -> Vec<(Theme, bool)> {
+    let cache = cached_data();
+    let mut results: Vec<(Theme, bool)> = cache
+        .definitions
+        .iter()
+        .filter_map(|def| {
+            let key = (def.slug.clone(), provider.to_string());
+            if let Some(pc) = cache.colors.get(&key) {
+                // Available: use this provider's colors
+                Some((pc.to_theme(&def.name), true))
+            } else {
+                // Unavailable: fall back to first available provider
+                let mut providers: Vec<&String> = def.providers.keys().collect();
+                providers.sort();
+                providers
+                    .into_iter()
+                    .find_map(|p| cache.colors.get(&(def.slug.clone(), p.clone())))
+                    .map(|pc| (pc.to_theme(&def.name), false))
+            }
+        })
+        .collect();
+    results.sort_by(|a, b| a.0.name.to_lowercase().cmp(&b.0.name.to_lowercase()));
+    results
+}
+
 /// Load all embedded themes using the first available provider per theme.
 /// Backward-compatible with the old API — used by tests.
 #[cfg(test)]
@@ -353,5 +383,47 @@ mod tests {
         let len_before = slugs.len();
         slugs.dedup();
         assert_eq!(slugs.len(), len_before, "duplicate slugs found");
+    }
+
+    #[test]
+    fn all_themes_with_availability_returns_all_definitions() {
+        let all = all_themes_with_availability("kitty");
+        assert_eq!(all.len(), DEFINITION_DATA.len(), "should return one entry per definition");
+    }
+
+    #[test]
+    fn all_themes_with_availability_sorted_by_name() {
+        let all = all_themes_with_availability("kitty");
+        for w in all.windows(2) {
+            assert!(
+                w[0].0.name.to_lowercase() <= w[1].0.name.to_lowercase(),
+                "not sorted: {} > {}",
+                w[0].0.name,
+                w[1].0.name,
+            );
+        }
+    }
+
+    #[test]
+    fn all_themes_with_availability_marks_available_correctly() {
+        let kitty_themes = all_themes_with_availability("kitty");
+        let kitty_only = themes_for_provider("kitty");
+        let available_count = kitty_themes.iter().filter(|(_, a)| *a).count();
+        assert_eq!(available_count, kitty_only.len());
+    }
+
+    #[test]
+    fn all_themes_with_availability_has_unavailable_themes() {
+        // Kitty and wezterm don't cover all the same themes, so there should be some unavailable
+        let kitty = all_themes_with_availability("kitty");
+        let unavailable = kitty.iter().filter(|(_, a)| !*a).count();
+        assert!(unavailable > 0, "expected some unavailable themes for kitty");
+    }
+
+    #[test]
+    fn all_themes_with_availability_nonexistent_provider_all_unavailable() {
+        let all = all_themes_with_availability("alacritty");
+        assert!(all.iter().all(|(_, a)| !*a), "all should be unavailable for nonexistent provider");
+        assert_eq!(all.len(), DEFINITION_DATA.len());
     }
 }
