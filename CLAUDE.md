@@ -38,6 +38,12 @@ If `.bacon-claude-diagnostics` is absent or clearly stale (e.g. the file doesn't
 exist after the first save), warn the user that bacon does not appear to
 be running and ask them to start it in a Zellij pane with `mise run bacon-claude-diagnostics`.
 
+## Planning
+
+Do NOT write design docs or plans to `docs/plans/`. All planning and design
+work should be captured directly in beans (description + body). Beans are the
+single source of truth for tracking work.
+
 ## Development Workflow
 
 Follow this workflow for all implementation work — whether interactive or autonomous.
