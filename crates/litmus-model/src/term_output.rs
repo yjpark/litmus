@@ -25,7 +25,7 @@ pub enum TermColor {
 }
 
 impl TermColor {
-    /// Resolve this color to a concrete RGB value.
+    /// Resolve this color to a concrete RGB value using provider colors.
     ///
     /// `default_color` is the fallback for `Default` — pass the provider's
     /// foreground for fg context, background for bg context.
@@ -34,6 +34,22 @@ impl TermColor {
             TermColor::Default => default_color.clone(),
             TermColor::Ansi(i) => {
                 let arr = colors.ansi.as_array();
+                arr[(*i as usize).min(15)].clone()
+            }
+            TermColor::Indexed(i) => indexed_color(*i),
+            TermColor::Rgb(r, g, b) => Color::new(*r, *g, *b),
+        }
+    }
+
+    /// Resolve this color to a concrete RGB value using a `Theme`.
+    ///
+    /// Same as `resolve` but takes a `Theme` (used by litmus-cli) instead of
+    /// `ProviderColors` (used by litmus-web).
+    pub fn resolve_with_theme(&self, theme: &crate::Theme, default_color: &Color) -> Color {
+        match self {
+            TermColor::Default => default_color.clone(),
+            TermColor::Ansi(i) => {
+                let arr = theme.ansi.as_array();
                 arr[(*i as usize).min(15)].clone()
             }
             TermColor::Indexed(i) => indexed_color(*i),
@@ -182,6 +198,19 @@ mod tests {
         }
     }
 
+    fn test_theme() -> crate::Theme {
+        let pc = test_provider_colors();
+        crate::Theme {
+            name: "Test Theme".into(),
+            background: pc.background,
+            foreground: pc.foreground,
+            cursor: pc.cursor,
+            selection_background: pc.selection_background,
+            selection_foreground: pc.selection_foreground,
+            ansi: pc.ansi,
+        }
+    }
+
     // -- TermColor resolve --
 
     #[test]
@@ -225,6 +254,65 @@ mod tests {
         assert_eq!(
             TermColor::Rgb(0xde, 0xad, 0xbe).resolve(&pc, &dummy),
             Color::new(0xde, 0xad, 0xbe)
+        );
+    }
+
+    // -- TermColor resolve_with_theme --
+
+    #[test]
+    fn resolve_with_theme_default_fg() {
+        let theme = test_theme();
+        assert_eq!(
+            TermColor::Default.resolve_with_theme(&theme, &theme.foreground),
+            theme.foreground
+        );
+    }
+
+    #[test]
+    fn resolve_with_theme_default_bg() {
+        let theme = test_theme();
+        assert_eq!(
+            TermColor::Default.resolve_with_theme(&theme, &theme.background),
+            theme.background
+        );
+    }
+
+    #[test]
+    fn resolve_with_theme_ansi_matches_provider() {
+        let theme = test_theme();
+        let pc = test_provider_colors();
+        let dummy = Color::new(0, 0, 0);
+        // All 16 ANSI colors should match between resolve and resolve_with_theme
+        for i in 0..16u8 {
+            assert_eq!(
+                TermColor::Ansi(i).resolve_with_theme(&theme, &dummy),
+                TermColor::Ansi(i).resolve(&pc, &dummy),
+                "ANSI color {i} mismatch"
+            );
+        }
+    }
+
+    #[test]
+    fn resolve_with_theme_indexed_matches_provider() {
+        let theme = test_theme();
+        let pc = test_provider_colors();
+        let dummy = Color::new(0, 0, 0);
+        for i in [16u8, 100, 200, 232, 255] {
+            assert_eq!(
+                TermColor::Indexed(i).resolve_with_theme(&theme, &dummy),
+                TermColor::Indexed(i).resolve(&pc, &dummy),
+                "Indexed color {i} mismatch"
+            );
+        }
+    }
+
+    #[test]
+    fn resolve_with_theme_rgb_literal() {
+        let theme = test_theme();
+        let dummy = Color::new(0, 0, 0);
+        assert_eq!(
+            TermColor::Rgb(0xab, 0xcd, 0xef).resolve_with_theme(&theme, &dummy),
+            Color::new(0xab, 0xcd, 0xef)
         );
     }
 
