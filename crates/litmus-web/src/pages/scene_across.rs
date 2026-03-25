@@ -1,8 +1,11 @@
 use dioxus::prelude::*;
 
 use crate::components::*;
+use crate::fixtures;
 use crate::scene_renderer;
+use crate::screenshot_view::scene_id_to_fixture_id;
 use crate::state::*;
+use crate::term_renderer;
 use crate::themes;
 use crate::Route;
 
@@ -53,10 +56,26 @@ pub fn SceneAcrossThemes(scene_id: String) -> Element {
                                                 name: theme.name.clone(),
                                             }
                                         }
-                                        scene_renderer::SceneView {
-                                            theme: sim_theme,
-                                            scene: scene.clone(),
-                                            compact: true,
+                                        {
+                                            let fixture_output = scene_id_to_fixture_id(&scene.id)
+                                                .and_then(fixtures::fixture_by_id);
+                                            if let Some(output) = fixture_output {
+                                                rsx! {
+                                                    term_renderer::TermOutputView {
+                                                        theme: sim_theme,
+                                                        output: output.clone(),
+                                                        compact: true,
+                                                    }
+                                                }
+                                            } else {
+                                                rsx! {
+                                                    scene_renderer::SceneView {
+                                                        theme: sim_theme,
+                                                        scene: scene.clone(),
+                                                        compact: true,
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }

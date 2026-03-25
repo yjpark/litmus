@@ -1,8 +1,11 @@
 use dioxus::prelude::*;
 
 use crate::components::ColorSwatch;
+use crate::fixtures;
 use crate::scene_renderer;
+use crate::screenshot_view::scene_id_to_fixture_id;
 use crate::state::*;
+use crate::term_renderer;
 use crate::themes;
 use crate::Route;
 
@@ -69,10 +72,26 @@ pub fn CompareThemes(slugs: String) -> Element {
                     div { class: "compare-grid",
                         for theme in &compare_themes {
                             div { class: "compare-grid-item",
-                                scene_renderer::SceneView {
-                                    theme: theme.clone(),
-                                    scene: scene.clone(),
-                                    compact: n > 2,
+                                {
+                                    let fixture_output = scene_id_to_fixture_id(&scene.id)
+                                        .and_then(fixtures::fixture_by_id);
+                                    if let Some(output) = fixture_output {
+                                        rsx! {
+                                            term_renderer::TermOutputView {
+                                                theme: theme.clone(),
+                                                output: output.clone(),
+                                                compact: n > 2,
+                                            }
+                                        }
+                                    } else {
+                                        rsx! {
+                                            scene_renderer::SceneView {
+                                                theme: theme.clone(),
+                                                scene: scene.clone(),
+                                                compact: n > 2,
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

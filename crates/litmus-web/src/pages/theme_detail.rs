@@ -1,11 +1,13 @@
 use dioxus::prelude::*;
 
 use crate::components::*;
+use crate::fixtures;
 use crate::scene_renderer::{self, SpanIssueDetail};
 use crate::screenshot_view::{
     has_screenshot_for_provider, manifest_provider_slugs, scene_id_to_fixture_id, ScreenshotImage,
 };
 use crate::state::*;
+use crate::term_renderer;
 use crate::themes;
 
 static ANSI_NAMES: &[&str] = &[
@@ -164,13 +166,29 @@ pub fn ThemeDetail(slug: String) -> Element {
                                         }
                                     }
                                     div { class: "scene-split",
-                                        // Left: simulated rendering with contrast analysis
+                                        // Left: rendered terminal output (or simulated fallback)
                                         div { class: "scene-split-panel",
-                                            span { class: "scene-split-label", "Simulated" }
-                                            scene_renderer::SceneView {
-                                                theme: theme.clone(),
-                                                scene: scene.clone(),
-                                                issue_details: scene_issues,
+                                            {
+                                                let fixture_output = fixture_id
+                                                    .and_then(fixtures::fixture_by_id);
+                                                if let Some(output) = fixture_output {
+                                                    rsx! {
+                                                        span { class: "scene-split-label", "Terminal Output" }
+                                                        term_renderer::TermOutputView {
+                                                            theme: theme.clone(),
+                                                            output: output.clone(),
+                                                        }
+                                                    }
+                                                } else {
+                                                    rsx! {
+                                                        span { class: "scene-split-label", "Simulated" }
+                                                        scene_renderer::SceneView {
+                                                            theme: theme.clone(),
+                                                            scene: scene.clone(),
+                                                            issue_details: scene_issues,
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                         // Right: real screenshot or placeholder

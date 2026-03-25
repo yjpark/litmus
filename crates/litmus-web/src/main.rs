@@ -1,11 +1,13 @@
 mod components;
 mod family;
+mod fixtures;
 mod pages;
 mod scene_renderer;
 mod screenshot_view;
 mod shell;
 mod sidebar;
 pub mod state;
+mod term_renderer;
 mod themes;
 
 use dioxus::prelude::*;
