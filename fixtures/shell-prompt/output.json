@@ -1,0 +1,613 @@
+{
+  "id": "shell-prompt",
+  "name": "Shell Prompt",
+  "cols": 80,
+  "rows": 24,
+  "lines": [
+    {
+      "spans": [
+        {
+          "text": "user@host",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": ":",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "~/projects/myapp",
+          "fg": {
+            "type": "Ansi",
+            "value": 4
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "(main)",
+          "fg": {
+            "type": "Ansi",
+            "value": 3
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " $ echo \"Hello, world!\"",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "Hello, world!",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": []
+    },
+    {
+      "spans": [
+        {
+          "text": "user@host",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": ":",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "~/projects/myapp",
+          "fg": {
+            "type": "Ansi",
+            "value": 4
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "(main)",
+          "fg": {
+            "type": "Ansi",
+            "value": 3
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " $ cat nonexistent.txt",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "cat: nonexistent.txt: No such file or directory",
+          "fg": {
+            "type": "Ansi",
+            "value": 1
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": []
+    },
+    {
+      "spans": [
+        {
+          "text": "user@host",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": ":",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "~/projects/myapp",
+          "fg": {
+            "type": "Ansi",
+            "value": 4
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "(main*)",
+          "fg": {
+            "type": "Ansi",
+            "value": 3
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " $ grep -rn TODO src/ | head -5",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "src/main.rs",
+          "fg": {
+            "type": "Ansi",
+            "value": 5
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": ":",
+          "fg": {
+            "type": "Ansi",
+            "value": 6
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "2",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": ":",
+          "fg": {
+            "type": "Ansi",
+            "value": 6
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "    // ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "TODO",
+          "fg": {
+            "type": "Ansi",
+            "value": 3
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": ": refactor this function",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "src/lib.rs",
+          "fg": {
+            "type": "Ansi",
+            "value": 5
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": ":",
+          "fg": {
+            "type": "Ansi",
+            "value": 6
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "2",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": ":",
+          "fg": {
+            "type": "Ansi",
+            "value": 6
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "    // ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "TODO",
+          "fg": {
+            "type": "Ansi",
+            "value": 3
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": ": add error handling",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "src/config.rs",
+          "fg": {
+            "type": "Ansi",
+            "value": 5
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": ":",
+          "fg": {
+            "type": "Ansi",
+            "value": 6
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "2",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": ":",
+          "fg": {
+            "type": "Ansi",
+            "value": 6
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "    // ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "TODO",
+          "fg": {
+            "type": "Ansi",
+            "value": 3
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": ": load from env",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": []
+    },
+    {
+      "spans": [
+        {
+          "text": "user@host",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": ":",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "~/projects/myapp",
+          "fg": {
+            "type": "Ansi",
+            "value": 4
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "(main*)",
+          "fg": {
+            "type": "Ansi",
+            "value": 3
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " $ git status -s",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "M",
+          "fg": {
+            "type": "Ansi",
+            "value": 1
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " src/main.rs",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": []
+    },
+    {
+      "spans": [
+        {
+          "text": "user@host",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": ":",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "~/projects/myapp",
+          "fg": {
+            "type": "Ansi",
+            "value": 4
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "(main*)",
+          "fg": {
+            "type": "Ansi",
+            "value": 3
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " $",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    }
+  ]
+}

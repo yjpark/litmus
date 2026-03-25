@@ -38,6 +38,9 @@ enum Commands {
     /// Parse raw ANSI output into structured TermOutput JSON
     ParseAnsi(ParseAnsiArgs),
 
+    /// Parse all fixtures: run command.sh, capture ANSI output, write output.json
+    ParseFixtures(ParseFixturesArgs),
+
     /// Manifest operations
     #[command(subcommand)]
     Manifest(ManifestCommands),
@@ -189,6 +192,29 @@ struct ParseAnsiArgs {
 }
 
 #[derive(clap::Args)]
+struct ParseFixturesArgs {
+    /// Directory containing fixture subdirectories
+    #[arg(long, default_value = "./fixtures")]
+    fixtures_dir: PathBuf,
+
+    /// Only parse this specific fixture (by ID, e.g. "git-diff")
+    #[arg(long)]
+    fixture: Option<String>,
+
+    /// Terminal width in columns
+    #[arg(long, default_value_t = 80)]
+    cols: u16,
+
+    /// Terminal height in rows
+    #[arg(long, default_value_t = 24)]
+    rows: u16,
+
+    /// Re-parse even if output.json already exists
+    #[arg(long, default_value_t = false)]
+    force: bool,
+}
+
+#[derive(clap::Args)]
 struct ExtractColorsArgs {
     /// Directory containing ThemeDefinition .toml files
     #[arg(long, default_value = "./themes")]
@@ -219,6 +245,7 @@ fn main() -> Result<()> {
         Commands::CaptureAll(args) => cmd_capture_all(args),
         Commands::ExtractColors(args) => cmd_extract_colors(args),
         Commands::ParseAnsi(args) => cmd_parse_ansi(args),
+        Commands::ParseFixtures(args) => cmd_parse_fixtures(args),
         Commands::Manifest(ManifestCommands::Build(args)) => cmd_manifest_build(args),
         Commands::Manifest(ManifestCommands::Check(args)) => cmd_manifest_check(args),
     }
@@ -502,6 +529,125 @@ fn cmd_parse_ansi(args: ParseAnsiArgs) -> Result<()> {
     }
 
     Ok(())
+}
+
+fn cmd_parse_fixtures(args: ParseFixturesArgs) -> Result<()> {
+    let fixture_ids = list_fixture_ids(&args.fixtures_dir)?;
+
+    let ids: Vec<String> = if let Some(ref filter) = args.fixture {
+        if !fixture_ids.contains(filter) {
+            bail!(
+                "fixture '{}' not found; available: {}",
+                filter,
+                fixture_ids.join(", ")
+            );
+        }
+        vec![filter.clone()]
+    } else {
+        fixture_ids
+    };
+
+    eprintln!("Parsing {} fixture(s)...", ids.len());
+
+    let mut parsed = 0;
+    let mut skipped = 0;
+    let mut failed = 0;
+
+    for id in &ids {
+        let fixture_dir = args.fixtures_dir.join(id);
+        let output_path = fixture_dir.join("output.json");
+
+        if output_path.exists() && !args.force {
+            eprintln!("  {id}: skipped (output.json exists, use --force to re-parse)");
+            skipped += 1;
+            continue;
+        }
+
+        match run_fixture_and_parse(&fixture_dir, id, args.cols, args.rows) {
+            Ok(output) => {
+                let json =
+                    serde_json::to_string_pretty(&output).context("serialize TermOutput")?;
+                fs::write(&output_path, &json)
+                    .with_context(|| format!("write {}", output_path.display()))?;
+                let line_count = output.lines.len();
+                eprintln!("  {id}: parsed ({line_count} lines)");
+                parsed += 1;
+            }
+            Err(e) => {
+                eprintln!("  {id}: FAILED — {e:#}");
+                failed += 1;
+            }
+        }
+    }
+
+    eprintln!("\nDone: {parsed} parsed, {skipped} skipped, {failed} failed");
+
+    if failed > 0 {
+        bail!("{failed} fixture(s) failed to parse");
+    }
+
+    Ok(())
+}
+
+/// Run a fixture's setup.sh + command.sh and parse the ANSI output.
+fn run_fixture_and_parse(
+    fixture_dir: &Path,
+    id: &str,
+    cols: u16,
+    rows: u16,
+) -> Result<litmus_model::term_output::TermOutput> {
+    let fixture_dir = fixture_dir
+        .canonicalize()
+        .with_context(|| format!("canonicalize {}", fixture_dir.display()))?;
+    let command_sh = fixture_dir.join("command.sh");
+    if !command_sh.exists() {
+        bail!("command.sh not found in {}", fixture_dir.display());
+    }
+
+    // Create a temp work directory for setup.sh
+    let work_dir = tempfile::tempdir().context("create temp dir")?;
+    let work_path = work_dir.path();
+
+    // Run setup.sh if it exists
+    let setup_sh = fixture_dir.join("setup.sh");
+    if setup_sh.exists() {
+        let status = std::process::Command::new("bash")
+            .arg(&setup_sh)
+            .env("FIXTURE_WORK_DIR", work_path)
+            .current_dir(work_path)
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::inherit())
+            .status()
+            .with_context(|| format!("run setup.sh for {id}"))?;
+        if !status.success() {
+            bail!("setup.sh failed with exit code {:?}", status.code());
+        }
+    }
+
+    // Run command.sh and capture stdout (raw ANSI bytes)
+    let output = std::process::Command::new("bash")
+        .arg(&command_sh)
+        .env("FIXTURE_WORK_DIR", work_path)
+        .current_dir(work_path)
+        .stderr(std::process::Stdio::inherit())
+        .output()
+        .with_context(|| format!("run command.sh for {id}"))?;
+
+    if !output.status.success() {
+        bail!(
+            "command.sh failed with exit code {:?}",
+            output.status.code()
+        );
+    }
+
+    let name = fixture_id_to_name(id);
+    Ok(ansi_parser::parse_ansi(
+        &output.stdout,
+        cols,
+        rows,
+        id,
+        &name,
+    ))
 }
 
 fn cmd_extract_colors(args: ExtractColorsArgs) -> Result<()> {

@@ -1,11 +1,11 @@
 ---
 # litmus-9eg8
 title: Integrate ANSI capture into fixture pipeline
-status: todo
+status: in-progress
 type: task
 priority: normal
 created_at: 2026-03-24T13:47:24Z
-updated_at: 2026-03-24T13:47:43Z
+updated_at: 2026-03-24T23:59:03Z
 parent: litmus-coma
 blocked_by:
     - litmus-28sq

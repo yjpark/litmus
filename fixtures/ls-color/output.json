@@ -1,0 +1,431 @@
+{
+  "id": "ls-color",
+  "name": "Ls Color",
+  "cols": 80,
+  "rows": 24,
+  "lines": [
+    {
+      "spans": [
+        {
+          "text": "total 29",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "drwxr-xr-x   6 yj   users  21 Mar 25 00:03 ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": ".",
+          "fg": {
+            "type": "Ansi",
+            "value": 4
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "drwxrwxrwt 138 root root  150 Mar 25 00:03 ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "..",
+          "fg": {
+            "type": "Ansi",
+            "value": 0
+          },
+          "bg": {
+            "type": "Ansi",
+            "value": 2
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "-rw-r--r--   1 yj   users   0 Mar 25 00:03 archive.tar.gz",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "lrwxrwxrwx   1 yj   users  12 Mar 25 00:03 ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "broken_link",
+          "fg": {
+            "type": "Ansi",
+            "value": 6
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": " -> /nonexistent",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "drwxr-xr-x   2 yj   users   2 Mar 25 00:03 ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "build",
+          "fg": {
+            "type": "Ansi",
+            "value": 4
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "-rw-r--r--   1 yj   users   0 Mar 25 00:03 data.csv",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "drwxr-xr-x   2 yj   users   2 Mar 25 00:03 ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "docs",
+          "fg": {
+            "type": "Ansi",
+            "value": 4
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "-rw-r--r--   1 yj   users  11 Mar 25 00:03 .env",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "-rw-r--r--   1 yj   users   7 Mar 25 00:03 .gitconfig",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "-rw-r--r--   1 yj   users   0 Mar 25 00:03 image.png",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "-rw-r--r--   1 yj   users  13 Mar 25 00:03 main.rs",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "-rw-r--r--   1 yj   users   0 Mar 25 00:03 Makefile",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "-rw-r--r--   1 yj   users  17 Mar 25 00:03 package.json",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "lrwxrwxrwx   1 yj   users   9 Mar 25 00:03 ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "readme_link",
+          "fg": {
+            "type": "Ansi",
+            "value": 6
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": " -> README.md",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "-rw-r--r--   1 yj   users  24 Mar 25 00:03 README.md",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "-rwxr-xr-x   1 yj   users  38 Mar 25 00:03 ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "run.sh",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "lrwxrwxrwx   1 yj   users   4 Mar 25 00:03 ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "source_link",
+          "fg": {
+            "type": "Ansi",
+            "value": 6
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": " -> src/",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "drwxr-xr-x   2 yj   users   2 Mar 25 00:03 ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "src",
+          "fg": {
+            "type": "Ansi",
+            "value": 4
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "-rw-r--r--   1 yj   users  21 Mar 25 00:03 style.css",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "drwxr-xr-x   2 yj   users   2 Mar 25 00:03 ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "tests",
+          "fg": {
+            "type": "Ansi",
+            "value": 4
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "-rw-r--r--   1 yj   users  18 Mar 25 00:03 TODO.txt",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    }
+  ]
+}

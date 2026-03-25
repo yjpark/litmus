@@ -1,0 +1,1212 @@
+{
+  "id": "color-showcase",
+  "name": "Color Showcase",
+  "cols": 80,
+  "rows": 24,
+  "lines": [
+    {
+      "spans": [
+        {
+          "text": "  Deploy Pipeline",
+          "fg": {
+            "type": "Ansi",
+            "value": 15
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "— production release v2.4.1",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "  ─────────────────────────────────────────────────────",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "  ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "▸ Build",
+          "fg": {
+            "type": "Ansi",
+            "value": 7
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "    ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "✓",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " Compile ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": ".........................",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "12.4s",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "    ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "✓",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " Lint    ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": ".........................",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " 3.1s",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "    ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "⚠",
+          "fg": {
+            "type": "Ansi",
+            "value": 3
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " Tests   ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": ".........................",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "45.7s",
+          "fg": {
+            "type": "Ansi",
+            "value": 3
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "2 flaky",
+          "fg": {
+            "type": "Ansi",
+            "value": 3
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "  ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "▸ Deploy",
+          "fg": {
+            "type": "Ansi",
+            "value": 7
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "    ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "✓",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "staging",
+          "fg": {
+            "type": "Ansi",
+            "value": 6
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "  ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "......................",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "done",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "    ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "✓",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "eu-west",
+          "fg": {
+            "type": "Ansi",
+            "value": 4
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "  ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "......................",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "done",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "    ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "✗",
+          "fg": {
+            "type": "Ansi",
+            "value": 9
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "us-east",
+          "fg": {
+            "type": "Ansi",
+            "value": 4
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "  ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "......................",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "failed",
+          "fg": {
+            "type": "Ansi",
+            "value": 9
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "    ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "◌",
+          "fg": {
+            "type": "Ansi",
+            "value": 3
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "ap-south",
+          "fg": {
+            "type": "Ansi",
+            "value": 4
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "......................",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "skipped",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "  ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "▸ Health Check",
+          "fg": {
+            "type": "Ansi",
+            "value": 7
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "    ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " PASS ",
+          "fg": {
+            "type": "Ansi",
+            "value": 0
+          },
+          "bg": {
+            "type": "Ansi",
+            "value": 2
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "api-gateway",
+          "fg": {
+            "type": "Ansi",
+            "value": 7
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "    ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "latency",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "23ms",
+          "fg": {
+            "type": "Ansi",
+            "value": 10
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "    ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " PASS ",
+          "fg": {
+            "type": "Ansi",
+            "value": 0
+          },
+          "bg": {
+            "type": "Ansi",
+            "value": 2
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "auth-service",
+          "fg": {
+            "type": "Ansi",
+            "value": 7
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "   ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "latency",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "45ms",
+          "fg": {
+            "type": "Ansi",
+            "value": 10
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "    ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " FAIL ",
+          "fg": {
+            "type": "Ansi",
+            "value": 15
+          },
+          "bg": {
+            "type": "Ansi",
+            "value": 1
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "data-pipeline",
+          "fg": {
+            "type": "Ansi",
+            "value": 7
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "  ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "latency",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "2340ms",
+          "fg": {
+            "type": "Ansi",
+            "value": 9
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "    ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " WARN ",
+          "fg": {
+            "type": "Ansi",
+            "value": 0
+          },
+          "bg": {
+            "type": "Ansi",
+            "value": 3
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "cache-layer",
+          "fg": {
+            "type": "Ansi",
+            "value": 7
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "    ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "hit rate",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "67%",
+          "fg": {
+            "type": "Ansi",
+            "value": 11
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "  ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "✗ us-east error:",
+          "fg": {
+            "type": "Ansi",
+            "value": 9
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "Connection timeout",
+          "fg": {
+            "type": "Ansi",
+            "value": 1
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " to ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "10.0.3.42:5432",
+          "fg": {
+            "type": "Ansi",
+            "value": 5
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "    ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "Retry",
+          "fg": {
+            "type": "Ansi",
+            "value": 6
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "3/3",
+          "fg": {
+            "type": "Ansi",
+            "value": 11
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": " failed — see ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "https://status.internal/4821",
+          "fg": {
+            "type": "Ansi",
+            "value": 12
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "underline": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "  ─────────────────────────────────────────────────────",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "  ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "Summary:",
+          "fg": {
+            "type": "Ansi",
+            "value": 15
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        },
+        {
+          "text": " ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "6 passed",
+          "fg": {
+            "type": "Ansi",
+            "value": 10
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "  ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "1 failed",
+          "fg": {
+            "type": "Ansi",
+            "value": 9
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "  ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "1 warning",
+          "fg": {
+            "type": "Ansi",
+            "value": 11
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "  ",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "1 skipped",
+          "fg": {
+            "type": "Ansi",
+            "value": 8
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    }
+  ]
+}

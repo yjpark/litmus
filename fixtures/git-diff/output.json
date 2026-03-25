@@ -1,0 +1,326 @@
+{
+  "id": "git-diff",
+  "name": "Git Diff",
+  "cols": 80,
+  "rows": 24,
+  "lines": [
+    {
+      "spans": [
+        {
+          "text": "diff --git a/src/lib.rs b/src/lib.rs",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "index 4b41428..9850ecb 100644",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "--- a/src/lib.rs",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "+++ b/src/lib.rs",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "@@ -1,9 +1,11 @@",
+          "fg": {
+            "type": "Ansi",
+            "value": 6
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": " pub mod utils;",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "+pub mod config;",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": []
+    },
+    {
+      "spans": [
+        {
+          "text": " pub fn add(a: i32, b: i32) -> i32 {",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "     a + b",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": " }",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": []
+    },
+    {
+      "spans": [
+        {
+          "text": "-pub fn subtract(a: i32, b: i32) -> i32 {",
+          "fg": {
+            "type": "Ansi",
+            "value": 1
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "-    a - b",
+          "fg": {
+            "type": "Ansi",
+            "value": 1
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "+// subtract is deprecated, use std::ops::Sub instead",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "+pub fn multiply(a: i32, b: i32) -> i32 {",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "+    a * b",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": " }",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "diff --git a/src/main.rs b/src/main.rs",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "index 426b381..547423b 100644",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "--- a/src/main.rs",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "+++ b/src/main.rs",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          },
+          "bold": true
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": "@@ -1,22 +1,29 @@",
+          "fg": {
+            "type": "Ansi",
+            "value": 6
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    },
+    {
+      "spans": [
+        {
+          "text": " }",
+          "fg": {
+            "type": "Default"
+          },
+          "bg": {
+            "type": "Default"
+          }
+        },
+        {
+          "text": "   println!(\"Total words: {}\", text.split_whitespace().count());",
+          "fg": {
+            "type": "Ansi",
+            "value": 2
+          },
+          "bg": {
+            "type": "Default"
+          }
+        }
+      ]
+    }
+  ]
+}
