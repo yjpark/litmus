@@ -20,11 +20,7 @@ fn parsed() -> &'static Vec<TermOutput> {
     PARSED_FIXTURES.get_or_init(|| {
         FIXTURE_DATA
             .iter()
-            .filter_map(|(id, json)| {
-                serde_json::from_str::<TermOutput>(json)
-                    .map_err(|e| web_sys_log(&format!("Warning: failed to parse fixture {id}: {e}")))
-                    .ok()
-            })
+            .filter_map(|(_, json)| serde_json::from_str::<TermOutput>(json).ok())
             .collect()
     })
 }
@@ -43,12 +39,6 @@ pub fn fixture_by_id(id: &str) -> Option<&'static TermOutput> {
 /// Get the first fixture (for preview cards).
 pub fn default_fixture() -> Option<&'static TermOutput> {
     parsed().first()
-}
-
-/// Log to browser console (no-op if web_sys isn't available).
-fn web_sys_log(_msg: &str) {
-    #[cfg(target_arch = "wasm32")]
-    web_sys::console::warn_1(&_msg.into());
 }
 
 #[cfg(test)]
