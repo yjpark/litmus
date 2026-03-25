@@ -56,7 +56,7 @@ fn App() -> Element {
             r#"
             async function tryFetch(url) {{
                 try {{
-                    const resp = await fetch(url);
+                    const resp = await fetch(url, {{ cache: 'no-cache' }});
                     if (resp.ok) return await resp.text();
                 }} catch(e) {{}}
                 return null;
