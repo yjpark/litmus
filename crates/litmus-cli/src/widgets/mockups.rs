@@ -1,3 +1,5 @@
+use std::sync::LazyLock;
+
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
@@ -19,7 +21,8 @@ static FIXTURE_DATA: &[(&str, &str)] = &[
     ("shell-prompt", include_str!("../../../../fixtures/shell-prompt/output.json")),
 ];
 
-fn load_fixtures() -> Vec<TermOutput> {
+/// Parsed fixtures, cached so we don't re-parse JSON on every render frame.
+static FIXTURES: LazyLock<Vec<TermOutput>> = LazyLock::new(|| {
     FIXTURE_DATA
         .iter()
         .filter_map(|(id, json)| {
@@ -28,7 +31,7 @@ fn load_fixtures() -> Vec<TermOutput> {
                 .ok()
         })
         .collect()
-}
+});
 
 /// Resolve a `TermColor` to a ratatui `Color` using the theme palette.
 fn resolve_color(tc: &TermColor, theme: &Theme, default: &litmus_model::Color) -> ratatui::style::Color {
@@ -81,7 +84,7 @@ impl<'a> Widget for MockupsWidget<'a> {
             }
         }
 
-        let fixtures = load_fixtures();
+        let fixtures = &*FIXTURES;
         if fixtures.is_empty() {
             let line = Line::from(Span::styled("(no fixture data)", base));
             let rect = Rect { x: area.left(), y: area.top(), width: area.width, height: 1 };
@@ -119,9 +122,9 @@ impl<'a> Widget for MockupsWidget<'a> {
     }
 }
 
-/// Return the number of embedded fixtures.
+/// Return the number of successfully parsed embedded fixtures.
 pub fn fixture_count() -> usize {
-    FIXTURE_DATA.len()
+    FIXTURES.len()
 }
 
 #[cfg(test)]
@@ -207,22 +210,44 @@ mod tests {
         assert_eq!(ratatui_line.spans.len(), 2);
         assert_eq!(ratatui_line.spans[0].content, "normal ");
         assert_eq!(ratatui_line.spans[1].content, "bold red");
-        assert!(ratatui_line.spans[1].style.add_modifier == Modifier::BOLD);
+        assert!(ratatui_line.spans[1].style.add_modifier.contains(Modifier::BOLD));
+    }
+
+    #[test]
+    fn term_line_to_ratatui_preserves_all_modifiers() {
+        let theme = test_theme();
+        let line = TermLine::new(vec![
+            TermSpan {
+                text: "all styles".into(),
+                fg: TermColor::Default,
+                bg: TermColor::Default,
+                bold: true,
+                italic: true,
+                dim: true,
+                underline: true,
+            },
+        ]);
+        let ratatui_line = term_line_to_ratatui(&line, &theme);
+        let mods = ratatui_line.spans[0].style.add_modifier;
+        assert!(mods.contains(Modifier::BOLD), "missing BOLD");
+        assert!(mods.contains(Modifier::ITALIC), "missing ITALIC");
+        assert!(mods.contains(Modifier::DIM), "missing DIM");
+        assert!(mods.contains(Modifier::UNDERLINED), "missing UNDERLINED");
     }
 
     #[test]
     fn load_embedded_fixtures_succeeds() {
-        let fixtures = load_fixtures();
+        let fixtures = &*FIXTURES;
         assert!(fixtures.len() >= 3, "expected at least 3 embedded fixtures, got {}", fixtures.len());
-        for f in &fixtures {
+        for f in fixtures {
             assert!(!f.id.is_empty());
             assert!(!f.lines.is_empty(), "fixture {} has no lines", f.id);
         }
     }
 
     #[test]
-    fn fixture_count_matches() {
+    fn fixture_count_matches_parsed() {
+        assert_eq!(fixture_count(), FIXTURES.len());
         assert_eq!(fixture_count(), FIXTURE_DATA.len());
-        assert_eq!(fixture_count(), load_fixtures().len());
     }
 }
