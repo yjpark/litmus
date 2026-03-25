@@ -1,11 +1,11 @@
 ---
 # litmus-9eg8
 title: Integrate ANSI capture into fixture pipeline
-status: in-progress
+status: completed
 type: task
 priority: normal
 created_at: 2026-03-24T13:47:24Z
-updated_at: 2026-03-24T23:59:03Z
+updated_at: 2026-03-25T00:03:59Z
 parent: litmus-coma
 blocked_by:
     - litmus-28sq
@@ -20,3 +20,17 @@ Update the capture pipeline to also capture and parse ANSI output:
 - Generated files are checked into git so litmus-web can embed them
 
 Depends on: ANSI parser
+
+## Plan
+
+- [x] Add ParseFixtures subcommand with --fixture, --force, --cols, --rows flags
+- [x] Implement run_fixture_and_parse: runs setup.sh + command.sh, captures stdout, parses ANSI
+- [x] Write output.json alongside fixture scripts
+- [x] Generate output.json for all 9 fixtures
+- [x] Verify zero warnings, all tests pass
+
+## Summary of Changes
+
+Added parse-fixtures subcommand to litmus-capture that runs each fixture's setup.sh + command.sh, captures raw ANSI stdout bytes, parses them into structured TermOutput JSON using the VTE-based parser, and writes output.json alongside the fixture scripts.
+
+The output files are provider-independent (raw terminal output is the same regardless of which terminal renders it) and are checked into git so litmus-web can embed them for theme-independent scene rendering.
