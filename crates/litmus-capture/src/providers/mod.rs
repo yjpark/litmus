@@ -23,7 +23,7 @@ impl Default for TermGeometry {
     fn default() -> Self {
         Self {
             cols: 80,
-            rows: 24,
+            rows: 32,
             font_size: 12.0,
             font_family: "FiraCode".to_string(),
         }

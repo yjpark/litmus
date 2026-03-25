@@ -138,7 +138,7 @@ mod tests {
         let theme = sample_theme();
         let geometry = TermGeometry {
             cols: 80,
-            rows: 24,
+            rows: 32,
             font_size: 12.0,
             font_family: "FiraCode".to_string(),
         };
@@ -147,7 +147,7 @@ mod tests {
         assert!(config.contains("wezterm.font(\"FiraCode\")"));
         assert!(config.contains("font_size = 12.0"));
         assert!(config.contains("initial_cols = 80"));
-        assert!(config.contains("initial_rows = 24"));
+        assert!(config.contains("initial_rows = 32"));
     }
 
     #[test]

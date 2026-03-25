@@ -109,7 +109,7 @@ mod tests {
         let theme = sample_theme();
         let geometry = TermGeometry {
             cols: 80,
-            rows: 24,
+            rows: 32,
             font_size: 12.0,
             font_family: "FiraCode".to_string(),
         };
@@ -118,7 +118,7 @@ mod tests {
         assert!(config.contains("font_family FiraCode"));
         assert!(config.contains("font_size 12.0"));
         assert!(config.contains("initial_window_width 80"));
-        assert!(config.contains("initial_window_height 24"));
+        assert!(config.contains("initial_window_height 32"));
     }
 
     #[test]
