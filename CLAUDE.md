@@ -44,6 +44,10 @@ Do NOT write design docs or plans to `docs/plans/`. All planning and design
 work should be captured directly in beans (description + body). Beans are the
 single source of truth for tracking work.
 
+Do NOT start implementation during the planning stage. The outcome of planning
+is beans with clear specs — enough detail for a clean design and implementation
+stage later.
+
 ## Development Workflow
 
 Follow this workflow for all implementation work — whether interactive or autonomous.

@@ -5,7 +5,9 @@ status: todo
 type: feature
 priority: normal
 created_at: 2026-03-25T15:05:26Z
-updated_at: 2026-03-25T15:06:55Z
+updated_at: 2026-03-25T15:38:38Z
+blocked_by:
+    - litmus-dvjb
 ---
 
 Simulated views expand to content while screenshots are fixed size, causing inconsistent heights within splits and across fixtures. Use CSS aspect-ratio on scene panels matching the screenshot capture ratio. ## Design: CSS aspect-ratio on scene panels
