@@ -15,6 +15,7 @@
 //!   more readable than WCAG 2.x would predict.
 
 use crate::scene::{Scene, ThemeColor};
+use crate::term_output::{TermColor, TermOutput};
 use crate::{Color, Theme};
 
 /// Minimum contrast ratio for WCAG AA normal text.
@@ -271,6 +272,103 @@ pub fn validate_theme_readability(theme: &Theme) -> Vec<ContrastIssue> {
         all_issues.extend(validate_scene_contrast(scene, theme));
     }
     all_issues
+}
+
+// ── TermOutput contrast validation ────────────────────────────────────
+
+/// A contrast issue found in a TermOutput fixture.
+#[derive(Debug, Clone)]
+pub struct TermContrastIssue {
+    /// Fixture ID where the issue was found.
+    pub fixture_id: String,
+    /// Line index within the fixture.
+    pub line: usize,
+    /// Span index within the line.
+    pub span: usize,
+    /// The text content of the span.
+    pub text: String,
+    /// Resolved foreground color.
+    pub fg: Color,
+    /// Resolved background color.
+    pub bg: Color,
+    /// The TermColor variant for the foreground.
+    pub fg_term: TermColor,
+    /// The TermColor variant for the background.
+    pub bg_term: TermColor,
+    /// Computed WCAG 2.x contrast ratio (informational).
+    pub ratio: f64,
+    /// APCA Lc threshold that was not met.
+    pub threshold: f64,
+}
+
+/// Returns true if a TermColor is theme-independent (fixed RGB value).
+fn is_fixed_color(tc: &TermColor) -> bool {
+    matches!(tc, TermColor::Indexed(_) | TermColor::Rgb(_, _, _))
+}
+
+/// Validate all spans in a TermOutput fixture against a theme for contrast issues.
+///
+/// Uses APCA (|Lc| >= [`APCA_MIN_READABLE`]) for pass/fail. Skips:
+/// - Empty/whitespace-only spans
+/// - Dim spans (intentionally low contrast)
+/// - Spans where both fg and bg are fixed colors (theme-independent)
+pub fn validate_term_output_contrast(
+    output: &TermOutput,
+    theme: &Theme,
+) -> Vec<TermContrastIssue> {
+    let mut issues = Vec::new();
+
+    for (line_idx, line) in output.lines.iter().enumerate() {
+        for (span_idx, span) in line.spans.iter().enumerate() {
+            if span.text.trim().is_empty() || span.dim {
+                continue;
+            }
+
+            // Skip if both fg and bg are fixed (theme-independent)
+            if is_fixed_color(&span.fg) && is_fixed_color(&span.bg) {
+                continue;
+            }
+
+            // Skip Default/Default — that's just theme fg on theme bg, not
+            // something the fixture controls
+            if span.fg == TermColor::Default && span.bg == TermColor::Default {
+                continue;
+            }
+
+            let fg = span.fg.resolve_with_theme(theme, &theme.foreground);
+            let bg = span.bg.resolve_with_theme(theme, &theme.background);
+
+            let lc = apca_contrast(&fg, &bg).abs();
+            if lc < APCA_MIN_READABLE {
+                let ratio = contrast_ratio(&fg, &bg);
+                issues.push(TermContrastIssue {
+                    fixture_id: output.id.clone(),
+                    line: line_idx,
+                    span: span_idx,
+                    text: span.text.clone(),
+                    fg: fg.clone(),
+                    bg: bg.clone(),
+                    fg_term: span.fg,
+                    bg_term: span.bg,
+                    ratio,
+                    threshold: APCA_MIN_READABLE,
+                });
+            }
+        }
+    }
+
+    issues
+}
+
+/// Validate multiple TermOutput fixtures against a theme.
+pub fn validate_fixtures_contrast(
+    fixtures: &[TermOutput],
+    theme: &Theme,
+) -> Vec<TermContrastIssue> {
+    fixtures
+        .iter()
+        .flat_map(|f| validate_term_output_contrast(f, theme))
+        .collect()
 }
 
 #[cfg(test)]
@@ -718,5 +816,177 @@ mod tests {
                 );
             }
         }
+    }
+
+    // ── TermOutput contrast validation tests ─────────────────────────
+
+    fn make_term_output(id: &str, lines: Vec<crate::term_output::TermLine>) -> TermOutput {
+        TermOutput {
+            id: id.into(),
+            name: id.into(),
+            cols: 80,
+            rows: 24,
+            lines,
+        }
+    }
+
+    fn dark_theme() -> Theme {
+        use crate::AnsiColors;
+        Theme {
+            name: "dark-test".into(),
+            background: Color::new(30, 30, 30),
+            foreground: Color::new(200, 200, 200),
+            cursor: Color::new(200, 200, 200),
+            selection_background: Color::new(60, 60, 60),
+            selection_foreground: Color::new(200, 200, 200),
+            ansi: AnsiColors::from_array([
+                Color::new(30, 30, 30),   // 0 black — same as bg!
+                Color::new(50, 20, 20),   // 1 red — very dark
+                Color::new(0, 200, 0),    // 2 green
+                Color::new(200, 200, 0),  // 3 yellow
+                Color::new(0, 0, 200),    // 4 blue
+                Color::new(200, 0, 200),  // 5 magenta
+                Color::new(0, 200, 200),  // 6 cyan
+                Color::new(200, 200, 200),// 7 white
+                Color::new(80, 80, 80),   // 8 bright black
+                Color::new(255, 50, 50),  // 9 bright red
+                Color::new(50, 255, 50),  // 10 bright green
+                Color::new(255, 255, 50), // 11 bright yellow
+                Color::new(50, 50, 255),  // 12 bright blue
+                Color::new(255, 50, 255), // 13 bright magenta
+                Color::new(50, 255, 255), // 14 bright cyan
+                Color::new(255, 255, 255),// 15 bright white
+            ]),
+        }
+    }
+
+    #[test]
+    fn term_contrast_detects_low_contrast_ansi() {
+        use crate::term_output::*;
+        let output = make_term_output("test", vec![
+            TermLine::new(vec![
+                // ANSI red (very dark) on default bg (dark) — should fail
+                TermSpan {
+                    text: "bad contrast".into(),
+                    fg: TermColor::Ansi(1),
+                    bg: TermColor::Default,
+                    bold: false, italic: false, dim: false, underline: false,
+                },
+                // ANSI white on default bg — should pass
+                TermSpan {
+                    text: "good contrast".into(),
+                    fg: TermColor::Ansi(7),
+                    bg: TermColor::Default,
+                    bold: false, italic: false, dim: false, underline: false,
+                },
+            ]),
+        ]);
+        let theme = dark_theme();
+        let issues = validate_term_output_contrast(&output, &theme);
+        assert_eq!(issues.len(), 1);
+        assert_eq!(issues[0].text, "bad contrast");
+        assert_eq!(issues[0].fixture_id, "test");
+    }
+
+    #[test]
+    fn term_contrast_skips_fixed_pairs() {
+        use crate::term_output::*;
+        let output = make_term_output("test", vec![
+            TermLine::new(vec![
+                // Both Rgb — theme-independent, should be skipped
+                TermSpan {
+                    text: "fixed colors".into(),
+                    fg: TermColor::Rgb(30, 30, 30),
+                    bg: TermColor::Rgb(31, 31, 31),
+                    bold: false, italic: false, dim: false, underline: false,
+                },
+                // Both Indexed — theme-independent, should be skipped
+                TermSpan {
+                    text: "indexed colors".into(),
+                    fg: TermColor::Indexed(232),
+                    bg: TermColor::Indexed(233),
+                    bold: false, italic: false, dim: false, underline: false,
+                },
+            ]),
+        ]);
+        let theme = dark_theme();
+        let issues = validate_term_output_contrast(&output, &theme);
+        assert!(issues.is_empty(), "Fixed color pairs should not generate issues");
+    }
+
+    #[test]
+    fn term_contrast_validates_fixed_fg_on_theme_bg() {
+        use crate::term_output::*;
+        // Dark RGB color on default (dark) background — should flag
+        let output = make_term_output("test", vec![
+            TermLine::new(vec![
+                TermSpan {
+                    text: "dark fixed on dark bg".into(),
+                    fg: TermColor::Rgb(35, 35, 35),
+                    bg: TermColor::Default,
+                    bold: false, italic: false, dim: false, underline: false,
+                },
+            ]),
+        ]);
+        let theme = dark_theme();
+        let issues = validate_term_output_contrast(&output, &theme);
+        assert_eq!(issues.len(), 1, "Fixed dark color on dark theme bg should be flagged");
+    }
+
+    #[test]
+    fn term_contrast_skips_dim_spans() {
+        use crate::term_output::*;
+        let output = make_term_output("test", vec![
+            TermLine::new(vec![
+                TermSpan {
+                    text: "dim text".into(),
+                    fg: TermColor::Ansi(1),
+                    bg: TermColor::Default,
+                    bold: false, italic: false, dim: true, underline: false,
+                },
+            ]),
+        ]);
+        let theme = dark_theme();
+        let issues = validate_term_output_contrast(&output, &theme);
+        assert!(issues.is_empty(), "Dim spans should be skipped");
+    }
+
+    #[test]
+    fn term_contrast_skips_default_on_default() {
+        use crate::term_output::*;
+        let output = make_term_output("test", vec![
+            TermLine::new(vec![
+                TermSpan::plain("plain text"),
+            ]),
+        ]);
+        let theme = dark_theme();
+        let issues = validate_term_output_contrast(&output, &theme);
+        assert!(issues.is_empty(), "Default/Default spans should be skipped");
+    }
+
+    #[test]
+    fn validate_fixtures_contrast_aggregates() {
+        use crate::term_output::*;
+        let f1 = make_term_output("f1", vec![
+            TermLine::new(vec![TermSpan {
+                text: "bad".into(),
+                fg: TermColor::Ansi(1),
+                bg: TermColor::Default,
+                bold: false, italic: false, dim: false, underline: false,
+            }]),
+        ]);
+        let f2 = make_term_output("f2", vec![
+            TermLine::new(vec![TermSpan {
+                text: "also bad".into(),
+                fg: TermColor::Ansi(0),
+                bg: TermColor::Default,
+                bold: false, italic: false, dim: false, underline: false,
+            }]),
+        ]);
+        let theme = dark_theme();
+        let issues = validate_fixtures_contrast(&[f1, f2], &theme);
+        assert!(issues.len() >= 2, "Should aggregate issues from multiple fixtures");
+        assert!(issues.iter().any(|i| i.fixture_id == "f1"));
+        assert!(issues.iter().any(|i| i.fixture_id == "f2"));
     }
 }
