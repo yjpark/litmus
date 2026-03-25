@@ -1,11 +1,11 @@
 ---
 # litmus-knrz
 title: Provider-based theme definition
-status: todo
+status: completed
 type: epic
 priority: normal
 created_at: 2026-03-23T15:17:28Z
-updated_at: 2026-03-24T13:23:28Z
+updated_at: 2026-03-25T00:52:06Z
 ---
 
 ## Goal
@@ -99,3 +99,7 @@ red = "#cc241d"
 
 **Blocked by 5 + 6:**
 7. `litmus-i4kf` — Remove old Theme struct and hand-curated color sections
+
+## Summary of Changes
+
+All 7 subtasks completed. Themes are now defined as ThemeDefinition (metadata + base16 colors) + ProviderColors (per-provider ANSI palette extraction). The extract-colors CLI command extracts colors from vendored provider theme data (kitty-themes, wezterm schemes). Both litmus-cli and litmus-web render themes using provider-scoped colors with a global provider selector.
