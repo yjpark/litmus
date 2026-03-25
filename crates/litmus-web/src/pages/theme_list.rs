@@ -25,19 +25,18 @@ pub fn ThemeList() -> Element {
         .collect();
     filtered.sort_by(|a, b| a.0.name.to_lowercase().cmp(&b.0.name.to_lowercase()));
 
-    // Counts reflect only available themes for the active provider
-    let available_themes: Vec<&litmus_model::Theme> = all_with_avail
+    let total = all_with_avail.len();
+    let shown = filtered.len();
+
+    // Count badges for variant filter (available themes only)
+    let count_available: Vec<&litmus_model::Theme> = all_with_avail
         .iter()
         .filter(|(_, avail)| *avail)
         .map(|(t, _)| t)
         .collect();
-    let total = available_themes.len();
-    let shown = filtered.iter().filter(|(_, a)| *a).count();
-
-    // Count badges for variant filter (available only)
-    let count_all = available_themes.len();
-    let count_dark = available_themes.iter().filter(|t| !is_light_theme(t)).count();
-    let count_light = available_themes.iter().filter(|t| is_light_theme(t)).count();
+    let count_all = count_available.len();
+    let count_dark = count_available.iter().filter(|t| !is_light_theme(t)).count();
+    let count_light = count_available.iter().filter(|t| is_light_theme(t)).count();
 
     let query = filter_val.query.clone();
     let variant = filter_val.variant;
@@ -136,7 +135,6 @@ fn ThemeCard(theme: litmus_model::Theme, available: bool) -> Element {
     let slug = theme_slug(&theme.name);
     let all_fixtures = fixtures::all_fixtures();
     let readability = litmus_model::contrast::term_readability_score(&theme, all_fixtures) as u8;
-    let preview_fixture = fixtures::default_fixture();
 
     let card_class = if available {
         "theme-card"
@@ -153,61 +151,12 @@ fn ThemeCard(theme: litmus_model::Theme, available: bool) -> Element {
                 Link {
                     to: Route::ThemeDetail { slug: slug.clone() },
                     class: "theme-card-link",
-
-                    div { class: "theme-card-body",
-                        div { class: "theme-card-header",
-                            span { class: "theme-card-name", "{theme.name}" }
-                        }
-
-                        div { class: "theme-card-preview",
-                            if let Some(fixture) = preview_fixture {
-                                term_renderer::TermOutputPreview {
-                                    theme: theme.clone(),
-                                    output: fixture.clone(),
-                                    max_lines: 5,
-                                }
-                            }
-
-                            div { class: "swatch-row",
-                                for color in theme.ansi.as_array().iter() {
-                                    div {
-                                        class: "swatch",
-                                        style: "background: {color.to_hex()};",
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    ThemeCardBody { theme: theme.clone(), available: true }
                 }
             } else {
                 div {
                     class: "theme-card-link",
-
-                    div { class: "theme-card-body",
-                        div { class: "theme-card-header",
-                            span { class: "theme-card-name", "{theme.name}" }
-                            span { class: "theme-card-unavailable-badge", "unavailable" }
-                        }
-
-                        div { class: "theme-card-preview",
-                            if let Some(fixture) = preview_fixture {
-                                term_renderer::TermOutputPreview {
-                                    theme: theme.clone(),
-                                    output: fixture.clone(),
-                                    max_lines: 5,
-                                }
-                            }
-
-                            div { class: "swatch-row",
-                                for color in theme.ansi.as_array().iter() {
-                                    div {
-                                        class: "swatch",
-                                        style: "background: {color.to_hex()};",
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    ThemeCardBody { theme: theme.clone(), available: false }
                 }
             }
 
@@ -219,6 +168,42 @@ fn ThemeCard(theme: litmus_model::Theme, available: bool) -> Element {
                     span { class: "theme-card-actions-right",
                         ShortlistCheckbox { slug: slug.clone(), name: theme.name.clone() }
                         UseAsAppThemeButton { slug }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Shared card body content for both available and unavailable theme cards.
+#[component]
+fn ThemeCardBody(theme: litmus_model::Theme, available: bool) -> Element {
+    let preview_fixture = fixtures::default_fixture();
+
+    rsx! {
+        div { class: "theme-card-body",
+            div { class: "theme-card-header",
+                span { class: "theme-card-name", "{theme.name}" }
+                if !available {
+                    span { class: "theme-card-unavailable-badge", "unavailable" }
+                }
+            }
+
+            div { class: "theme-card-preview",
+                if let Some(fixture) = preview_fixture {
+                    term_renderer::TermOutputPreview {
+                        theme: theme.clone(),
+                        output: fixture.clone(),
+                        max_lines: 5,
+                    }
+                }
+
+                div { class: "swatch-row",
+                    for color in theme.ansi.as_array().iter() {
+                        div {
+                            class: "swatch",
+                            style: "background: {color.to_hex()};",
+                        }
                     }
                 }
             }

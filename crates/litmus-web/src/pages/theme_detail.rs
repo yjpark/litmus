@@ -17,6 +17,9 @@ static ANSI_NAMES: &[&str] = &[
 #[component]
 pub fn ThemeDetail(slug: String) -> Element {
     let active_provider = use_context::<Signal<ActiveProvider>>();
+    // Only shows themes available for the active provider. Themes unavailable for
+    // the current provider show "not found" — the browse page blocks navigation to
+    // them, but direct URL access is possible.
     let all_themes = themes::themes_for_provider(&active_provider.read().0);
     let theme = all_themes.iter().find(|t| theme_slug(&t.name) == slug);
     let mut palette_expanded = use_signal(|| true);
