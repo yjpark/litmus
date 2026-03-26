@@ -1529,7 +1529,7 @@ select:focus-visible {
    ========================================================================== */
 .detail-scene-section {
   margin-bottom: 2rem;
-  scroll-margin-top: 1rem;
+  scroll-margin-top: 8rem;
 }
 
 .detail-scene-heading {
