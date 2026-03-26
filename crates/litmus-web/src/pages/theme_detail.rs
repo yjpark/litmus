@@ -37,7 +37,13 @@ pub fn ThemeDetail(slug: String) -> Element {
             let expanded = *palette_expanded.read();
 
             let issues = litmus_model::contrast::validate_fixtures_contrast(all_fixtures, &theme);
-            let issue_count = issues.len();
+
+            // Count unique color-pair violations (not total spans)
+            let unique_issues: std::collections::HashSet<(String, String)> = issues
+                .iter()
+                .map(|i| (i.fg.to_hex(), i.bg.to_hex()))
+                .collect();
+            let issue_count = unique_issues.len();
             let fg_bg_ratio = litmus_model::contrast::contrast_ratio(
                 &theme.foreground, &theme.background,
             );
@@ -63,11 +69,17 @@ pub fn ThemeDetail(slug: String) -> Element {
                 );
             }
 
-            // Publish per-fixture issue counts to context for the minimap
+            // Publish per-fixture unique issue counts to context for the minimap
             let mut scene_issue_counts = use_context::<Signal<SceneIssueCounts>>();
             let counts: std::collections::HashMap<String, usize> = issues_per_fixture
                 .iter()
-                .map(|(k, v)| (k.to_string(), v.len()))
+                .map(|(k, v)| {
+                    let unique: std::collections::HashSet<(&str, &str)> = v
+                        .iter()
+                        .map(|(_, _, d)| (d.fg_hex.as_str(), d.bg_hex.as_str()))
+                        .collect();
+                    (k.to_string(), unique.len())
+                })
                 .collect();
             if counts != scene_issue_counts.read().0 {
                 scene_issue_counts.set(SceneIssueCounts(counts));
@@ -124,7 +136,13 @@ pub fn ThemeDetail(slug: String) -> Element {
                                 .get(fixture.id.as_str())
                                 .cloned()
                                 .unwrap_or_default();
-                            let fixture_issue_count = fixture_issues.len();
+                            let fixture_issue_count = {
+                                let unique: std::collections::HashSet<(&str, &str)> = fixture_issues
+                                    .iter()
+                                    .map(|(_, _, d)| (d.fg_hex.as_str(), d.bg_hex.as_str()))
+                                    .collect();
+                                unique.len()
+                            };
                             let has_screenshot = has_screenshot_for_provider(
                                 &manifest_state.read().0,
                                 &cur_provider,
