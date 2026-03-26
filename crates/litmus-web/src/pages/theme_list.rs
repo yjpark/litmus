@@ -44,15 +44,12 @@ pub fn ThemeList() -> Element {
 
     rsx! {
         div { class: "page-theme-list",
-            div { class: "page-header",
+            // Inline filter bar (title inside so it scrolls with the sticky bar)
+            div { class: "filter-bar",
                 h2 { class: "page-title", "Browse Themes" }
                 if shown < total {
                     span { class: "filter-count", "{shown}/{total}" }
                 }
-            }
-
-            // Inline filter bar
-            div { class: "filter-bar",
                 input {
                     class: "filter-bar-search",
                     r#type: "text",
