@@ -408,7 +408,7 @@ button.sidebar-feel-lucky:hover {
   flex: 1;
   min-width: 0;
   padding: 2rem;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* ==========================================================================
