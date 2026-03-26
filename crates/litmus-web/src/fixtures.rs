@@ -4,18 +4,21 @@ use litmus_model::term_output::TermOutput;
 
 /// Embedded fixture output JSON data.
 static FIXTURE_DATA: &[(&str, &str)] = &[
+    // Tier 1: at a glance — show all colors, reveal theme character
+    ("color-showcase", include_str!("../../../fixtures/color-showcase/output.json")),
+    ("editor-ui", include_str!("../../../fixtures/editor-ui/output.json")),
+    // Tier 2: real-world developer workflows
+    ("bat-syntax", include_str!("../../../fixtures/bat-syntax/output.json")),
     ("git-diff", include_str!("../../../fixtures/git-diff/output.json")),
-    ("git-log", include_str!("../../../fixtures/git-log/output.json")),
-    ("ls-color", include_str!("../../../fixtures/ls-color/output.json")),
     ("cargo-build", include_str!("../../../fixtures/cargo-build/output.json")),
+    ("ripgrep-search", include_str!("../../../fixtures/ripgrep-search/output.json")),
+    // Tier 3: shell & TUI
+    ("git-log", include_str!("../../../fixtures/git-log/output.json")),
     ("shell-prompt", include_str!("../../../fixtures/shell-prompt/output.json")),
     ("python-repl", include_str!("../../../fixtures/python-repl/output.json")),
+    ("ls-color", include_str!("../../../fixtures/ls-color/output.json")),
     ("htop", include_str!("../../../fixtures/htop/output.json")),
-    ("color-showcase", include_str!("../../../fixtures/color-showcase/output.json")),
-    ("ripgrep-search", include_str!("../../../fixtures/ripgrep-search/output.json")),
-    ("bat-syntax", include_str!("../../../fixtures/bat-syntax/output.json")),
     ("log-viewer", include_str!("../../../fixtures/log-viewer/output.json")),
-    ("editor-ui", include_str!("../../../fixtures/editor-ui/output.json")),
 ];
 
 static PARSED_FIXTURES: OnceLock<Vec<TermOutput>> = OnceLock::new();
