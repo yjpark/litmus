@@ -1171,7 +1171,7 @@ button.sidebar-feel-lucky:hover {
    Compare
    ========================================================================== */
 .page-compare {
-  overflow-x: auto;
+  overflow-x: clip;
 }
 
 .compare-column-headers {
