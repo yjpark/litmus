@@ -5,6 +5,7 @@ use litmus_model::term_output::TermOutput;
 /// Embedded fixture output JSON data.
 static FIXTURE_DATA: &[(&str, &str)] = &[
     // Tier 1: at a glance — show all colors, reveal theme character
+    ("color-swatch", include_str!("../../../fixtures/color-swatch/output.json")),
     ("color-showcase", include_str!("../../../fixtures/color-showcase/output.json")),
     ("editor-ui", include_str!("../../../fixtures/editor-ui/output.json")),
     // Tier 2: real-world developer workflows
