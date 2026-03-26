@@ -5,7 +5,8 @@ status: completed
 type: feature
 priority: normal
 created_at: 2026-03-25T15:05:23Z
-updated_at: 2026-03-25T15:57:48Z
+updated_at: 2026-03-26T14:16:47Z
+order: z
 ---
 
 Theme list only shows themes for the active provider — switching providers refreshes the list jarringly. Show all themes instead with dimmed cards + badge for unavailable ones. ## Design: Dimmed cards with unavailable badge

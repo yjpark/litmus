@@ -3,4 +3,4 @@
 set -euo pipefail
 
 cd "$FIXTURE_WORK_DIR"
-bat --color=always --style=numbers,grid --line-range=1:22 --paging=never server.py
+bat --color=always --theme=ansi --style=numbers,grid --line-range=1:22 --paging=never server.py

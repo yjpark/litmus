@@ -17,6 +17,10 @@ pub struct TermGeometry {
     pub font_size: f32,
     /// Font family name
     pub font_family: String,
+    /// Pixel width of the capture display (controls cage/Wayland output resolution)
+    pub pixel_width: u32,
+    /// Pixel height of the capture display (controls cage/Wayland output resolution)
+    pub pixel_height: u32,
 }
 
 impl Default for TermGeometry {
@@ -26,6 +30,8 @@ impl Default for TermGeometry {
             rows: 32,
             font_size: 12.0,
             font_family: "FiraCode".to_string(),
+            pixel_width: 1280,
+            pixel_height: 960,
         }
     }
 }

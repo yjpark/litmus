@@ -5,7 +5,8 @@ status: completed
 type: task
 priority: normal
 created_at: 2026-03-25T15:35:21Z
-updated_at: 2026-03-25T15:48:03Z
+updated_at: 2026-03-26T14:16:47Z
+order: zzV
 ---
 
 The browser cached an old CDN manifest.json, causing screenshots for newer fixtures to appear missing. The manifest URL has no cache-busting — switching from CDN to local dev still serves the cached CDN response.

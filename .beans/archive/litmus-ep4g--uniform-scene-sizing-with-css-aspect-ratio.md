@@ -1,11 +1,11 @@
 ---
 # litmus-ep4g
 title: Uniform scene sizing with CSS aspect-ratio
-status: todo
+status: scrapped
 type: feature
 priority: normal
 created_at: 2026-03-25T15:05:26Z
-updated_at: 2026-03-25T15:38:38Z
+updated_at: 2026-03-26T14:20:48Z
 blocked_by:
     - litmus-dvjb
 ---
@@ -27,3 +27,10 @@ Simulated views expand to content while screenshots are fixed size, causing inco
 - [ ] Apply same aspect-ratio constraint to compare page grid items
 - [ ] Test responsive behavior (panels should scale proportionally)
 - [ ] Verify both detail page and compare page look uniform
+
+
+
+----
+
+
+Changed my mind, since the screenshot might have large empty, the current way is actually not bad, showing the visible part in a larger way, so will scrap this task instead

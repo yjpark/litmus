@@ -112,6 +112,8 @@ mod tests {
             rows: 32,
             font_size: 12.0,
             font_family: "FiraCode".to_string(),
+            pixel_width: 1280,
+            pixel_height: 960,
         };
         let config = provider.generate_config(&theme, &geometry);
 

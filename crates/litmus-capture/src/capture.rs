@@ -110,6 +110,8 @@ pub fn capture_screenshot(opts: &CaptureOptions) -> Result<CaptureResult> {
         &sentinel_path,
         &png_path,
         opts.timeout_secs,
+        opts.geometry.pixel_width,
+        opts.geometry.pixel_height,
     );
     let wrapper_path = tmp.path().join("capture-wrapper.sh");
     fs::write(&wrapper_path, &wrapper_content).context("write wrapper script")?;
@@ -118,6 +120,8 @@ pub fn capture_screenshot(opts: &CaptureOptions) -> Result<CaptureResult> {
     // The caller controls WLR_BACKENDS and WLR_RENDERER via environment:
     //   - Headless (foot): WLR_BACKENDS=headless WLR_RENDERER=pixman
     //   - GPU (kitty):     Let cage auto-detect (or WLR_BACKENDS=wayland for nested)
+    // Display resolution is set by wlr-randr inside the wrapper script
+    // (wlroots 0.19+ ignores the WLR_SCREEN_SIZE env var).
     let cage_status = Command::new("cage")
         .args(["--"])
         .arg("bash")
@@ -168,6 +172,8 @@ fn build_wrapper_script(
     sentinel_path: &Path,
     png_output: &Path,
     timeout_secs: u64,
+    screen_width: u32,
+    screen_height: u32,
 ) -> String {
     let extra_args = terminal_extra_args
         .iter()
@@ -178,6 +184,14 @@ fn build_wrapper_script(
     format!(
         r#"#!/usr/bin/env bash
 set -euo pipefail
+
+# Set display resolution via wlr-randr (works with both headless and nested wayland backends).
+# Detect the first output name dynamically since it varies by backend
+# (HEADLESS-1 for headless, wayland-1 for nested under another compositor like niri/sway).
+OUTPUT_NAME=$(wlr-randr 2>/dev/null | head -1 | awk '{{print $1}}')
+if [[ -n "$OUTPUT_NAME" ]]; then
+    wlr-randr --output "$OUTPUT_NAME" --custom-mode {screen_width}x{screen_height} 2>/dev/null || true
+fi
 
 # Launch terminal emulator in background (WAYLAND_DISPLAY is set by cage)
 {terminal_bin} {extra_args} &
@@ -206,6 +220,8 @@ grim {png_output}
 kill $TERMINAL_PID 2>/dev/null || true
 wait $TERMINAL_PID 2>/dev/null || true
 "#,
+        screen_width = screen_width,
+        screen_height = screen_height,
         terminal_bin = terminal_bin,
         extra_args = extra_args,
         timeout = timeout_secs,
@@ -275,10 +291,19 @@ mod tests {
     }
 
     #[test]
+    fn default_geometry_is_4_3_ratio() {
+        let geo = TermGeometry::default();
+        // 1280x960 = 4:3
+        assert_eq!(geo.pixel_width, 1280);
+        assert_eq!(geo.pixel_height, 960);
+        assert_eq!(geo.pixel_width * 3, geo.pixel_height * 4);
+    }
+
+    #[test]
     fn wrapper_script_contains_key_parts() {
         let sentinel = Path::new("/tmp/sentinel");
         let png = Path::new("/tmp/out.png");
-        let script = build_wrapper_script("kitty", &["--config".to_string(), "/tmp/k.conf".to_string()], sentinel, png, 30);
+        let script = build_wrapper_script("kitty", &["--config".to_string(), "/tmp/k.conf".to_string()], sentinel, png, 30, 1280, 960);
 
         assert!(script.contains("kitty"));
         assert!(script.contains("--config"));
@@ -286,5 +311,6 @@ mod tests {
         assert!(script.contains("/tmp/out.png"));
         assert!(script.contains("grim"));
         assert!(script.contains("TIMEOUT=30"));
+        assert!(script.contains("--custom-mode 1280x960"));
     }
 }

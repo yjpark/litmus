@@ -70,6 +70,7 @@
             pkgs.wasm-bindgen-cli
             pkgs.cage             # Wayland kiosk compositor for headless capture
             pkgs.grim             # Wayland screenshot tool
+            pkgs.wlr-randr        # Wayland output configuration (for setting headless resolution)
             pkgs.foot             # Wayland terminal (SHM-based, no OpenGL needed)
             pkgs.kitty            # Kitty terminal (requires real display with OpenGL)
             pkgs.fira-code

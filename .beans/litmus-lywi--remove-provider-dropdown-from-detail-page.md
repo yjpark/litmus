@@ -5,7 +5,8 @@ status: completed
 type: bug
 priority: normal
 created_at: 2026-03-25T15:05:20Z
-updated_at: 2026-03-25T15:46:48Z
+updated_at: 2026-03-26T14:16:47Z
+order: "y"
 ---
 
 The detail page has its own local selected_provider signal and dropdown, leftover from before the UI rework. Remove it and read from global ActiveProvider instead. ## Design

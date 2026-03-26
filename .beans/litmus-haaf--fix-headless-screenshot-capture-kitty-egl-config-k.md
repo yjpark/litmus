@@ -5,7 +5,8 @@ status: completed
 type: bug
 priority: normal
 created_at: 2026-03-23T10:23:19Z
-updated_at: 2026-03-23T10:44:16Z
+updated_at: 2026-03-26T14:16:47Z
+order: w
 ---
 
 Two blocking issues preventing screenshot capture from working:
