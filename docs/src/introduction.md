@@ -6,28 +6,31 @@
 
 Switching terminal themes is a frustrating loop:
 
-1. You find a theme that looks nice in your terminal's preview
-2. You edit configs for kitty/wezterm, neovim, zellij, tig, delta...
-3. You discover `git diff` is unreadable, or jjui's text blends into the background
+1. You find a theme that looks nice in a preview
+2. You edit configs for kitty, wezterm, neovim, zellij, delta...
+3. You discover `git diff` is unreadable, or cargo warnings blend into the background
 4. You revert everything and try the next theme
 5. Repeat
 
-The core issue: **you can't see how a theme actually looks across your real workflow until after you've fully set it up.** Kitty's built-in theme preview shows ANSI swatches, but that doesn't tell you whether a complex `git diff` or a tig log view will be readable. The decision is visual, but the evaluation process is mechanical and slow — especially on NixOS where config changes require a home-manager rebuild.
+The core issue: **you can't see how a theme actually looks across your real workflow until after you've fully set it up.** A terminal's built-in theme preview shows color swatches, but that doesn't tell you whether a `git diff` or a `cargo build` will be readable. The decision is visual, but the evaluation process is mechanical and slow — especially on NixOS where config changes require a home-manager rebuild.
 
 ## The Solution
 
-A web app that lets you **preview any theme across all your terminal apps instantly**, with realistic sample content that exposes real readability issues.
+A web app that lets you **preview any theme across realistic terminal scenarios instantly** — before touching a single config file.
 
-Pick a theme. See exactly how `git diff`, neovim, tig, zellij, and more will look — before touching a single config file.
+Pick a theme. See exactly how `git diff`, cargo build output, bat syntax highlighting, and more will look across different terminal emulators. Litmus captures real screenshots from real terminals, so what you see is exactly what you'd get.
 
-## Current Scale
+## What's In the Box
 
-- **29 themes** across 15 families (Catppuccin, Tokyo Night, Gruvbox, Dracula, Nord, Rose Pine, and more)
-- **8 scenes** simulating real terminal output (shell prompt, git diff, ls colors, cargo build, neovim, Python REPL, log viewer, htop)
-- **3 crates**: `litmus-model` (shared data model), `litmus-cli` (TUI prototype), `litmus-web` (Dioxus WASM web app)
-- Accessibility tooling: WCAG contrast checking, color blindness simulation (CVD), keyboard navigation, screen reader support
-- Config export: generate kitty.conf, TOML, or Nix for any theme
+- **58 themes** across 30+ families (Catppuccin, Tokyo Night, Gruvbox, Dracula, Nord, Rose Pine, and many more)
+- **13 fixtures** simulating real terminal output (git diff, cargo build, bat, ripgrep, shell prompt, ls, htop, and more)
+- **2 providers** — kitty and wezterm, with real per-provider screenshots
+- **Side-by-side comparison** of any two themes
+- **Accessibility tooling** — WCAG contrast checking, APCA readability scoring, color vision deficiency simulation (protanopia, deuteranopia, tritanopia)
+- **Config export** — generate kitty.conf, TOML, or Nix attribute set for any theme
 
-## Project Status
+## How It Works
 
-The web app is the primary interface — the TUI was the M0 prototype that informed the data model design. 13 milestones have been completed, covering everything from the core data model through theme browsing, comparison, export, accessibility, and CVD simulation. See [Milestones](./milestones.md) for the full history.
+Litmus captures real terminal screenshots by running actual commands in headless terminal emulators, then serves them through a web app where you can browse, compare, and evaluate themes. It also parses the ANSI output from those same commands to provide simulated rendering — enabling features like contrast analysis and CVD simulation that can't work on raster images alone.
+
+Read [The Model](./model/README.md) to understand the conceptual framework that makes this work.

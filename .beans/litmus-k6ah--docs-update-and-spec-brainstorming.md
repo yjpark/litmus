@@ -1,11 +1,11 @@
 ---
 # litmus-k6ah
 title: Docs update and spec brainstorming
-status: todo
+status: completed
 type: task
 priority: normal
 created_at: 2026-03-27T15:28:16Z
-updated_at: 2026-03-27T15:44:23Z
+updated_at: 2026-03-27T15:58:16Z
 ---
 
 Restructure and rewrite the mdbook docs site to serve end users and contributors.
@@ -102,18 +102,31 @@ The page that makes litmus click conceptually. ~100-150 lines, explanatory not a
 - **Not in scope:** live terminal capture in browser, theme editor, plugin system, user accounts.
 
 ## Tasks
-- [ ] Write SUMMARY.md (new structure)
-- [ ] Write Introduction (updated stats, live link)
-- [ ] Write The Model (centerpiece, expanded from concepts.md)
-- [ ] Write Using Litmus (4 subsections)
-- [ ] Write Under the Hood: Capture Pipeline
-- [ ] Write Under the Hood: Rendering
-- [ ] Write Under the Hood: Accessibility
-- [ ] Write Under the Hood: Architecture (4 crates, data flow, deployment)
-- [ ] Write Contributing: Dev Setup (absorb agentic-workflow bacon/beans bits)
-- [ ] Update Contributing: Adding Themes
-- [ ] Update Contributing: Adding Fixtures
-- [ ] Write Contributing: Adding Providers (new)
-- [ ] Write Roadmap (replace milestones + next-stage-plan)
-- [ ] Remove stale pages (milestones.md, next-stage-plan.md, agentic-workflow.md)
-- [ ] Rebuild docs/dist
+- [x] Write SUMMARY.md (new structure)
+- [x] Write Introduction (updated stats, live link)
+- [x] Write The Model (centerpiece, expanded from concepts.md)
+- [x] Write Using Litmus (4 subsections)
+- [x] Write Under the Hood: Capture Pipeline
+- [x] Write Under the Hood: Rendering
+- [x] Write Under the Hood: Accessibility
+- [x] Write Under the Hood: Architecture (4 crates, data flow, deployment)
+- [x] Write Contributing: Dev Setup (absorb agentic-workflow bacon/beans bits)
+- [x] Update Contributing: Adding Themes
+- [x] Update Contributing: Adding Fixtures
+- [x] Write Contributing: Adding Providers (new)
+- [x] Write Roadmap (replace milestones + next-stage-plan)
+- [x] Remove stale pages (milestones.md, next-stage-plan.md, agentic-workflow.md)
+- [x] Rebuild docs/dist
+
+
+## Summary of Changes
+
+Rewrote the entire mdbook documentation site with a new structure targeting end users and contributors:
+
+- **The Model** (centerpiece) — expanded provider/consumer/silo conceptual framework
+- **Using Litmus** — 4-page end-user guide (browsing, detail, comparing, exporting)
+- **Under the Hood** — 4-page technical deep dive (capture pipeline, rendering, accessibility, architecture)
+- **Contributing** — 4-page contributor guide (dev setup, adding themes/fixtures/providers)
+- **Roadmap** — replaces stale milestones and next-stage-plan pages
+
+Removed 6 stale pages (milestones, next-stage-plan, agentic-workflow, concepts, architecture, development). Fixed all technical inaccuracies found during code review (TermColor::Indexed type, color count, route params, font name, theme count).
