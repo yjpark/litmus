@@ -78,17 +78,39 @@ description = "Build mdbook static site"
 
 [tasks.screenshots-sync]
 run = """
+R2_COMMON="--s3-provider Cloudflare --s3-access-key-id $R2_ACCESS_KEY_ID --s3-secret-access-key $R2_SECRET_ACCESS_KEY --s3-endpoint $R2_ENDPOINTS --s3-no-check-bucket --checksum --progress --verbose"
+
+echo "Syncing images (immutable, 1yr TTL)..."
 rclone sync staging/ :s3:litmus-screenshots \
-  --s3-provider Cloudflare \
-  --s3-access-key-id "$R2_ACCESS_KEY_ID" \
-  --s3-secret-access-key "$R2_SECRET_ACCESS_KEY" \
-  --s3-endpoint "$R2_ENDPOINTS" \
-  --s3-no-check-bucket \
-  --checksum \
-  --progress \
-  --verbose
+  $R2_COMMON \
+  --exclude manifest.json \
+  --header-upload "Cache-Control: public, max-age=31536000, immutable"
+
+echo ""
+echo "Syncing manifest (short TTL, 1min)..."
+rclone copyto staging/manifest.json :s3:litmus-screenshots/manifest.json \
+  $R2_COMMON \
+  --header-upload "Cache-Control: public, max-age=60"
 """
-description = "Sync staging/ screenshots to R2 bucket"
+description = "Sync staging/ screenshots to R2 bucket (with cache headers)"
+
+[tasks."screenshots-sync_ignore-checksum"]
+run = """
+R2_COMMON="--s3-provider Cloudflare --s3-access-key-id $R2_ACCESS_KEY_ID --s3-secret-access-key $R2_SECRET_ACCESS_KEY --s3-endpoint $R2_ENDPOINTS --s3-no-check-bucket --progress --verbose"
+
+echo "Re-uploading all images (immutable, 1yr TTL)..."
+rclone sync staging/ :s3:litmus-screenshots \
+  $R2_COMMON \
+  --exclude manifest.json \
+  --header-upload "Cache-Control: public, max-age=31536000, immutable"
+
+echo ""
+echo "Re-uploading manifest (short TTL, 1min)..."
+rclone copyto staging/manifest.json :s3:litmus-screenshots/manifest.json \
+  $R2_COMMON \
+  --header-upload "Cache-Control: public, max-age=60"
+"""
+description = "Force re-upload all screenshots to R2 (ignores checksum, applies cache headers)"
 
 [tasks.screenshots-deploy]
 run = """
