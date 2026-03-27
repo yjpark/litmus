@@ -107,7 +107,7 @@ pub fn CompareThemes(provider: String, slugs: String) -> Element {
     // Active issue state: (theme_index, rule_id, fixture_cycle_index)
     let mut active_issue: Signal<Option<(usize, String, usize)>> = use_signal(|| None);
 
-    let slug_list: Vec<&str> = slugs.split(',').filter(|s| !s.is_empty()).collect();
+    let slug_list: Vec<&str> = slugs.split(',').filter(|s| !s.is_empty()).take(MAX_COMPARE).collect();
 
     let compare_themes: Vec<litmus_model::Theme> = slug_list
         .iter()

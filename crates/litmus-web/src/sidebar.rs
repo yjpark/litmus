@@ -40,12 +40,15 @@ pub fn Sidebar() -> Element {
 
     let has_shortlist = sl_count > 0;
 
-    // Build compare URL: app theme + shortlist slugs (deduped)
+    // Build compare URL: app theme + shortlist slugs (deduped, capped at MAX_COMPARE)
     let mut compare_slugs: Vec<String> = Vec::new();
     if let Some(ref slug) = app_slug {
         compare_slugs.push(slug.clone());
     }
     for s in &sl.0 {
+        if compare_slugs.len() >= MAX_COMPARE {
+            break;
+        }
         if !compare_slugs.contains(s) {
             compare_slugs.push(s.clone());
         }
