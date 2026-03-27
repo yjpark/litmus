@@ -29,9 +29,10 @@ fn compute_theme_contrast(
     all_fixtures: &[litmus_model::term_output::TermOutput],
 ) -> ThemeContrastData {
     let issues = litmus_model::contrast::validate_fixtures_contrast(all_fixtures, theme);
-    let (_rules, id_map) = build_issue_registry(&issues);
+    let (rules, id_map) = build_issue_registry(&issues);
     let readability =
         litmus_model::contrast::term_readability_score(theme, all_fixtures) as u8;
+    let issue_count = rules.len();
 
     let mut issues_per_fixture: HashMap<String, Vec<(usize, usize, SpanIssueDetail)>> =
         HashMap::new();
@@ -53,14 +54,6 @@ fn compute_theme_contrast(
             ));
     }
 
-    let issue_count = {
-        let unique: HashSet<Option<&str>> = issues_per_fixture
-            .values()
-            .flat_map(|v| v.iter().map(|(_, _, d)| d.rule_id.as_deref()))
-            .collect();
-        unique.len()
-    };
-
     ThemeContrastData {
         readability,
         issue_count,
@@ -68,11 +61,11 @@ fn compute_theme_contrast(
     }
 }
 
-/// Count unique contrast rules in a fixture's issue list.
+/// Count unique contrast rules in a fixture's issue list (excludes issues without rule IDs).
 fn unique_issue_count(issues: &[(usize, usize, SpanIssueDetail)]) -> usize {
-    let unique: HashSet<Option<&str>> = issues
+    let unique: HashSet<&str> = issues
         .iter()
-        .map(|(_, _, d)| d.rule_id.as_deref())
+        .filter_map(|(_, _, d)| d.rule_id.as_deref())
         .collect();
     unique.len()
 }
@@ -164,13 +157,13 @@ pub fn CompareThemes(provider: String, slugs: String) -> Element {
 
             for fixture in all_fixtures {
                 {
-                    // Compute per-theme issue counts for this fixture's header badge
-                    let fixture_issue_counts: Vec<usize> = contrast_data.iter().map(|cd| {
-                        cd.issues_per_fixture.get(&fixture.id)
+                    // Worst-case issue count across themes for this fixture's header badge
+                    let max_fixture_issues = contrast_data.iter()
+                        .map(|cd| cd.issues_per_fixture.get(&fixture.id)
                             .map(|v| unique_issue_count(v))
-                            .unwrap_or(0)
-                    }).collect();
-                    let max_fixture_issues = fixture_issue_counts.iter().copied().max().unwrap_or(0);
+                            .unwrap_or(0))
+                        .max()
+                        .unwrap_or(0);
 
                     rsx! {
                         div { class: "compare-scene-group",
