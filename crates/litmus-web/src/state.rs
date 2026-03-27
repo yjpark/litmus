@@ -2,11 +2,11 @@ use litmus_model::cvd::CvdType;
 use litmus_model::screenshot::ScreenshotManifest;
 
 pub const MAX_COMPARE: usize = 3;
-pub const MAX_SHORTLIST: usize = 5;
+pub const MAX_FAVORITES: usize = 20;
 
-/// Global shortlist state — stores slugs of themes the user has favorited.
+/// Global favorites state — stores slugs of themes the user has starred.
 #[derive(Clone, Default)]
-pub struct Shortlist(pub Vec<String>);
+pub struct Favorites(pub Vec<String>);
 
 /// Filter mode for light/dark themes.
 #[derive(Clone, Copy, PartialEq)]

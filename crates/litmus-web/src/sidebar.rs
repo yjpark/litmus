@@ -18,14 +18,14 @@ fn random_index(max: usize) -> usize {
 }
 
 
-/// Persistent left sidebar: navigation, shortlist management, CVD toggle.
+/// Persistent left sidebar: navigation, favorites management, CVD toggle.
 #[component]
 pub fn Sidebar() -> Element {
     let active_provider = use_context::<Signal<ActiveProvider>>();
     let provider = active_provider.read().0.clone();
     let all_themes = themes::themes_for_provider(&provider);
     let providers = themes::available_providers();
-    let mut shortlist = use_context::<Signal<Shortlist>>();
+    let mut favorites = use_context::<Signal<Favorites>>();
     let mut cvd_sim = use_context::<Signal<CvdSimulation>>();
     let mut sidebar_open = use_context::<Signal<SidebarOpen>>();
     let app_theme = use_context::<Signal<AppThemeSlug>>();
@@ -34,49 +34,11 @@ pub fn Sidebar() -> Element {
     let current_route = use_route::<Route>();
 
     let cvd = cvd_sim.read().0;
-    let sl = shortlist.read().clone();
+    let sl = favorites.read().clone();
     let sl_count = sl.0.len();
     let app_slug = app_theme.read().0.clone();
 
-    let has_shortlist = sl_count > 0;
-
-    // Build compare URL: app theme + shortlist slugs (deduped, capped at MAX_COMPARE)
-    let mut compare_slugs: Vec<String> = Vec::new();
-    if let Some(ref slug) = app_slug {
-        compare_slugs.push(slug.clone());
-    }
-    for s in &sl.0 {
-        if compare_slugs.len() >= MAX_COMPARE {
-            break;
-        }
-        if !compare_slugs.contains(s) {
-            compare_slugs.push(s.clone());
-        }
-    }
-
-    // If we have some themes but fewer than 2, fill to reach 2
-    if has_shortlist && compare_slugs.len() < 2 {
-        let mut fillers: Vec<String> = all_themes.iter()
-            .map(|t| theme_slug(&t.name))
-            .filter(|s| !compare_slugs.contains(s))
-            .collect();
-        fillers.sort();
-        for f in fillers {
-            if compare_slugs.len() >= 2 {
-                break;
-            }
-            compare_slugs.push(f);
-        }
-    }
-
-    let compare_label = if has_shortlist {
-        "Side by Side".to_string()
-    } else {
-        "Feel Lucky".to_string()
-    };
-    let compare_url = compare_slugs.join(",");
-
-    let show_shortlist = sl_count > 0 || app_slug.is_some();
+    let show_favorites = sl_count > 0 || app_slug.is_some();
 
     // Collect all theme slugs for the "Feel Lucky" random pick
     let all_slugs: Vec<String> = all_themes.iter().map(|t| theme_slug(&t.name)).collect();
@@ -205,12 +167,10 @@ pub fn Sidebar() -> Element {
                     onclick: move |_| sidebar_open.set(SidebarOpen(false)),
                     "Browse Themes"
                 }
-                if has_shortlist {
-                    Link {
-                        to: Route::CompareThemes { provider: provider.clone(), slugs: compare_url.clone() },
-                        class: if is_compare_active { "sidebar-nav-link active" } else { "sidebar-nav-link" },
-                        onclick: move |_| sidebar_open.set(SidebarOpen(false)),
-                        "{compare_label}"
+                if is_compare_active {
+                    span {
+                        class: "sidebar-nav-link active",
+                        "Side by Side"
                     }
                 } else {
                     button {
@@ -218,7 +178,7 @@ pub fn Sidebar() -> Element {
                         onclick: move |_| {
                             sidebar_open.set(SidebarOpen(false));
                             if all_slugs.len() >= 2 {
-                                // Pick a random theme different from current app theme
+                                // Pick random themes for compare
                                 let current = app_theme.read().0.clone();
                                 let candidates: Vec<&String> = all_slugs.iter()
                                     .filter(|s| current.as_deref() != Some(s.as_str()))
@@ -227,16 +187,6 @@ pub fn Sidebar() -> Element {
                                 let idx = random_index(candidates.len());
                                 let random_slug = candidates[idx].clone();
 
-                                // Add to shortlist
-                                {
-                                    let mut sel = shortlist.write();
-                                    if !sel.0.contains(&random_slug) {
-                                        sel.0.insert(0, random_slug.clone());
-                                        sel.0.truncate(MAX_SHORTLIST);
-                                    }
-                                }
-
-                                // Compare: current app theme + random (or two randoms if no app theme)
                                 let compare = if let Some(ref cur) = current {
                                     format!("{},{}", cur, random_slug)
                                 } else {
@@ -248,16 +198,16 @@ pub fn Sidebar() -> Element {
                                 nav.push(Route::CompareThemes { provider: p, slugs: compare });
                             }
                         },
-                        "{compare_label}"
+                        "Feel Lucky"
                     }
                 }
             }
 
-            // Shortlist
-            if show_shortlist {
-                div { class: "sidebar-section sidebar-shortlist",
-                    div { class: "sidebar-section-label", "Shortlist ({compare_slugs.len()})" }
-                    div { class: "sidebar-shortlist-items",
+            // Favorites
+            if show_favorites {
+                div { class: "sidebar-section sidebar-favorites",
+                    div { class: "sidebar-section-label", "Favorites ({sl_count})" }
+                    div { class: "sidebar-favorites-items",
                         // Pinned app theme entry
                         if let Some(ref app_s) = app_slug {
                             {
@@ -268,12 +218,12 @@ pub fn Sidebar() -> Element {
                                 let is_viewing = detail_slug.as_deref() == Some(app_s.as_str());
                                 rsx! {
                                     div {
-                                        class: if is_viewing { "sidebar-shortlist-item sidebar-shortlist-current sidebar-shortlist-viewing" } else { "sidebar-shortlist-item sidebar-shortlist-current" },
+                                        class: if is_viewing { "sidebar-favorites-item sidebar-favorites-current sidebar-favorites-viewing" } else { "sidebar-favorites-item sidebar-favorites-current" },
                                         Link {
                                             to: Route::ThemeDetail { provider: provider.clone(), slug: app_s.clone() },
-                                            class: "sidebar-shortlist-name-link",
+                                            class: "sidebar-favorites-name-link",
                                             onclick: move |_| sidebar_open.set(SidebarOpen(false)),
-                                            span { class: "sidebar-shortlist-name", "{name}" }
+                                            span { class: "sidebar-favorites-name", "{name}" }
                                         }
                                         span { class: "sidebar-current-badge", "current" }
                                     }
@@ -292,37 +242,18 @@ pub fn Sidebar() -> Element {
                                 let slug_link = slug.clone();
                                 rsx! {
                                     div {
-                                        class: if is_viewing { "sidebar-shortlist-item sidebar-shortlist-viewing" } else { "sidebar-shortlist-item" },
+                                        class: if is_viewing { "sidebar-favorites-item sidebar-favorites-viewing" } else { "sidebar-favorites-item" },
                                         Link {
                                             to: Route::ThemeDetail { provider: provider.clone(), slug: slug_link },
-                                            class: "sidebar-shortlist-name-link",
+                                            class: "sidebar-favorites-name-link",
                                             onclick: move |_| sidebar_open.set(SidebarOpen(false)),
-                                            span { class: "sidebar-shortlist-name", "{name}" }
+                                            span { class: "sidebar-favorites-name", "{name}" }
                                         }
                                         button {
-                                            class: "sidebar-shortlist-remove",
-                                            title: "Remove from shortlist",
+                                            class: "sidebar-favorites-remove",
+                                            title: "Remove from favorites",
                                             onclick: move |_| {
-                                                shortlist.write().0.retain(|s| s != &slug_remove);
-                                                if is_compare_active {
-                                                    let sl = shortlist.read().clone();
-                                                    let app_s = app_theme.read().0.clone();
-                                                    let mut new_slugs: Vec<String> = Vec::new();
-                                                    if let Some(ref s) = app_s {
-                                                        new_slugs.push(s.clone());
-                                                    }
-                                                    for s in &sl.0 {
-                                                        if !new_slugs.contains(s) {
-                                                            new_slugs.push(s.clone());
-                                                        }
-                                                    }
-                                                    let p = active_provider.read().0.clone();
-                                                    if new_slugs.len() >= 2 {
-                                                        nav.replace(Route::CompareThemes { provider: p, slugs: new_slugs.join(",") });
-                                                    } else {
-                                                        nav.replace(Route::ThemeList { provider: p });
-                                                    }
-                                                }
+                                                favorites.write().0.retain(|s| s != &slug_remove);
                                             },
                                             "\u{00d7}"
                                         }
@@ -332,16 +263,12 @@ pub fn Sidebar() -> Element {
                         }
                     }
 
-                    div { class: "sidebar-shortlist-actions",
+                    div { class: "sidebar-favorites-actions",
                         if sl_count > 0 {
                             button {
                                 class: "sidebar-clear-btn",
                                 onclick: move |_| {
-                                    shortlist.write().0.clear();
-                                    if is_compare_active {
-                                        let p = active_provider.read().0.clone();
-                                        nav.replace(Route::ThemeList { provider: p });
-                                    }
+                                    favorites.write().0.clear();
                                 },
                                 "Clear"
                             }
@@ -359,7 +286,7 @@ pub fn Sidebar() -> Element {
                             .iter()
                             .map(|f| (f.id.clone(), f.name.clone()))
                             .collect(),
-                        show_badges: matches!(current_route, Route::ThemeDetail { .. }),
+                        show_badges: true,
                     }
                 }
             }

@@ -45,7 +45,7 @@ pub fn ThemeDetail(provider: String, slug: String) -> Element {
             );
             let readability = litmus_model::contrast::term_readability_score(&theme, all_fixtures) as u8;
 
-            let mut shortlist = use_context::<Signal<Shortlist>>();
+            let mut favorites = use_context::<Signal<Favorites>>();
             let app_theme = use_context::<Signal<AppThemeSlug>>();
             let is_current_theme = app_theme.read().0.as_deref() == Some(this_slug.as_str());
             let detail_slug = this_slug.clone();
@@ -149,11 +149,11 @@ pub fn ThemeDetail(provider: String, slug: String) -> Element {
                         match evt.key() {
                             Key::Character(ref c) if c == "c" => {
                                 if !is_current_theme {
-                                    let mut sel = shortlist.write();
+                                    let mut sel = favorites.write();
                                     if let Some(pos) = sel.0.iter().position(|s| s == &detail_slug) {
                                         sel.0.remove(pos);
                                     } else {
-                                        if sel.0.len() >= MAX_SHORTLIST {
+                                        if sel.0.len() >= MAX_FAVORITES {
                                             sel.0.remove(0);
                                         }
                                         sel.0.push(detail_slug.clone());
@@ -183,7 +183,7 @@ pub fn ThemeDetail(provider: String, slug: String) -> Element {
                                 "{issue_count} contrast issue(s)"
                             }
                         }
-                        ShortlistCheckbox { slug: this_slug.clone(), name: theme.name.clone() }
+                        FavoritesCheckbox { slug: this_slug.clone(), name: theme.name.clone() }
                         UseAsAppThemeButton { slug: this_slug.clone() }
 
                         if issue_count > 0 {

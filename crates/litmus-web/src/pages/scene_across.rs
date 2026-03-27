@@ -49,7 +49,7 @@ pub fn SceneAcrossThemes(provider: String, scene_id: String) -> Element {
                                                 class: "accent-link scene-grid-theme-name",
                                                 "{theme.name}"
                                             }
-                                            ShortlistToggle {
+                                            FavoritesToggle {
                                                 slug: theme_slug(&theme.name),
                                                 name: theme.name.clone(),
                                             }

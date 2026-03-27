@@ -296,20 +296,20 @@ button.sidebar-feel-lucky:hover {
   color: var(--app-accent);
 }
 
-/* Sidebar shortlist */
-.sidebar-shortlist {
+/* Sidebar favorites */
+.sidebar-favorites {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.sidebar-shortlist-items {
+.sidebar-favorites-items {
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
 }
 
-.sidebar-shortlist-item {
+.sidebar-favorites-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -317,28 +317,28 @@ button.sidebar-feel-lucky:hover {
   font-size: 0.8rem;
 }
 
-.sidebar-shortlist-name {
+.sidebar-favorites-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.sidebar-shortlist-name-link {
+.sidebar-favorites-name-link {
   text-decoration: none;
   color: inherit;
   min-width: 0;
   overflow: hidden;
 }
 
-.sidebar-shortlist-name-link:hover .sidebar-shortlist-name {
+.sidebar-favorites-name-link:hover .sidebar-favorites-name {
   text-decoration: underline;
 }
 
-.sidebar-shortlist-current {
+.sidebar-favorites-current {
   opacity: 0.9;
 }
 
-.sidebar-shortlist-viewing {
+.sidebar-favorites-viewing {
   background: var(--app-active);
   border-radius: 0.25rem;
   padding: 0.2rem 0.4rem;
@@ -357,7 +357,7 @@ button.sidebar-feel-lucky:hover {
   flex-shrink: 0;
 }
 
-.sidebar-shortlist-remove {
+.sidebar-favorites-remove {
   background: none;
   border: none;
   color: var(--app-muted);
@@ -368,17 +368,17 @@ button.sidebar-feel-lucky:hover {
   flex-shrink: 0;
 }
 
-.sidebar-shortlist-remove:hover {
+.sidebar-favorites-remove:hover {
   color: var(--app-error);
 }
 
-.sidebar-shortlist-actions {
+.sidebar-favorites-actions {
   display: flex;
   gap: 0.4rem;
   align-items: center;
 }
 
-.sidebar-shortlist-hint {
+.sidebar-favorites-hint {
   font-size: 0.7rem;
   color: var(--app-muted);
 }
@@ -1061,9 +1061,9 @@ button.sidebar-feel-lucky:hover {
 }
 
 /* ==========================================================================
-   Shortlist toggle button (on cards / detail)
+   Favorites toggle button (on cards / detail)
    ========================================================================== */
-.shortlist-toggle {
+.favorites-toggle {
   font-size: 0.65rem;
   padding: 0.15rem 0.45rem;
   border: 1px solid var(--app-border);
@@ -1077,25 +1077,25 @@ button.sidebar-feel-lucky:hover {
   transition: opacity 0.15s ease, background 0.15s ease;
 }
 
-.shortlist-toggle:hover {
+.favorites-toggle:hover {
   opacity: 1;
   background: var(--app-hover);
 }
 
-.shortlist-toggle-active {
+.favorites-toggle-active {
   opacity: 1;
   background: var(--app-active);
   border-color: var(--app-accent);
   color: var(--app-accent);
 }
 
-.shortlist-toggle-disabled {
+.favorites-toggle-disabled {
   opacity: 0.4;
   cursor: default;
 }
 
-/* Shortlist checkbox (on cards) */
-.shortlist-checkbox {
+/* Favorites checkbox (on cards) */
+.favorites-checkbox {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -1105,25 +1105,25 @@ button.sidebar-feel-lucky:hover {
   opacity: 0.7;
 }
 
-.shortlist-checkbox:hover {
+.favorites-checkbox:hover {
   opacity: 1;
 }
 
-.shortlist-checkbox-active {
+.favorites-checkbox-active {
   opacity: 1;
   color: var(--app-accent);
 }
 
-.shortlist-checkbox-disabled {
+.favorites-checkbox-disabled {
   opacity: 0.4;
   cursor: default;
 }
 
-.shortlist-checkbox-disabled input[type="checkbox"] {
+.favorites-checkbox-disabled input[type="checkbox"] {
   cursor: default;
 }
 
-.shortlist-checkbox input[type="checkbox"] {
+.favorites-checkbox input[type="checkbox"] {
   accent-color: var(--app-accent);
   cursor: pointer;
 }
@@ -1449,9 +1449,9 @@ button.sidebar-feel-lucky:hover {
 .scene-tab:focus-visible,
 .export-btn:focus-visible,
 .export-copy-btn:focus-visible,
-.shortlist-toggle:focus-visible,
+.favorites-toggle:focus-visible,
 .use-as-app-theme-btn:focus-visible,
-.sidebar-shortlist-remove:focus-visible,
+.sidebar-favorites-remove:focus-visible,
 .sidebar-compare-btn:focus-visible,
 .sidebar-clear-btn:focus-visible,
 .hamburger-btn:focus-visible,
@@ -1803,7 +1803,7 @@ select:focus-visible {
   .filter-btn,
   .scene-tab,
   .export-btn,
-  .shortlist-toggle,
+  .favorites-toggle,
   .use-as-app-theme-btn {
     min-height: 44px;
     min-width: 44px;

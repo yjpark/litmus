@@ -157,21 +157,21 @@ pub fn ColorSwatch(label: String, color: String) -> Element {
     }
 }
 
-/// Checkbox to add/remove a theme from the shortlist (used on cards).
+/// Checkbox to add/remove a theme from the favorites (used on cards).
 #[component]
-pub fn ShortlistCheckbox(slug: String, name: String) -> Element {
-    let mut shortlist = use_context::<Signal<Shortlist>>();
+pub fn FavoritesCheckbox(slug: String, name: String) -> Element {
+    let mut favorites = use_context::<Signal<Favorites>>();
     let app_theme = use_context::<Signal<AppThemeSlug>>();
     let is_current = app_theme.read().0.as_deref() == Some(&slug);
-    let is_selected = shortlist.read().0.contains(&slug);
+    let is_selected = favorites.read().0.contains(&slug);
 
     let slug_for_click = slug.clone();
     rsx! {
         label {
             class: {
-                let mut cls = String::from("shortlist-checkbox");
-                if is_current { cls.push_str(" shortlist-checkbox-disabled"); }
-                else if is_selected { cls.push_str(" shortlist-checkbox-active"); }
+                let mut cls = String::from("favorites-checkbox");
+                if is_current { cls.push_str(" favorites-checkbox-disabled"); }
+                else if is_selected { cls.push_str(" favorites-checkbox-active"); }
                 cls
             },
             onclick: move |evt: Event<MouseData>| {
@@ -182,51 +182,51 @@ pub fn ShortlistCheckbox(slug: String, name: String) -> Element {
                 checked: is_selected || is_current,
                 disabled: is_current,
                 onchange: move |_| {
-                    let mut sel = shortlist.write();
+                    let mut sel = favorites.write();
                     if let Some(pos) = sel.0.iter().position(|s| s == &slug_for_click) {
                         sel.0.remove(pos);
                     } else {
-                        if sel.0.len() >= MAX_SHORTLIST {
+                        if sel.0.len() >= MAX_FAVORITES {
                             sel.0.remove(0);
                         }
                         sel.0.push(slug_for_click.clone());
                     }
                 },
             }
-            span { if is_current { "Current" } else { "Shortlist" } }
+            span { if is_current { "Current" } else { "\u{2606}" } }
         }
     }
 }
 
-/// Button to add/remove a theme from the shortlist (used on detail page).
+/// Button to add/remove a theme from the favorites (used on detail page).
 #[component]
-pub fn ShortlistToggle(slug: String, name: String) -> Element {
-    let mut shortlist = use_context::<Signal<Shortlist>>();
+pub fn FavoritesToggle(slug: String, name: String) -> Element {
+    let mut favorites = use_context::<Signal<Favorites>>();
     let app_theme = use_context::<Signal<AppThemeSlug>>();
     let is_current = app_theme.read().0.as_deref() == Some(&slug);
-    let is_selected = shortlist.read().0.contains(&slug);
+    let is_selected = favorites.read().0.contains(&slug);
 
     let slug_for_click = slug.clone();
     rsx! {
         button {
             class: {
-                let mut cls = String::from("shortlist-toggle");
-                if is_current { cls.push_str(" shortlist-toggle-disabled"); }
-                else if is_selected { cls.push_str(" shortlist-toggle-active"); }
+                let mut cls = String::from("favorites-toggle");
+                if is_current { cls.push_str(" favorites-toggle-disabled"); }
+                else if is_selected { cls.push_str(" favorites-toggle-active"); }
                 cls
             },
             aria_pressed: if is_selected || is_current { "true" } else { "false" },
             disabled: is_current,
             onclick: move |evt: Event<MouseData>| {
                 evt.stop_propagation();
-                let mut sel = shortlist.write();
+                let mut sel = favorites.write();
                 if let Some(pos) = sel.0.iter().position(|s| s == &slug_for_click) {
                     sel.0.remove(pos);
-                } else if sel.0.len() < MAX_SHORTLIST {
+                } else if sel.0.len() < MAX_FAVORITES {
                     sel.0.push(slug_for_click.clone());
                 }
             },
-            if is_current { "Current" } else if is_selected { "Shortlisted" } else { "+ Shortlist" }
+            if is_current { "Current" } else if is_selected { "\u{2605} Favorited" } else { "\u{2606} Favorite" }
         }
     }
 }
@@ -235,7 +235,7 @@ pub fn ShortlistToggle(slug: String, name: String) -> Element {
 #[component]
 pub fn UseAsAppThemeButton(slug: String) -> Element {
     let mut app_theme = use_context::<Signal<AppThemeSlug>>();
-    let mut shortlist = use_context::<Signal<Shortlist>>();
+    let mut favorites = use_context::<Signal<Favorites>>();
     let is_active = app_theme.read().0.as_deref() == Some(&slug);
 
     let slug_for_click = slug.clone();
@@ -247,14 +247,14 @@ pub fn UseAsAppThemeButton(slug: String) -> Element {
                 if is_active {
                     app_theme.set(AppThemeSlug(None));
                 } else {
-                    // Push the previous app theme to the top of shortlist
+                    // Push the previous app theme to the top of favorites
                     if let Some(prev) = app_theme.read().0.clone() {
-                        let mut sel = shortlist.write();
-                        // Remove if already in shortlist (we'll re-insert at front)
+                        let mut sel = favorites.write();
+                        // Remove if already in favorites (we'll re-insert at front)
                         sel.0.retain(|s| s != &prev);
                         sel.0.insert(0, prev);
                         // Trim to max
-                        sel.0.truncate(MAX_SHORTLIST);
+                        sel.0.truncate(MAX_FAVORITES);
                     }
                     app_theme.set(AppThemeSlug(Some(slug_for_click.clone())));
                 }
