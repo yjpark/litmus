@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-03-27
+
 ### Added
 - Side-by-side compare: strict 2-theme layout with inline theme pickers
 - Compare button on theme cards and detail page for quick comparisons
