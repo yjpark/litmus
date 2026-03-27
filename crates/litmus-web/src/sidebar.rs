@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::components::{GitHubStars, SceneMinimap};
+use crate::components::{FavoritesCheckbox, GitHubStars, SceneMinimap};
 use crate::state::*;
 use crate::themes;
 use crate::Route;
@@ -57,6 +57,38 @@ pub fn Sidebar() -> Element {
             .map(|s| s.to_string())
             .collect(),
         _ => Vec::new(),
+    };
+
+    // History: last visited non-favorite detail themes
+    let visit_history = use_context::<Signal<VisitHistory>>();
+    let history_items: Vec<(String, String)> = {
+        let history = visit_history.read();
+        let fav_set: std::collections::HashSet<&str> = sl.0.iter().map(|s| s.as_str()).collect();
+        history.0.iter()
+            .filter(|s| !fav_set.contains(s.as_str()) && app_slug.as_deref() != Some(s.as_str()))
+            .take(MAX_HISTORY)
+            .map(|slug| {
+                let name = all_themes.iter()
+                    .find(|t| theme_slug(&t.name) == *slug)
+                    .map(|t| t.name.clone())
+                    .unwrap_or_else(|| slug.clone());
+                (slug.clone(), name)
+            })
+            .collect()
+    };
+    let show_history = !history_items.is_empty();
+
+    // "vs." button: show last compared theme name, or "Feel Lucky" if none
+    let last_compared = use_context::<Signal<LastComparedSlug>>();
+    let vs_label: String = match last_compared.read().0.as_deref() {
+        Some(slug) => {
+            let name = all_themes.iter()
+                .find(|t| theme_slug(&t.name) == slug)
+                .map(|t| t.name.clone())
+                .unwrap_or_else(|| slug.to_string());
+            format!("vs. {name}")
+        }
+        None => "Feel Lucky".to_string(),
     };
 
     rsx! {
@@ -177,9 +209,19 @@ pub fn Sidebar() -> Element {
                         class: "sidebar-nav-link sidebar-feel-lucky",
                         onclick: move |_| {
                             sidebar_open.set(SidebarOpen(false));
+                            let current = app_theme.read().0.clone();
+                            // If we have a last-compared slug, go directly there
+                            if let Some(ref last) = last_compared.read().0 {
+                                let app_s = current.as_deref().unwrap_or("tokyo-night");
+                                let p = active_provider.read().0.clone();
+                                nav.push(Route::CompareThemes {
+                                    provider: p,
+                                    slugs: format!("{},{}", app_s, last),
+                                });
+                                return;
+                            }
+                            // Otherwise random "Feel Lucky"
                             if all_slugs.len() >= 2 {
-                                // Pick random themes for compare
-                                let current = app_theme.read().0.clone();
                                 let candidates: Vec<&String> = all_slugs.iter()
                                     .filter(|s| current.as_deref() != Some(s.as_str()))
                                     .collect();
@@ -198,7 +240,7 @@ pub fn Sidebar() -> Element {
                                 nav.push(Route::CompareThemes { provider: p, slugs: compare });
                             }
                         },
-                        "Feel Lucky"
+                        "{vs_label}"
                     }
                 }
             }
@@ -238,8 +280,8 @@ pub fn Sidebar() -> Element {
                                     .map(|t| t.name.clone())
                                     .unwrap_or_else(|| slug.clone());
                                 let is_viewing = detail_slug.as_deref() == Some(slug.as_str());
-                                let slug_remove = slug.clone();
                                 let slug_link = slug.clone();
+                                let slug_vs = slug.clone();
                                 rsx! {
                                     div {
                                         class: if is_viewing { "sidebar-favorites-item sidebar-favorites-viewing" } else { "sidebar-favorites-item" },
@@ -249,13 +291,17 @@ pub fn Sidebar() -> Element {
                                             onclick: move |_| sidebar_open.set(SidebarOpen(false)),
                                             span { class: "sidebar-favorites-name", "{name}" }
                                         }
-                                        button {
-                                            class: "sidebar-favorites-remove",
-                                            title: "Remove from favorites",
-                                            onclick: move |_| {
-                                                favorites.write().0.retain(|s| s != &slug_remove);
-                                            },
-                                            "\u{00d7}"
+                                        span { class: "sidebar-item-actions",
+                                            Link {
+                                                class: "sidebar-vs-btn",
+                                                to: Route::CompareThemes {
+                                                    provider: provider.clone(),
+                                                    slugs: format!("{},{}", app_slug.as_deref().unwrap_or("tokyo-night"), slug_vs),
+                                                },
+                                                onclick: move |_| sidebar_open.set(SidebarOpen(false)),
+                                                "vs"
+                                            }
+                                            FavoritesCheckbox { slug: slug.clone(), name: name.clone() }
                                         }
                                     }
                                 }
@@ -271,6 +317,47 @@ pub fn Sidebar() -> Element {
                                     favorites.write().0.clear();
                                 },
                                 "Clear"
+                            }
+                        }
+                    }
+                }
+            }
+
+            // History: last visited non-favorite detail themes
+            if show_history {
+                div { class: "sidebar-section sidebar-history",
+                    div { class: "sidebar-section-label", "History" }
+                    div { class: "sidebar-favorites-items",
+                        for (slug, name) in &history_items {
+                            {
+                                let is_viewing = detail_slug.as_deref() == Some(slug.as_str());
+                                let slug_link = slug.clone();
+                                let slug_vs = slug.clone();
+                                let slug_fav = slug.clone();
+                                let name_fav = name.clone();
+                                rsx! {
+                                    div {
+                                        class: if is_viewing { "sidebar-favorites-item sidebar-favorites-viewing" } else { "sidebar-favorites-item" },
+                                        Link {
+                                            to: Route::ThemeDetail { provider: provider.clone(), slug: slug_link },
+                                            class: "sidebar-favorites-name-link",
+                                            onclick: move |_| sidebar_open.set(SidebarOpen(false)),
+                                            span { class: "sidebar-favorites-name", "{name}" }
+                                        }
+                                        span { class: "sidebar-item-actions",
+                                            Link {
+                                                class: "sidebar-vs-btn",
+                                                to: Route::CompareThemes {
+                                                    provider: provider.clone(),
+                                                    slugs: format!("{},{}", app_slug.as_deref().unwrap_or("tokyo-night"), slug_vs),
+                                                },
+                                                onclick: move |_| sidebar_open.set(SidebarOpen(false)),
+                                                "vs"
+                                            }
+                                            FavoritesCheckbox { slug: slug_fav, name: name_fav }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

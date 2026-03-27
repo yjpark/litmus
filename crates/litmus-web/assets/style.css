@@ -313,8 +313,9 @@ button.sidebar-feel-lucky:hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.2rem 0;
+  padding: 0.2rem 0.4rem;
   font-size: 0.8rem;
+  border-radius: 0.25rem;
 }
 
 .sidebar-favorites-name {
@@ -340,8 +341,6 @@ button.sidebar-feel-lucky:hover {
 
 .sidebar-favorites-viewing {
   background: var(--app-active);
-  border-radius: 0.25rem;
-  padding: 0.2rem 0.4rem;
   color: var(--app-accent);
 }
 
@@ -357,19 +356,29 @@ button.sidebar-feel-lucky:hover {
   flex-shrink: 0;
 }
 
-.sidebar-favorites-remove {
-  background: none;
-  border: none;
-  color: var(--app-muted);
-  cursor: pointer;
-  font-size: 0.9rem;
-  padding: 0 0.25rem;
-  line-height: 1;
+.sidebar-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
   flex-shrink: 0;
 }
 
-.sidebar-favorites-remove:hover {
-  color: var(--app-error);
+.sidebar-vs-btn {
+  font-size: 0.6rem;
+  padding: 0.05rem 0.3rem;
+  border: 1px solid var(--app-border);
+  border-radius: 0.2rem;
+  background: transparent;
+  color: var(--app-muted);
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  line-height: 1.2;
+}
+
+.sidebar-vs-btn:hover {
+  border-color: var(--app-accent);
+  color: var(--app-accent);
 }
 
 .sidebar-favorites-actions {
@@ -383,23 +392,6 @@ button.sidebar-feel-lucky:hover {
   color: var(--app-muted);
 }
 
-.sidebar-compare-btn {
-  font-size: var(--font-size-sm);
-  padding: 0.3rem 0.6rem;
-  background: var(--app-accent);
-  color: var(--app-bg);
-  border: none;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: bold;
-  text-decoration: none;
-  text-align: center;
-}
-
-.sidebar-compare-btn:hover {
-  filter: brightness(1.1);
-}
 
 .sidebar-clear-btn {
   font-size: var(--font-size-sm);
@@ -1098,7 +1090,7 @@ button.sidebar-feel-lucky:hover {
 .favorites-star {
   background: none;
   border: none;
-  font-size: 1rem;
+  font-size: 1.25rem;
   cursor: pointer;
   color: var(--app-fg);
   opacity: 0.5;
@@ -1489,8 +1481,8 @@ button.sidebar-feel-lucky:hover {
 .export-copy-btn:focus-visible,
 .favorites-toggle:focus-visible,
 .use-as-app-theme-btn:focus-visible,
-.sidebar-favorites-remove:focus-visible,
-.sidebar-compare-btn:focus-visible,
+.sidebar-vs-btn:focus-visible,
+.favorites-star:focus-visible,
 .sidebar-clear-btn:focus-visible,
 .hamburger-btn:focus-visible,
 .theme-card:focus-visible,

@@ -161,6 +161,7 @@ pub fn ColorSwatch(label: String, color: String) -> Element {
 #[component]
 pub fn FavoritesCheckbox(slug: String, name: String) -> Element {
     let mut favorites = use_context::<Signal<Favorites>>();
+    let mut visit_history = use_context::<Signal<VisitHistory>>();
     let app_theme = use_context::<Signal<AppThemeSlug>>();
     let is_current = app_theme.read().0.as_deref() == Some(&slug);
     let is_selected = favorites.read().0.contains(&slug);
@@ -176,6 +177,12 @@ pub fn FavoritesCheckbox(slug: String, name: String) -> Element {
                 let mut sel = favorites.write();
                 if let Some(pos) = sel.0.iter().position(|s| s == &slug_for_click) {
                     sel.0.remove(pos);
+                    // Move unstarred theme to top of history
+                    drop(sel);
+                    let mut h = visit_history.write();
+                    h.0.retain(|s| s != &slug_for_click);
+                    h.0.insert(0, slug_for_click.clone());
+                    h.0.truncate(MAX_HISTORY);
                 } else {
                     if sel.0.len() >= MAX_FAVORITES {
                         sel.0.remove(0);

@@ -52,6 +52,20 @@ pub fn ThemeDetail(provider: String, slug: String) -> Element {
             let manifest_state = use_context::<Signal<ManifestState>>();
             let cur_provider = active_provider.read().0.clone();
 
+            // Record visit in history (most recent first, dedup, cap at MAX_HISTORY)
+            let mut visit_history = use_context::<Signal<VisitHistory>>();
+            {
+                let slug_for_history = this_slug.clone();
+                let hist = visit_history.read();
+                if hist.0.first() != Some(&slug_for_history) {
+                    drop(hist);
+                    let mut h = visit_history.write();
+                    h.0.retain(|s| s != &slug_for_history);
+                    h.0.insert(0, slug_for_history);
+                    h.0.truncate(MAX_HISTORY);
+                }
+            }
+
             // Active issue for click-to-cycle: (rule_id, fixture_cycle_index)
             let mut active_issue: Signal<Option<(String, usize)>> = use_signal(|| None);
 

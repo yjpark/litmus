@@ -82,6 +82,17 @@ impl Default for ActiveProvider {
     }
 }
 
+/// Recently visited theme slugs (for sidebar history).
+/// Stores up to MAX_HISTORY slugs, most recent first.
+pub const MAX_HISTORY: usize = 5;
+
+#[derive(Clone, Default)]
+pub struct VisitHistory(pub Vec<String>);
+
+/// Last compared theme slug (the non-app-theme side), for "vs. <name>" in sidebar.
+#[derive(Clone, Default)]
+pub struct LastComparedSlug(pub Option<String>);
+
 /// Transient alert message shown in the main content area.
 #[derive(Clone, Default)]
 pub struct AlertMessage(pub Option<String>);
