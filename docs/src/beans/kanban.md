@@ -1,1 +1,1 @@
-{{#beans-kanban}}
+{{#beans-active-tasks}}
