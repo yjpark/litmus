@@ -9,9 +9,16 @@
       url = "github:nix-community/fenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    mdbook-beans = {
+      url = "github:edger-dev/mdbook-beans";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+      inputs.crane.follows = "crane";
+      inputs.fenix.follows = "fenix";
+    };
   };
 
-  outputs = { self, nixpkgs, flake-utils, crane, fenix }:
+  outputs = { self, nixpkgs, flake-utils, crane, fenix, mdbook-beans }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
@@ -75,6 +82,7 @@
             pkgs.kitty            # Kitty terminal (requires real display with OpenGL)
             pkgs.fira-code
             pkgs.mdbook
+            mdbook-beans.packages.${system}.default
             pkgs.bacon
             pkgs.rclone          # S3-compatible sync for R2 screenshot uploads
           ];
