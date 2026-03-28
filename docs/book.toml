@@ -14,4 +14,3 @@ additional-css = ["src/beans-sidebar.css"]
 
 [preprocessor.beans]
 command = "mdbook-beans"
-optional = true
