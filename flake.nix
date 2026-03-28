@@ -10,7 +10,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     mdbook-beans = {
-      url = "github:edger-dev/mdbook-beans";
+      url = "github:edger-dev/mdbook-beans/main";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
       inputs.crane.follows = "crane";
