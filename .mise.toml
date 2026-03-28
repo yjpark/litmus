@@ -125,6 +125,10 @@ mise run screenshots-sync
 """
 description = "Build production manifest + sync all screenshots to R2"
 
+[tasks.update-mdbook-beans]
+run = "nix flake update mdbook-beans"
+description = "Update mdbook-beans to latest main"
+
 [tasks.bacon-claude-diagnostics]
 run = "bacon claude-diagnostics"
 description = "Run bacon background checker (exports diagnostics to .bacon-claude-diagnostics)"
