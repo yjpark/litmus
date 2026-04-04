@@ -2,7 +2,7 @@
   description = "litmus — terminal color theme previewer";
 
   inputs = {
-    jig.url = "path:/home/yj/agents/edger/jig";
+    jig.url = "github:edger-dev/jig";
   };
 
   outputs = { self, jig }:
